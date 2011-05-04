@@ -1,0 +1,165 @@
+body {
+  background: #333333;
+  background-image: -moz-linear-gradient(
+    90deg, gray, white
+  );
+
+  font-family: "Arial", sans-serif;
+  font-size: 12pt;
+}
+
+
+
+/*********************************************************\
+|                    main media player                    |
+\*********************************************************/
+
+.media-container {
+  background: #102520;
+  color: #8db6cd;
+
+  float: center;
+  border: 1px solid white;
+  border-radius: 4px;
+}
+
+.progress {
+  width: 50%;
+}
+
+
+
+/*********************************************************\
+|                   individual entries                    |
+\*********************************************************/
+
+.unselected:hover, .song:hover {
+  cursor: pointer;
+}
+
+.dummy {
+  color: white;
+  list-style-type: none;
+  padding: 2px 1em;
+  margin: 2px 1em;
+  margin-left: -2.5em;
+  text-align: center;
+
+  display: -webkit-box;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+}
+
+.selected, .unselected, .song, .playing {
+  margin-left: -2.5em;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  list-style-type: none;
+  text-overflow: clip;
+
+  border-radius: 1em;
+  border: 1px solid black;
+  padding-left: 5px;
+  height: 1em;
+
+  margin-bottom: -1px;
+}
+
+.song, .unselected {
+  background-image: -webkit-gradient(
+    linear, left bottom, left top,
+    from(gray), to(white)
+  );
+  background: -moz-linear-gradient(90deg, gray, white);
+
+  color: #e0ffff;
+  border-color: #e0ffff;
+  background: black;
+}
+
+.selected, .playing {
+  background-image: -webkit-gradient(
+    linear, left top, left bottom,
+    from(white), to(blue)
+  );
+  background: -moz-linear-gradient(90deg, white, blue);
+
+  color: #8db6cd;
+  border-color: #8db6cd;
+  background: #102520;
+}
+
+
+
+/*********************************************************\
+|                   individual elements                   |
+\*********************************************************/
+
+.title {
+  padding-bottom: 1em;
+}
+
+.header {
+  color: #8db6cd;
+  float: top;
+  text-align: center;
+  padding: 2px;
+  margin: 0px 0em;
+}
+
+.playlist-container, .song-container {
+  background: #102520;
+  border: 1px solid white;
+  border-top: none;
+  border-radius: 1em;
+  min-width: 200px;
+  margin: -1px 5px;  /* lines-up with media-container */
+}
+
+.playlist-container {
+  float: left;
+}
+
+.song-container {
+  float: right;
+}
+
+.playlists, .songs {
+  background: #102520;
+
+  overflow-x: hidden;
+  overflow-y: scroll;
+
+  margin: 0px -1px -1px -1px;
+
+  height: 20em;
+  border: 1px solid white;
+}
+
+.playlist-container {
+  max-width: 260px;
+}
+
+.song-container {
+  /* JS handles this. */
+  /* max-width: 400px; */
+}
+
+#selected.song, #selected.unselected {
+  color: #36648b;
+  background: white;
+}
+
+#selected.playing, #selected.selected {
+  background-image: -webkit-gradient(
+    linear, left bottom, left top,
+    from(white), to(black)
+  );
+  background: -moz-linear-gradient(90deg, black, #102520);
+}
+
+.controls {
+  cursor: pointer;
+}

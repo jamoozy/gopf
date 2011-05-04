@@ -1,0 +1,14 @@
+Desired features:
+  - When shuffle active, start with random song (currently first)
+  - Better colorscheme (currently gvim darkocean)
+    * Also radio buttons (or equiv) along top (or somewhere) that change the style.
+  - GET params that queue up a playlist and song.
+  - Hover/click something for list of controls.
+  - Songs list expands horizontally with available space.
+  - Songs and Playlists tabs can be "minimized" by clicking on them.
+
+"Features":
+  - audio.js doesn't keep track of the playlist, so switching away has undefined behavior.
+
+Known bugs:
+  - ensureSelectedVisible() is wonky, I think.  Keyboard selection doesn't work well on large lists, e.g., "Classical"

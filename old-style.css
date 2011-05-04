@@ -1,0 +1,143 @@
+body {
+  background: black;
+  background: -moz-linear-gradient(90deg, gray, white);
+}
+
+
+
+/*********************************************************\
+|                    main media player                    |
+\*********************************************************/
+
+.media-container {
+  background: blue;
+  font-family: Arial, sans-serif;
+  color: yellow;
+
+  float: center;
+  margin-bottom: 1em;
+  border: 1px solid black;
+  border-radius: 4px;
+}
+
+
+
+/*********************************************************\
+|                   individual entries                    |
+\*********************************************************/
+
+.unselected:hover, .song:hover {
+  cursor: pointer;
+}
+
+.dummy {
+  list-style-type: none;
+  padding: 2px 1em;
+  margin: 2px 1em;
+  margin-left: -2.5em;
+  text-align: center;
+
+  display: -webkit-box;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+}
+
+.selected, .unselected, .song, .playing {
+  margin-left: -2.5em;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  list-style-type: none;
+  text-overflow: clip;
+
+  border-radius: 1em;
+  border: 1px solid black;
+  padding-left: 5px;
+  height: 1em;
+}
+
+.song, .unselected {
+  background: -webkit-gradient(linear, left bottom, left top,
+                               from(gray), to(white));
+  background: -moz-linear-gradient(90deg, gray, white);
+}
+
+.selected, .playing {
+  background: -webkit-gradient(linear, left top, left bottom,
+                               from(white), to(blue));
+  background: -moz-linear-gradient(90deg, white, blue);
+}
+
+
+
+/*********************************************************\
+|                   individual elements                   |
+\*********************************************************/
+
+.title {
+  font-family: "Arial", sans-serif;
+  padding-bottom: 1em;
+}
+
+.header {
+  background: -webkit-gradient(linear, left top, lef, bottom,
+                               from(#008aff), to(#00f6ff));
+  float: top;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  padding: 2px;
+  margin: 0px 0em;
+}
+
+.playlist-container, .song-container {
+  background: white;
+  border: 1px solid black;
+  border-radius: 1em;
+  min-width: 200px;
+}
+
+.playlist-container {
+  float: left;
+}
+
+.song-container {
+  float: left;
+}
+
+.playlists, .songs {
+  background: #5a8c4f;
+
+  overflow-x: hidden;
+  overflow-y: scroll;
+
+  margin: 0px -1px -1px -1px;
+
+  height: 20em;
+  border: 1px solid black;
+}
+
+.playlists {
+  width: 200px;
+}
+
+.songs, .playing {
+  max-width: 400px;
+}
+
+#selected.song, #selected.unselected {
+  background: -webkit-gradient(linear, left bottom, left top,
+                               from(gray), to(yellow));
+  background: -moz-linear-gradient(90deg, gray, yellow);
+}
+
+#selected.playing, #selected.selected {
+  background: -webkit-gradient(linear, left bottom, left top,
+                               from(blue), to(yellow));
+  background: -moz-linear-gradient(90deg, blue, yellow);
+}
+
+.controls {
+  cursor: pointer;
+}
+
