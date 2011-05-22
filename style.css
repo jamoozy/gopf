@@ -101,6 +101,10 @@ body {
   padding-bottom: 1em;
 }
 
+.mnemonic {
+  text-decoration: underline;
+}
+
 .header {
   color: #8db6cd;
   float: top;

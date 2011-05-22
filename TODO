@@ -6,9 +6,12 @@ Desired features:
   - Hover/click something for list of controls.
   - Songs list expands horizontally with available space.
   - Songs and Playlists tabs can be "minimized" by clicking on them.
+  - Shift-click selects multiple playlists.
+  - <link> prefetch next song.
 
 "Features":
   - audio.js doesn't keep track of the playlist, so switching away has undefined behavior.
 
 Known bugs:
-  - ensureSelectedVisible() is wonky, I think.  Keyboard selection doesn't work well on large lists, e.g., "Classical"
+  - ensureSelectedVisible() is wonky, I think.  Keyboard selection doesn't work randomly on various arch.'s.
+  - After song selected, previously-selected song still displayed but not played.

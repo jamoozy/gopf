@@ -30,7 +30,9 @@ var audio = (function() {
     var path = elem.getAttribute("path");
     var player = document.getElementById("player");
 
+    var title = document.getElementById("page-title");
     var th = document.getElementById("title-header");
+    title.innerHTML = elem.innerHTML;
     th.innerHTML = '<h1 class="header">Now Playing:</h1>\n' +
                       '<div class="title">' + elem.innerHTML; + "</div>";
 
