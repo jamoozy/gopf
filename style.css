@@ -21,6 +21,8 @@ body {
   float: center;
   border: 1px solid white;
   border-radius: 4px;
+
+  text-align: center;
 }
 
 .progress {
@@ -118,7 +120,6 @@ body {
   border: 1px solid white;
   border-top: none;
   border-radius: 1em;
-  min-width: 200px;
   margin: -1px 5px;  /* lines-up with media-container */
 }
 
@@ -138,17 +139,11 @@ body {
 
   margin: 0px -1px -1px -1px;
 
-  height: 20em;
   border: 1px solid white;
 }
 
 .playlist-container {
   max-width: 260px;
-}
-
-.song-container {
-  /* JS handles this. */
-  /* max-width: 400px; */
 }
 
 #selected.song, #selected.unselected {

@@ -103,10 +103,28 @@ var input = (function() {
 
     // TODO put me somewhere better
     adjustSize : function() {
-      var songs = document.getElementById("song-container");
+      var song_cont = document.getElementById("song-container");
+      var songs = document.getElementById("songs");
+      var song_head = document.getElementById("song-header");
+      var playlist_cont = document.getElementById("playlist-container");
+      var playlists = document.getElementById("playlists");
+      var playlist_head = document.getElementById("playlist-header");
+      var media = document.getElementById("media-container");
+
       var width = window.innerWidth - input.winSongsDiff;
+      var height = window.innerHeight - media.offsetHeight -
+                   media.offsetTop - playlist_cont.offsetLeft;
+
       //notify("resized to " + width);
-      songs.style.maxWidth = width + "px";
+      song_cont.style.maxWidth = width + "px";
+      song_cont.style.maxHeight = height + "px";
+      songs.style.maxHeight = height - song_head.offsetHeight + "px";
+      playlist_cont.style.maxHeight = height + "px";
+      playlists.style.maxHeight = height - playlist_head.offsetHeight + "px";
+      window.console.log(
+          "song_cont.style.maxWidth " + song_cont.style.maxWidth +
+          "\nsong_cont.style.maxHeight " + song_cont.style.maxHeight +
+          "\nplaylist_cont.style.maxHeight " + playlist_cont.style.maxHeight);
     },
 
     swap : function() {
@@ -129,6 +147,7 @@ var input = (function() {
           e.stopPropagation();
           break;
         case 38:  // up
+        case 75:  // k
           prev(1);
           e.stopPropagation();
           break;
@@ -137,10 +156,12 @@ var input = (function() {
           e.stopPropagation();
           break;
         case 40:  // down
+        case 74:  // j
           next(1);
           e.stopPropagation();
           break;
-        case 9:   // tab
+        case 192: // back-tick ("`")
+        case 72:  // h
           input.swap();
           e.stopPropagation();
           break;

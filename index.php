@@ -16,7 +16,7 @@ handle($_SERVER["REMOTE_ADDR"]);
   </head>
   <body onkeydown="input.onkey(event)" onload="input.init()">
 
-    <center class="media-container">
+    <div id="media-container" class="media-container">
       <div id="title-header">
         <h1 class="header">Now Playing:</h1>
         <div class="title">Zelda_64_Pachelbels_Ganon_OC_ReMix</div>
@@ -38,7 +38,7 @@ handle($_SERVER["REMOTE_ADDR"]);
         </input>
         <span id="next" class="controls" onclick="audio.next()">&gt;&gt;</span>
       </div>
-    </center>
+    </div>
 
     <nav id="navigator">
       <div id="playlist-container" class="playlist-container">
