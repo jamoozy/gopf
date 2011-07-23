@@ -82,6 +82,96 @@ var input = (function() {
     }
   }
 
+  function onkey(e) {
+    switch(e.keyCode) {
+      case 33:  // PageUp
+        prev(10);
+        e.stopPropagation();
+        break;
+      case 38:  // up
+      case 75:  // k
+        prev(1);
+        e.stopPropagation();
+        break;
+      case 34:  // PageDown
+        next(10);
+        e.stopPropagation();
+        break;
+      case 40:  // down
+      case 74:  // j
+        next(1);
+        e.stopPropagation();
+        break;
+      case 192: // back-tick ("`")
+      case 72:  // h
+        input.swap();
+        e.stopPropagation();
+        break;
+
+      case 80:  // P
+      case 37:  // left
+        audio.prev();
+        break;
+      case 78:  // N
+      case 39:  // right
+        audio.next();
+        break;
+
+      case 83:  // S
+        document.getElementById("shuf").click();
+        break;
+      case 76:  // L
+        document.getElementById("loop").click();
+        break;
+
+      case 77:  // M
+        var player = document.getElementById("player");
+        player.muted = !player.muted;
+        break;
+      case 32:  // space
+        var player = document.getElementById("player");
+        if (player.paused) {
+          player.play();
+        } else {
+          player.pause();
+        }
+        break;
+      case 13:  // enter
+        var sel = document.getElementById("selected");
+        if (sel !== null && sel !== undefined) {
+          if (input.viewSongs) {
+            audio.onclick(sel);
+          } else {
+            playlist.onclick(sel, true);
+          }
+        }
+        break;
+    }
+  }
+
+  function adjustSize() {
+    var song_cont = document.getElementById("song-container");
+    var songs = document.getElementById("songs");
+    var song_head = document.getElementById("song-header");
+    var playlist_cont = document.getElementById("playlist-container");
+    var playlists = document.getElementById("playlists");
+    var playlist_head = document.getElementById("playlist-header");
+    var media = document.getElementById("media-container");
+    var footer = document.getElementById("footer");
+
+    var width = window.innerWidth - input.winSongsDiff;
+    var height = footer.offsetTop - media.offsetHeight -
+                 media.offsetTop - playlist_cont.offsetLeft;
+
+    //notify("resized to " + width);
+    song_cont.style.maxWidth = width + "px";
+    song_cont.style.maxHeight = height + "px";
+    songs.style.maxHeight = height - song_head.offsetHeight + "px";
+    playlist_cont.style.maxHeight = height + "px";
+    playlists.style.maxHeight = height - playlist_head.offsetHeight + "px";
+  }
+
+
   return {
     viewSongs : false,
 
@@ -96,35 +186,9 @@ var input = (function() {
         }
       }
 
-      // TODO put me somewhere better
-      window.onresize = function(event) { input.adjustSize(); } 
-      input.adjustSize();
-    },
-
-    // TODO put me somewhere better
-    adjustSize : function() {
-      var song_cont = document.getElementById("song-container");
-      var songs = document.getElementById("songs");
-      var song_head = document.getElementById("song-header");
-      var playlist_cont = document.getElementById("playlist-container");
-      var playlists = document.getElementById("playlists");
-      var playlist_head = document.getElementById("playlist-header");
-      var media = document.getElementById("media-container");
-
-      var width = window.innerWidth - input.winSongsDiff;
-      var height = window.innerHeight - media.offsetHeight -
-                   media.offsetTop - playlist_cont.offsetLeft;
-
-      //notify("resized to " + width);
-      song_cont.style.maxWidth = width + "px";
-      song_cont.style.maxHeight = height + "px";
-      songs.style.maxHeight = height - song_head.offsetHeight + "px";
-      playlist_cont.style.maxHeight = height + "px";
-      playlists.style.maxHeight = height - playlist_head.offsetHeight + "px";
-      window.console.log(
-          "song_cont.style.maxWidth " + song_cont.style.maxWidth +
-          "\nsong_cont.style.maxHeight " + song_cont.style.maxHeight +
-          "\nplaylist_cont.style.maxHeight " + playlist_cont.style.maxHeight);
+      window.onresize = function(event) { adjustSize(); } 
+      window.onkeydown = onkey;
+      adjustSize();
     },
 
     swap : function() {
@@ -137,73 +201,6 @@ var input = (function() {
         }
       } else {
         select(document.getElementById("playlists").childNodes[0]);
-      }
-    },
-
-    onkey : function(e) {
-      switch(e.keyCode) {
-        case 33:  // PageUp
-          prev(10);
-          e.stopPropagation();
-          break;
-        case 38:  // up
-        case 75:  // k
-          prev(1);
-          e.stopPropagation();
-          break;
-        case 34:  // PageDown
-          next(10);
-          e.stopPropagation();
-          break;
-        case 40:  // down
-        case 74:  // j
-          next(1);
-          e.stopPropagation();
-          break;
-        case 192: // back-tick ("`")
-        case 72:  // h
-          input.swap();
-          e.stopPropagation();
-          break;
-
-        case 80:  // P
-        case 37:  // left
-          audio.prev();
-          break;
-        case 78:  // N
-        case 39:  // right
-          audio.next();
-          break;
-
-        case 83:  // S
-          document.getElementById("shuf").click();
-          break;
-        case 76:  // L
-          document.getElementById("loop").click();
-          break;
-
-        case 77:  // M
-          var player = document.getElementById("player");
-          player.muted = !player.muted;
-          break;
-        case 32:  // space
-          var player = document.getElementById("player");
-          if (player.paused) {
-            player.play();
-          } else {
-            player.pause();
-          }
-          break;
-        case 13:  // enter
-          var sel = document.getElementById("selected");
-          if (sel !== null && sel !== undefined) {
-            if (input.viewSongs) {
-              audio.onclick(sel);
-            } else {
-              playlist.onclick(sel, true);
-            }
-          }
-          break;
       }
     }
   };

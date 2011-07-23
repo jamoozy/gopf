@@ -14,7 +14,7 @@ handle($_SERVER["REMOTE_ADDR"]);
     <link rel="stylesheet" type="text/css" href="style.css">
     <link id="prefetch" rel="prefetch" href="">
   </head>
-  <body onkeydown="input.onkey(event)" onload="input.init()">
+  <body onload="input.init()">
 
     <div id="media-container" class="media-container">
       <div id="title-header">
@@ -54,5 +54,15 @@ handle($_SERVER["REMOTE_ADDR"]);
       </div>
     </nav>
 
+    <footer id="footer">
+      <div class="name">
+        <a href="http://code.google.com/p/gopf" target="_blank">
+          GOPF: The GNU Online Player Framework
+        </a>
+      </div>
+      <div class="name">
+        Written by <author>Andrew "jamoozy" Correa</author>
+      </div>
+    </footer>
   </body>
 </html>

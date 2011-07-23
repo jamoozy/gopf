@@ -162,3 +162,20 @@ body {
 .controls {
   cursor: pointer;
 }
+
+footer {
+  float: bottom;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+}
+
+footer .name {
+  text-align: right;
+  font-size: 8pt;
+  font-family: Times;
+}
+
+footer .name, .name a:visited, .name a:link {
+  color: #777;
+}
