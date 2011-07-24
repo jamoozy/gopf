@@ -54,6 +54,7 @@ body {
 
 .selected, .unselected, .song, .playing {
   margin-left: -2.5em;
+  padding-right: 0.5em;
 
   overflow: hidden;
   text-overflow: ellipsis;
