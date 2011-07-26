@@ -16,7 +16,7 @@ var audio = (function() {
     var songs = document.getElementById("songs").childNodes;
     if (songs.length > i) {
       return songs[i];
-  } else {
+    } else {
       return null;
     }
   }
