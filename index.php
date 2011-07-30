@@ -10,7 +10,7 @@ handle($_SERVER["REMOTE_ADDR"]);
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title id="page-title">Zelda_64_Pachelbels_Ganon_OC_ReMix</title>
-    <script src="audio.js" type="text/javascript"></script>
+    <script src="media.js" type="text/javascript"></script>
     <script src="playlist.js" type="text/javascript"></script>
     <script src="input.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
