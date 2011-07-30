@@ -8,6 +8,9 @@ Desired features:
   - Songs and Playlists tabs can be "minimized" by clicking on them.
   - Shift-click selects multiple playlists.
   - <link> prefetch next song.
+  - bokaj@: custom queue
+  - bokaj@: shuffle ALL songs
+  - size of songs/playlists too small by 1px.
 
 "Features":
   - audio.js doesn't keep track of the playlist, so switching away has undefined behavior.
