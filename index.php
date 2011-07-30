@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<?php include("list.php"); ?>
-<?php include("mysql.php");
+<?php
+include("list.php");
+include("mysql.php");
+
 handle($_SERVER["REMOTE_ADDR"]);
 ?>
 
@@ -14,7 +16,7 @@ handle($_SERVER["REMOTE_ADDR"]);
     <link rel="stylesheet" type="text/css" href="style.css">
     <link id="prefetch" rel="prefetch" href="">
   </head>
-  <body onload="input.init()">
+  <body>
 
     <div id="media-container" class="media-container">
       <div id="title-header">
@@ -23,20 +25,17 @@ handle($_SERVER["REMOTE_ADDR"]);
       </div>
       <div id="notification"></div>
       <audio id="player" src="data/Zelda_64_Pachelbels_Ganon_OC_ReMix.mp3"
-             onplay="audio.onplay(this)"
-             onended="audio.onended(this)"
-             ontimeupdate="audio.onprogress(event)"
              seek="true" controls> Hey, man, get an HTML5-compatible browser, okay?
       </audio>
       <div id="controls" class="controls-container">
-        <span id="prev" class="controls" onclick="audio.prev()">&lt;&lt;</span>
+        <span id="prev" class="controls">&lt;&lt;</span>
         <input id="loop" type="checkbox">
-          <span class="controls" onclick="document.getElementById('loop').click()"><span class="mnemonic">l</span>oop</span>
+          <span id="loop_label" class="controls"><span class="mnemonic">l</span>oop</span>
         </input>
         <input id="shuf" type="checkbox">
-          <span class="controls" onclick="document.getElementById('shuf').click()"><span class="mnemonic">s</span>huffle</span>
+          <span id="shuf_label" class="controls"><span class="mnemonic">s</span>huffle</span>
         </input>
-        <span id="next" class="controls" onclick="audio.next()">&gt;&gt;</span>
+        <span id="next" class="controls">&gt;&gt;</span>
       </div>
     </div>
 

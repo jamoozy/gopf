@@ -1,5 +1,6 @@
 var audio = (function() {
-  // Adds a string to the notification thing.
+  // Adds a string to the notification thing---meant for notifications
+  // to the user.  To print debug statements, use window.console.log().
   function notify(str) {
     document.getElementById("notification").innerHTML = str;
   }
@@ -9,7 +10,7 @@ var audio = (function() {
     for (var p in obj) {
       out += p + ': ' + obj[p] + '\n';
     }
-    notify(out);
+    window.console.log(out);
   }
 
   function get_ith_song(i) {
@@ -59,6 +60,22 @@ var audio = (function() {
   return {
     i : 0,  // index of playing song
 
+    init : function(e) {
+      var player = document.getElementById("player");
+      player.onplay = function(e) { audio.onplay(player); };
+      player.onended = audio.onended;
+      player.ontimeupdate = audio.onprogress;
+
+      document.getElementById("prev").onclick = audio.prev;
+      document.getElementById("next").onclick = audio.next;
+      document.getElementById("loop_label").onclick = function(e) {
+        document.getElementById("loop").click();
+      };
+      document.getElementById("shuf_label").onclick = function(e) {
+        document.getElementById("shuf").click();
+      };
+    },
+
     onclick : function(song) {
       var songs = document.getElementById("songs").childNodes;
       // find song's place in the playlist
@@ -71,7 +88,7 @@ var audio = (function() {
       play(song);
     },
 
-    onended : function(player) {
+    onended : function(e) {
       audio.next();
     },
 
@@ -81,7 +98,7 @@ var audio = (function() {
       player.setAttribute("src", song.getAttribute("path"));
     },
 
-    next : function() {
+    next : function(e) {
       var songs = document.getElementById("songs").childNodes;
       if (songs.length > 0) {
         if (shouldShuffle()) {
@@ -100,7 +117,7 @@ var audio = (function() {
       }
     },
 
-    prev : function() {
+    prev : function(e) {
       var songs = document.getElementById("songs").childNodes;
       if (shouldShuffle()) {
         playRandomSong(songs);
@@ -126,3 +143,5 @@ var audio = (function() {
     }
   };
 })();
+
+window.addEventListener("load", audio.init, true);

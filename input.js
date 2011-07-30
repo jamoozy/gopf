@@ -205,3 +205,5 @@ var input = (function() {
     }
   };
 })();
+
+window.addEventListener("load", input.init, true);
