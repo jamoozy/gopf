@@ -1,5 +1,5 @@
 var playlist = (function() {
-  var root = "/~media/audio/";
+  var root = "/~media/media/";
   var dir = "data/";
   var req = new XMLHttpRequest();
 
@@ -36,7 +36,7 @@ var playlist = (function() {
         songTag = document.createElement("li");
         songTag.setAttribute("class", "song");
         songTag.setAttribute("path", songs[i]);
-        songTag.setAttribute("onclick", "audio.onclick(this)");
+        songTag.setAttribute("onclick", "media.onclick(this)");
         songTag.innerHTML = name;
 
         queue.appendChild(songTag);

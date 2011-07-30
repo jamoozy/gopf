@@ -1,4 +1,4 @@
-var audio = (function() {
+var media = (function() {
   // Adds a string to the notification thing---meant for notifications
   // to the user.  To print debug statements, use window.console.log().
   function notify(str) {
@@ -44,8 +44,8 @@ var audio = (function() {
 
   function playRandomSong(songs) {
     if (!!songs && songs.length > 0) {
-      audio.i = Math.floor(Math.random() * songs.length);
-      play(songs[audio.i]);
+      media.i = Math.floor(Math.random() * songs.length);
+      play(songs[media.i]);
     }
   }
 
@@ -62,12 +62,12 @@ var audio = (function() {
 
     init : function(e) {
       var player = document.getElementById("player");
-      player.onplay = function(e) { audio.onplay(player); };
-      player.onended = audio.onended;
-      player.ontimeupdate = audio.onprogress;
+      player.onplay = function(e) { media.onplay(player); };
+      player.onended = media.onended;
+      player.ontimeupdate = media.onprogress;
 
-      document.getElementById("prev").onclick = audio.prev;
-      document.getElementById("next").onclick = audio.next;
+      document.getElementById("prev").onclick = media.prev;
+      document.getElementById("next").onclick = media.next;
       document.getElementById("loop_label").onclick = function(e) {
         document.getElementById("loop").click();
       };
@@ -79,8 +79,8 @@ var audio = (function() {
     onclick : function(song) {
       var songs = document.getElementById("songs").childNodes;
       // find song's place in the playlist
-      for (audio.i = 0; audio.i < songs.length; audio.i++) {
-        if (songs[audio.i] === song) {
+      for (media.i = 0; media.i < songs.length; media.i++) {
+        if (songs[media.i] === song) {
           break;
         }
       }
@@ -89,7 +89,7 @@ var audio = (function() {
     },
 
     onended : function(e) {
-      audio.next();
+      media.next();
     },
 
     load : function(song) {
@@ -104,14 +104,14 @@ var audio = (function() {
         if (shouldShuffle()) {
           playRandomSong(songs);
         } else {
-          audio.i += 1;
-          if (songs.length > audio.i) {
-            play(songs[audio.i]);
+          media.i += 1;
+          if (songs.length > media.i) {
+            play(songs[media.i]);
           } else if (shouldLoop()) {
-            audio.i = 0;
+            media.i = 0;
             play(songs[0]);
           } else {
-            audio.i -= 1;
+            media.i -= 1;
           }
         }
       }
@@ -122,12 +122,12 @@ var audio = (function() {
       if (shouldShuffle()) {
         playRandomSong(songs);
       } else {
-        if (audio.i > 0) {
-          audio.i -= 1;
+        if (media.i > 0) {
+          media.i -= 1;
         } else if (shouldLoop()) {
-          audio.i = songs.length - 1;  // loop 'round
+          media.i = songs.length - 1;  // loop 'round
         }
-        play(songs[audio.i]);
+        play(songs[media.i]);
       }
     },
 
@@ -144,4 +144,4 @@ var audio = (function() {
   };
 })();
 
-window.addEventListener("load", audio.init, true);
+window.addEventListener("load", media.init, true);

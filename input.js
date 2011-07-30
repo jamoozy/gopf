@@ -110,11 +110,11 @@ var input = (function() {
 
       case 80:  // P
       case 37:  // left
-        audio.prev();
+        media.prev();
         break;
       case 78:  // N
       case 39:  // right
-        audio.next();
+        media.next();
         break;
 
       case 83:  // S
@@ -140,7 +140,7 @@ var input = (function() {
         var sel = document.getElementById("selected");
         if (sel !== null && sel !== undefined) {
           if (input.viewSongs) {
-            audio.onclick(sel);
+            media.onclick(sel);
           } else {
             playlist.onclick(sel, true);
           }
