@@ -44,7 +44,9 @@ var media = (function() {
 
   function playRandomSong(meds) {
     if (!!meds && meds.length > 0) {
-      media.i = Math.floor(Math.random() * meds.length);
+      var j = media.i;
+      while ((j = Math.floor(Math.random() * meds.length)) == media.i);
+      media.i = j;
       play(meds[media.i]);
     }
   }
