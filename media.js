@@ -62,9 +62,11 @@ var media = (function() {
 
     init : function(e) {
       var player = document.getElementById("player");
-      player.onplay = function(e) { media.onplay(player); };
-      player.onended = media.onended;
-      player.ontimeupdate = media.onprogress;
+      player.addEventListener("play", function(e) {
+        media.onplay(player);
+      }, true);
+      player.addEventListener("ended", media.onended, true);
+      player.addEventListener("timeupdate", media.onprogress, true);
 
       document.getElementById("prev").onclick = media.prev;
       document.getElementById("next").onclick = media.next;
@@ -89,7 +91,7 @@ var media = (function() {
     },
 
     onended : function(e) {
-      media.next();
+      media.next(e);
     },
 
     load : function(song) {

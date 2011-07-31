@@ -108,10 +108,12 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
       <h1>NO ME GUSTA!</h1>
       <p> You're not in the registered users! </p>
       <p> Contact someone to fix this. </p>
-      <p> This website has logged: "<?=$ip_error?>" </p>
+      <hr>
+      <p> This website has logged:</p><?=$ip_error?>
     </div>
   </body>
 </html>
 <?php
+  die(1);
 }
 ?>
