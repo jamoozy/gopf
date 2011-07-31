@@ -14,10 +14,10 @@ var playlist = (function() {
   }
 
   function loadPlaylist(req) {
-    var songs = req.responseText.replace(/\.\.\//g, dir + "/").split("\n");
-    var queue = document.getElementById("songs");
+    var media = req.responseText.replace(/\.\.\//g, dir + "/").split("\n");
+    var queue = document.getElementById("media");
     var player = document.getElementById("player");
-    var songTag, i;
+    var mediaTag, i;
 
     // Remove sources.
     player.removeAttribute("src");
@@ -28,23 +28,23 @@ var playlist = (function() {
     }
 
     // Add the new children.
-    for (i = 0; i < songs.length; i++) {
-      if (songs[i].length > 0) {
-        var song_lio = songs[i].lastIndexOf("/");
-        var name = songs[i].substr(1 + song_lio, songs[i].length - song_lio - 5);
+    for (i = 0; i < media.length; i++) {
+      if (media[i].length > 0) {
+        var media_lio = media[i].lastIndexOf("/");
+        var name = media[i].substr(1 + media_lio, media[i].length - media_lio - 5);
 
-        songTag = document.createElement("li");
-        songTag.setAttribute("class", "song");
-        songTag.setAttribute("path", songs[i]);
-        songTag.setAttribute("onclick", "media.onclick(this)");
-        songTag.innerHTML = name;
+        mediaTag = document.createElement("li");
+        mediaTag.setAttribute("class", "media");
+        mediaTag.setAttribute("path", media[i]);
+        mediaTag.setAttribute("onclick", "media.onclick(this)");
+        mediaTag.innerHTML = name;
 
-        queue.appendChild(songTag);
+        queue.appendChild(mediaTag);
       }
     }
 
-    // ensure the song queue isn't overlapping things.
-    document.getElementById("song-container").width = (window.innerWidth - document.getElementById("playlist-container").width) / 2;
+    // Ensure the media queue isn't overlapping things.
+    document.getElementById("media-container").width = (window.innerWidth - document.getElementById("playlist-container").width) / 2;
 
     // If we need to swap the selection, do it.
     if (playlist.swapAfter) {
@@ -76,9 +76,13 @@ var playlist = (function() {
     swapAfter : false,
 
     onclick : function(elem, swapAfter) {
-      if (elem.getAttribute("class") === "selected") { return; }
+      if (elem.getAttribute("class") === "selected") {
+        return;
+      }
 
-      if (swapAfter === true) { playlist.swapAfter = true; }
+      if (swapAfter === true) {
+        playlist.swapAfter = true;
+      }
 
       var selected = document.getElementsByClassName("selected");
       for (var i = 0; i < selected.length; i++) {

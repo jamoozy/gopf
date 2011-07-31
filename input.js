@@ -32,7 +32,7 @@ var input = (function() {
   // Gets the currently-selected list.
   function getList() {
     if (viewMedia) {
-      return document.getElementById("songs");
+      return document.getElementById("media");
     } else {
       return document.getElementById("playlists");
     }
@@ -169,26 +169,31 @@ var input = (function() {
 
   // Window resize handler.
   function adjustSize() {
-    var song_cont = document.getElementById("song-container");
-    var songs = document.getElementById("songs");
-    var song_head = document.getElementById("song-header");
-    var playlist_cont = document.getElementById("playlist-container");
+    // Media container, list, header.
+    var mediaCont = document.getElementById("media-container");
+    var media = document.getElementById("media");
+    var mediaHead = document.getElementById("media-header");
+
+    // Play list container, list, and header.
+    var playlistCont = document.getElementById("playlist-container");
     var playlists = document.getElementById("playlists");
-    var playlist_head = document.getElementById("playlist-header");
-    var media = document.getElementById("media-container");
+    var playlistHead = document.getElementById("playlist-header");
+
+    // Upper player container and lower "GOPF" label.
+    var playerCont = document.getElementById("player-container");
     var footer = document.getElementById("footer");
 
-    var width = window.innerWidth - playlist_cont.offsetLeft -
-                playlist_cont.offsetWidth - DIVIDER_WIDTH;
-    var height = footer.offsetTop - media.offsetHeight -
-                 media.offsetTop - playlist_cont.offsetLeft;
+    var width = window.innerWidth - playlistCont.offsetLeft -
+                playlistCont.offsetWidth - DIVIDER_WIDTH;
+    var height = footer.offsetTop - playerCont.offsetHeight -
+                 playerCont.offsetTop - playlistCont.offsetLeft;
 
-    //notify("resized to " + width);
-    song_cont.style.maxWidth = width + "px";
-    song_cont.style.maxHeight = height + "px";
-    songs.style.maxHeight = height - song_head.offsetHeight + "px";
-    playlist_cont.style.maxHeight = height + "px";
-    playlists.style.maxHeight = height - playlist_head.offsetHeight + "px";
+    mediaCont.style.maxWidth = width + "px";
+    mediaCont.style.maxHeight = height + "px";
+    media.style.maxHeight = height - mediaHead.offsetHeight + "px";
+
+    playlistCont.style.maxHeight = height + "px";
+    playlists.style.maxHeight = height - playlistHead.offsetHeight + "px";
   }
 
   return {
@@ -214,7 +219,7 @@ var input = (function() {
         if (document.getElementsByClassName("dummy").length > 0) {
           viewMedia = false;
         } else {
-          select(document.getElementById("songs").childNodes[0]);
+          select(document.getElementById("media").childNodes[0]);
         }
       } else {
         select(document.getElementById("playlists").childNodes[0]);

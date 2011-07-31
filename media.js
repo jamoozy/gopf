@@ -13,10 +13,10 @@ var media = (function() {
     window.console.log(out);
   }
 
-  function get_ith_song(i) {
-    var songs = document.getElementById("songs").childNodes;
-    if (songs.length > i) {
-      return songs[i];
+  function get_ith_media(i) {
+    var meds = document.getElementById("media").childNodes;
+    if (meds.length > i) {
+      return meds[i];
     } else {
       return null;
     }
@@ -25,7 +25,7 @@ var media = (function() {
   function play(elem) {
     var playing = document.getElementsByClassName("playing");
     if (playing.length > 0) {
-      playing[0].setAttribute("class", "song");
+      playing[0].setAttribute("class", "media");
     }
 
     var path = elem.getAttribute("path");
@@ -37,15 +37,15 @@ var media = (function() {
     th.innerHTML = '<h1 class="header">Now Playing:</h1>\n' +
                       '<div class="title">' + elem.innerHTML; + "</div>";
 
-    elem.setAttribute("class", "song playing");
+    elem.setAttribute("class", "media playing");
     player.setAttribute("src", path);
     player.play();
   }
 
-  function playRandomSong(songs) {
-    if (!!songs && songs.length > 0) {
-      media.i = Math.floor(Math.random() * songs.length);
-      play(songs[media.i]);
+  function playRandomSong(meds) {
+    if (!!meds && meds.length > 0) {
+      media.i = Math.floor(Math.random() * meds.length);
+      play(meds[media.i]);
     }
   }
 
@@ -58,7 +58,7 @@ var media = (function() {
   }
 
   return {
-    i : 0,  // index of playing song
+    i : 0,  // index of playing media
 
     init : function(e) {
       var player = document.getElementById("player");
@@ -78,40 +78,40 @@ var media = (function() {
       };
     },
 
-    onclick : function(song) {
-      var songs = document.getElementById("songs").childNodes;
-      // find song's place in the playlist
-      for (media.i = 0; media.i < songs.length; media.i++) {
-        if (songs[media.i] === song) {
+    onclick : function(med) {
+      var meds = document.getElementById("media").childNodes;
+      // Find media's place in the playlist
+      for (media.i = 0; media.i < meds.length; media.i++) {
+        if (meds[media.i] === med) {
           break;
         }
       }
-      // set song to #selected?
-      play(song);
+      // Set media to #selected?
+      play(med);
     },
 
     onended : function(e) {
       media.next(e);
     },
 
-    load : function(song) {
+    load : function(med) {
       // TODO make sure it's the right type of object.
       var player = document.getElementById("player");
-      player.setAttribute("src", song.getAttribute("path"));
+      player.setAttribute("src", med.getAttribute("path"));
     },
 
     next : function(e) {
-      var songs = document.getElementById("songs").childNodes;
-      if (songs.length > 0) {
+      var meds = document.getElementById("media").childNodes;
+      if (meds.length > 0) {
         if (shouldShuffle()) {
-          playRandomSong(songs);
+          playRandomSong(meds);
         } else {
           media.i += 1;
-          if (songs.length > media.i) {
-            play(songs[media.i]);
+          if (meds.length > media.i) {
+            play(meds[media.i]);
           } else if (shouldLoop()) {
             media.i = 0;
-            play(songs[0]);
+            play(meds[0]);
           } else {
             media.i -= 1;
           }
@@ -120,16 +120,16 @@ var media = (function() {
     },
 
     prev : function(e) {
-      var songs = document.getElementById("songs").childNodes;
+      var meds = document.getElementById("media").childNodes;
       if (shouldShuffle()) {
-        playRandomSong(songs);
+        playRandomSong(meds);
       } else {
         if (media.i > 0) {
           media.i -= 1;
         } else if (shouldLoop()) {
-          media.i = songs.length - 1;  // loop 'round
+          media.i = meds.length - 1;  // loop 'round
         }
-        play(songs[media.i]);
+        play(meds[media.i]);
       }
     },
 
@@ -140,7 +140,7 @@ var media = (function() {
     onplay : function(player) {
       var selected = document.getElementsByClassName("playing");
       if (selected.length === 0) {
-        play(document.getElementById("songs").firstChild);
+        play(document.getElementById("media").firstChild);
       }
     }
   };

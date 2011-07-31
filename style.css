@@ -14,7 +14,7 @@ body {
 |                    main media player                    |
 \*********************************************************/
 
-.media-container {
+.player-container {
   background: #102520;
   color: #8db6cd;
 
@@ -35,7 +35,7 @@ body {
 |                   individual entries                    |
 \*********************************************************/
 
-.unselected:hover, .song:hover {
+.unselected:hover, .media:hover {
   cursor: pointer;
 }
 
@@ -52,7 +52,7 @@ body {
   -webkit-box-align: center;
 }
 
-.selected, .unselected, .song, .playing {
+li.selected, li.unselected, li.media, li.playing {
   margin-left: -2.5em;
   padding-right: 0.5em;
 
@@ -70,7 +70,7 @@ body {
   margin-bottom: -1px;
 }
 
-.song, .unselected {
+li.media, li.unselected {
   background-image: -webkit-gradient(
     linear, left bottom, left top,
     from(gray), to(white)
@@ -82,7 +82,7 @@ body {
   background: black;
 }
 
-.selected, .playing {
+li.selected, li.playing {
   background-image: -webkit-gradient(
     linear, left top, left bottom,
     from(white), to(blue)
@@ -116,7 +116,7 @@ body {
   margin: 0px 0em;
 }
 
-.playlist-container, .song-container {
+.playlist-container, .media-container {
   background: #102520;
   border: 1px solid white;
   border-top: none;
@@ -128,11 +128,11 @@ body {
   float: left;
 }
 
-.song-container {
+.media-container {
   float: right;
 }
 
-.playlists, .songs {
+ul.playlists, ul.media {
   background: #102520;
 
   overflow-x: hidden;
@@ -147,7 +147,7 @@ body {
   max-width: 260px;
 }
 
-#selected.song, #selected.unselected {
+#selected.media, #selected.unselected {
   color: #36648b;
   background: white;
 }

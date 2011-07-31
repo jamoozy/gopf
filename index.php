@@ -18,7 +18,7 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
   </head>
 
   <body>
-    <div id="media-container" class="media-container">
+    <div id="player-container" class="player-container">
       <div id="title-header">
         <h1 class="header">Now Playing:</h1>
         <div class="title">Zelda_64_Pachelbels_Ganon_OC_ReMix</div>
@@ -45,11 +45,11 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
         <h1 id="playlist-header" class="header">Playlists</h1>
       </div>
 
-      <div id="song-container" class="song-container">
-        <ul id="songs" class="songs">
+      <div id="media-container" class="media-container">
+        <ul id="media" class="media">
           <li class="dummy">(nothing loaded)</li>
         </ul>
-        <h1 id="song-header" class="header">Songs</h1>
+        <h1 id="media-header" class="header">Songs</h1>
       </div>
     </nav>
 
