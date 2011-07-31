@@ -1,5 +1,4 @@
 var playlist = (function() {
-  var root = "/~media/media/";
   var dir = "data/";
   var req = new XMLHttpRequest();
 
@@ -8,7 +7,8 @@ var playlist = (function() {
   }
 
   function reqPlaylist(elem) {
-    var url = root + "list.php?playlist=" + elem.innerHTML.replace(/^\s+|\s+$/g,"");
+    var url = document.location.pathname + "list.php?playlist=" +
+        elem.innerHTML.replace(/^\s+|\s+$/g,"");
     req.open("GET", url, true);
     req.send();
   }

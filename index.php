@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <?php
-include("list.php");
 include("mysql.php");
+include("list.php");
 
-handle($_SERVER["REMOTE_ADDR"]);
+if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
 ?>
 
 <html>
@@ -16,8 +16,8 @@ handle($_SERVER["REMOTE_ADDR"]);
     <link rel="stylesheet" type="text/css" href="style.css">
     <link id="prefetch" rel="prefetch" href="">
   </head>
-  <body>
 
+  <body>
     <div id="media-container" class="media-container">
       <div id="title-header">
         <h1 class="header">Now Playing:</h1>
@@ -65,3 +65,53 @@ handle($_SERVER["REMOTE_ADDR"]);
     </footer>
   </body>
 </html>
+
+<?php
+} else {
+
+// The following is all done inline (as opposed to having separate CSS 
+// and JS files) to decrease complexity.
+?>
+<html>
+  <head>
+    <style type="text/css">
+      body {
+        text-align: center;
+        font-family: sans-serif;
+      }
+      div {
+        border: solid 1px black;
+        margin: 40px 20px 5px 20px;
+        padding: 20px;
+        color: white;
+        background-color: red;
+
+        -webkit-border-radius: 1em;
+        -moz-border-radius: 1em;
+        border-radius: 1em;
+      }
+      h1 {
+        font-size: 20pt;
+        margin: 0;
+        margin-bottom: 5px;
+        padding: 0;
+      }
+      p {
+        font-size: 12pt;
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1>NO ME GUSTA!</h1>
+      <p> You're not in the registered users! </p>
+      <p> Contact someone to fix this. </p>
+      <p> This website has logged: "<?=$ip_error?>" </p>
+    </div>
+  </body>
+</html>
+<?php
+}
+?>
