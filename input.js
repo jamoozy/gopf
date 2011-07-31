@@ -1,4 +1,8 @@
 var input = (function() {
+  var WIN_SONS_DIFF = 340;
+
+  var viewSongs = false;
+
   function notify(str) {
     document.getElementById("notification").innerHTML = str;
   }
@@ -20,7 +24,7 @@ var input = (function() {
   }
 
   function getList() {
-    if (input.viewSongs) {
+    if (viewSongs) {
       return document.getElementById("songs");
     } else {
       return document.getElementById("playlists");
@@ -139,7 +143,7 @@ var input = (function() {
       case 13:  // enter
         var sel = document.getElementById("selected");
         if (sel !== null && sel !== undefined) {
-          if (input.viewSongs) {
+          if (viewSongs) {
             media.onclick(sel);
           } else {
             playlist.onclick(sel, true);
@@ -159,7 +163,7 @@ var input = (function() {
     var media = document.getElementById("media-container");
     var footer = document.getElementById("footer");
 
-    var width = window.innerWidth - input.winSongsDiff;
+    var width = window.innerWidth - WIN_SONS_DIFF;
     var height = footer.offsetTop - media.offsetHeight -
                  media.offsetTop - playlist_cont.offsetLeft;
 
@@ -171,12 +175,7 @@ var input = (function() {
     playlists.style.maxHeight = height - playlist_head.offsetHeight + "px";
   }
 
-
   return {
-    viewSongs : false,
-
-    winSongsDiff : 340,
-
     init : function() {
       var sel = document.getElementById("selected");
       if (sel === null) {
@@ -192,10 +191,10 @@ var input = (function() {
     },
 
     swap : function() {
-      input.viewSongs = !input.viewSongs;
-      if (input.viewSongs) {
+      viewSongs = !viewSongs;
+      if (viewSongs) {
         if (document.getElementsByClassName("dummy").length > 0) {
-          input.viewSongs = false;
+          viewSongs = false;
         } else {
           select(document.getElementById("songs").childNodes[0]);
         }
