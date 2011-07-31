@@ -1,12 +1,17 @@
 var input = (function() {
-  var WIN_SONS_DIFF = 340;
+  // Extra amount to shrink media container by, so that media/playlists
+  // don't overlap one onther.
+  var DIVIDER_WIDTH = 40;
 
-  var viewSongs = false;
+  // Whether the selector is in the media list.  False means it's in the
+  // playlists list.
+  var viewMedia = false;
 
   function notify(str) {
     document.getElementById("notification").innerHTML = str;
   }
 
+  // Select
   function select(elem) {
     var sel = document.getElementById("selected");
     if (sel !== null && sel !== undefined) {
@@ -19,28 +24,34 @@ var input = (function() {
     }
   }
 
+  // Gets the elements from the currently-selected list.
   function getElems() {
     return getList().childNodes;
   }
 
+  // Gets the currently-selected list.
   function getList() {
-    if (viewSongs) {
+    if (viewMedia) {
       return document.getElementById("songs");
     } else {
       return document.getElementById("playlists");
     }
   }
 
-  function getElemI(elems, sel) {
-    if (sel === null || sel === undefined) { return 0; }
-    for (var i = 0; i < elems.length; i++) {
-      if (elems[i] === sel) {
+  // Gets the index of an element in the list.
+  function getElemIndex(list, elem) {
+    if (elem === null || elem === undefined) { return 0; }
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] === elem) {
         return i;
       }
     }
     return 0;
   }
 
+  // Ensures the selected element is visible, either by centering the
+  // list's view on the element, or scrolling the list all the way up or
+  // down so the element is in view.
   function ensureSelectedVisible(i) {
     var sel = document.getElementById("selected");
     var list = getList();
@@ -48,10 +59,11 @@ var input = (function() {
     list.scrollTop = i * (sel.offsetHeight - 1) - list.offsetHeight / 2;
   }
 
+  // Selects the previous element in the list.
   function prev(dec) {
     var sel = document.getElementById("selected");
     var elems = getElems();
-    var i = getElemI(elems, sel);
+    var i = getElemIndex(elems, sel);
 
     if (dec === undefined) {
       dec = 1;
@@ -67,10 +79,11 @@ var input = (function() {
     }
   }
 
+  // Selects the next element in the list.
   function next(inc) {
     var sel = document.getElementById("selected");
     var elems = getElems();
-    var i = getElemI(elems, sel);
+    var i = getElemIndex(elems, sel);
 
     if (inc === undefined) {
       inc = 1;
@@ -86,6 +99,7 @@ var input = (function() {
     }
   }
 
+  // Key handler.
   function onkey(e) {
     switch(e.keyCode) {
       case 33:  // PageUp
@@ -143,7 +157,7 @@ var input = (function() {
       case 13:  // enter
         var sel = document.getElementById("selected");
         if (sel !== null && sel !== undefined) {
-          if (viewSongs) {
+          if (viewMedia) {
             media.onclick(sel);
           } else {
             playlist.onclick(sel, true);
@@ -153,6 +167,7 @@ var input = (function() {
     }
   }
 
+  // Window resize handler.
   function adjustSize() {
     var song_cont = document.getElementById("song-container");
     var songs = document.getElementById("songs");
@@ -163,7 +178,8 @@ var input = (function() {
     var media = document.getElementById("media-container");
     var footer = document.getElementById("footer");
 
-    var width = window.innerWidth - WIN_SONS_DIFF;
+    var width = window.innerWidth - playlist_cont.offsetLeft -
+                playlist_cont.offsetWidth - DIVIDER_WIDTH;
     var height = footer.offsetTop - media.offsetHeight -
                  media.offsetTop - playlist_cont.offsetLeft;
 
@@ -176,6 +192,7 @@ var input = (function() {
   }
 
   return {
+    // Initializes the input module by registering event listeners.
     init : function() {
       var sel = document.getElementById("selected");
       if (sel === null) {
@@ -185,16 +202,17 @@ var input = (function() {
         }
       }
 
-      window.onresize = function(event) { adjustSize(); } 
+      window.onresize = function(e) { adjustSize(); } 
       window.onkeydown = onkey;
       adjustSize();
     },
 
+    // Swaps the list the user is moving through.
     swap : function() {
-      viewSongs = !viewSongs;
-      if (viewSongs) {
+      viewMedia = !viewMedia;
+      if (viewMedia) {
         if (document.getElementsByClassName("dummy").length > 0) {
-          viewSongs = false;
+          viewMedia = false;
         } else {
           select(document.getElementById("songs").childNodes[0]);
         }
