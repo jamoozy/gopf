@@ -142,6 +142,16 @@ var input = (function() {
         document.getElementById("loop").click();
         break;
 
+      case 219:  // [
+        document.getElementById("player").playbackRate *= 0.5;
+        break;
+      case 221:  // ]
+        document.getElementById("player").playbackRate *= 2;
+        break;
+      case 8:  // backspace
+        document.getElementById("player").playbackRate = 1.0;
+        break;
+
       case 77:  // M
         var player = document.getElementById("player");
         player.muted = !player.muted;
