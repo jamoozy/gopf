@@ -10,6 +10,7 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title id="page-title">Zelda_64_Pachelbels_Ganon_OC_ReMix</title>
+    <script src="loc.js" type="text/javascript"></script>
     <script src="media.js" type="text/javascript"></script>
     <script src="playlist.js" type="text/javascript"></script>
     <script src="input.js" type="text/javascript"></script>
@@ -21,11 +22,11 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
     <div id="player-container" class="player-container">
       <div id="title-header">
         <h1 class="header">Now Playing:</h1>
-        <div class="title">Zelda_64_Pachelbels_Ganon_OC_ReMix</div>
+        <div class="title"></div>
       </div>
       <div id="notification"></div>
-      <audio id="player" src="data/Zelda_64_Pachelbels_Ganon_OC_ReMix.mp3"
-             seek="true" controls> Hey, man, get an HTML5-compatible browser, okay?
+      <audio id="player" src="" seek="true" controls>
+        Hey, man, get an HTML5-compatible browser, okay?
       </audio>
       <div id="controls" class="controls-container">
         <span id="prev" class="controls">&lt;&lt;</span>
