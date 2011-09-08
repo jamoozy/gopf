@@ -152,6 +152,23 @@ var input = (function() {
         document.getElementById("player").playbackRate = 1.0;
         break;
 
+      case 49:  // 1
+        document.getElementById("player").width = 200;
+        adjustSize();
+        break;
+      case 50:  // 2
+        document.getElementById("player").width = 400;
+        adjustSize();
+        break;
+      case 51:  // 3
+        document.getElementById("player").width = 600;
+        adjustSize();
+        break;
+      case 52:  // 4
+        document.getElementById("player").width = 800;
+        adjustSize();
+        break;
+
       case 77:  // M
         var player = document.getElementById("player");
         player.muted = !player.muted;
