@@ -30,8 +30,9 @@ var playlist = (function() {
     // Add the new children.
     for (i = 0; i < media.length; i++) {
       if (media[i].length > 0) {
-        var media_lio = media[i].lastIndexOf("/");
-        var name = media[i].substr(1 + media_lio, media[i].length - media_lio - 5);
+        var media_first = media[i].lastIndexOf("/") + 1;
+        var media_length = media[i].lastIndexOf(".") - media_first;
+        var name = media[i].substr(media_first, media_length);
 
         mediaTag = document.createElement("li");
         mediaTag.setAttribute("class", "media");
