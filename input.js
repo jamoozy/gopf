@@ -152,6 +152,10 @@ var input = (function() {
         document.getElementById("player").playbackRate = 1.0;
         break;
 
+      case 48:  // 0
+        document.getElementById("player").removeAttribute("width");
+        adjustSize();
+        break;
       case 49:  // 1
         document.getElementById("player").width = 200;
         adjustSize();
