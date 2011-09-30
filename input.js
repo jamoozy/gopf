@@ -106,7 +106,6 @@ var input = (function() {
         prev(10);
         e.stopPropagation();
         break;
-      case 38:  // up
       case 75:  // k
         prev(1);
         e.stopPropagation();
@@ -115,7 +114,6 @@ var input = (function() {
         next(10);
         e.stopPropagation();
         break;
-      case 40:  // down
       case 74:  // j
         next(1);
         e.stopPropagation();
@@ -126,12 +124,23 @@ var input = (function() {
         e.stopPropagation();
         break;
 
-      case 80:  // P
+      case 38:  // up
+        document.getElementById("player").currentTime += 60;
+        break;
+      case 40:  // down
+        document.getElementById("player").currentTime -= 60;
+        break;
       case 37:  // left
+        document.getElementById("player").currentTime -= 10;
+        break;
+      case 39:  // right
+        document.getElementById("player").currentTime += 10;
+        break;
+
+      case 80:  // P
         media.prev();
         break;
       case 78:  // N
-      case 39:  // right
         media.next();
         break;
 
