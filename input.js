@@ -125,16 +125,16 @@ var input = (function() {
         break;
 
       case 38:  // up
-        document.getElementById("player").currentTime += 60;
+        document.getElementById("player").currentTime += e.ctrlKey ? 600 : 300;
         break;
       case 40:  // down
-        document.getElementById("player").currentTime -= 60;
+        document.getElementById("player").currentTime -= e.ctrlKey ? 600 : 300;
         break;
       case 37:  // left
-        document.getElementById("player").currentTime -= 10;
+        document.getElementById("player").currentTime -= e.ctrlKey ? 60 : 10;
         break;
       case 39:  // right
-        document.getElementById("player").currentTime += 10;
+        document.getElementById("player").currentTime += e.ctrlKey ? 60 : 10;
         break;
 
       case 80:  // P
@@ -247,8 +247,8 @@ var input = (function() {
         }
       }
 
-      window.onresize = function(e) { adjustSize(); } 
-      window.onkeydown = onkey;
+      window.addEventListener("resize", function(e) { adjustSize(); }, true);
+      window.addEventListener("keydown", onkey, true);
       adjustSize();
     },
 
