@@ -36,7 +36,7 @@ var playlist = (function() {
 
         mediaTag = document.createElement("li");
         mediaTag.setAttribute("class", "media");
-        mediaTag.setAttribute("path", media[i]);
+        mediaTag.setAttribute("path", escape(media[i]));
         mediaTag.setAttribute("onclick", "media.onclick(this)");
         mediaTag.innerHTML = name;
 
