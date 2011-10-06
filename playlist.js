@@ -14,7 +14,7 @@ var playlist = (function() {
   }
 
   function loadPlaylist(req) {
-    var media = req.responseText.replace(/\.\.\//g, dir + "/").split("\n");
+    var media = req.responseText.replace(/\.\.\//g, dir).split("\n");
     var queue = document.getElementById("media");
     var player = document.getElementById("player");
     var mediaTag, i;
