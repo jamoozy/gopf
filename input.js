@@ -199,6 +199,10 @@ var input = (function() {
         player.width = 800;
         adjustSize();
         break;
+      case 53:  // 5
+        document.getElementById("player").width = 1000;
+        adjustSize();
+        break;
 
       case 77:  // M
         player.muted = !player.muted;
