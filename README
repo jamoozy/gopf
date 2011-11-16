@@ -1,0 +1,9 @@
+GOPF: GNU Online Player Framework.
+
+GOPF is a framework for making available your media online.  If you have audio *and* video files to display, then you have to run two instances of this site.
+
+GOPF works on a LAMP server, and takes advantage of HTML5's `<audio>` and `<video>` tags.  Only Chrome is actively supported, because it came out with support for those tags long before the other major browsers.
+
+Please don't hesitate to change, distribute, and make available this program.  It's free software!  Let it be free!
+
+To submit a feature request or to report a bug, go to http://github.com/gopf and click on "Issues".  Enter your feature or bug in the space provided, and please be sure to include all relevant information.  Also, labeling your issue with one of the labels provided will also see that it gets addressed quickly.
