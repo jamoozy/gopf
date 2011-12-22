@@ -101,6 +101,7 @@ var input = (function() {
 
   // Key handler.
   function onkey(e) {
+    var player = document.getElementById("player");
     switch(e.keyCode) {
       case 33:  // PageUp
         prev(10);
@@ -125,16 +126,16 @@ var input = (function() {
         break;
 
       case 38:  // up
-        document.getElementById("player").currentTime += e.ctrlKey ? 600 : 300;
+        player.currentTime += e.ctrlKey ? 600 : 300;
         break;
       case 40:  // down
-        document.getElementById("player").currentTime -= e.ctrlKey ? 600 : 300;
+        player.currentTime -= e.ctrlKey ? 600 : 300;
         break;
       case 37:  // left
-        document.getElementById("player").currentTime -= e.ctrlKey ? 60 : 10;
+        player.currentTime -= e.ctrlKey ? 60 : 10;
         break;
       case 39:  // right
-        document.getElementById("player").currentTime += e.ctrlKey ? 60 : 10;
+        player.currentTime += e.ctrlKey ? 60 : 10;
         break;
 
       case 80:  // P
@@ -152,42 +153,40 @@ var input = (function() {
         break;
 
       case 219:  // [
-        document.getElementById("player").playbackRate *= 0.5;
+        player.playbackRate *= 0.5;
         break;
       case 221:  // ]
-        document.getElementById("player").playbackRate *= 2;
+        player.playbackRate *= 2;
         break;
       case 8:  // backspace
-        document.getElementById("player").playbackRate = 1.0;
+        player.playbackRate = 1.0;
         break;
 
       case 48:  // 0
-        document.getElementById("player").removeAttribute("width");
+        player.removeAttribute("width");
         adjustSize();
         break;
       case 49:  // 1
-        document.getElementById("player").width = 200;
+        player.width = 200;
         adjustSize();
         break;
       case 50:  // 2
-        document.getElementById("player").width = 400;
+        player.width = 400;
         adjustSize();
         break;
       case 51:  // 3
-        document.getElementById("player").width = 600;
+        player.width = 600;
         adjustSize();
         break;
       case 52:  // 4
-        document.getElementById("player").width = 800;
+        player.width = 800;
         adjustSize();
         break;
 
       case 77:  // M
-        var player = document.getElementById("player");
         player.muted = !player.muted;
         break;
       case 32:  // space
-        var player = document.getElementById("player");
         if (player.paused) {
           player.play();
         } else {
