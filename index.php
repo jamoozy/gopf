@@ -20,6 +20,16 @@ include("mysql.php");
 include("list.php");
 
 if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
+  $playlist = false;
+  $media = false;
+  if ($_GET) {
+    if (array_key_exists('p', $_GET)) {
+      $playlist = urldecode($_GET['p']);
+      if (array_key_exists('m', $_GET)) {
+        $media = urldecode($_GET['m']);
+      }
+    }
+  }
 ?>
 
 <!DOCTYPE html>
@@ -41,7 +51,7 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
         <h1 class="header">Now Playing:</h1>
         <div class="title"></div>
       </div>
-      <div id="notification"></div>
+      <div id="notification"> </div>
       <audio id="player" src="" seek="true" controls>
         Hey, man, get an HTML5-compatible browser, okay?
       </audio>
@@ -59,7 +69,7 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
 
     <nav id="navigator">
       <div id="playlist-container" class="playlist-container">
-        <ul id="playlists" class="playlists"><?=generate_playlists();?></ul>
+        <ul id="playlists" class="playlists"><?=generate_playlists($playlist)?></ul>
         <h1 id="playlist-header" class="header">Playlists</h1>
       </div>
 
@@ -78,11 +88,45 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
         </a>
       </div>
       <div class="name">
-        Written by <author>Andrew "jamoozy" Correa</author>
+        Written by <author>Andrew "Jamoozy" Correa</author>
       </div>
     </footer>
   </body>
 </html>
+
+<? if ($playlist && $media) { ?>
+<script type="text/javascript">
+// Handle Clicked media
+var clickPassedMedia = function(req) {
+  console.log('clickPassedMedia');
+  var media = document.getElementsByClassName("media");
+  var not = document.getElementById("notification");
+  for (var i = 0; i < media.length; i++) {
+    if (media[i].innerHTML == "<?=$media?>") {
+      media[i].onclick(media[0]);
+      return;
+    }
+  }
+  // Not found!  Log/print error?
+}
+
+// Loads the playlist with class="selected".
+function loadSelectedPlaylist(e) {
+  console.log('loadSelectedPlaylist');
+  var selected = document.getElementsByClassName("selected");
+  if (selected.length > 0) {
+    elem = selected[0];
+    elem.setAttribute("class", "unselected");
+    playlist.onclick(elem, false, clickPassedMedia);
+  } else {
+    // Report error?
+  }
+}
+
+// Listen for the page to load, so that this can load the playlist.
+window.addEventListener("load", loadSelectedPlaylist, true);
+</script>
+<? } ?>
 
 <?php
 } else {

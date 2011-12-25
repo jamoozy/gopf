@@ -26,7 +26,8 @@ var loc = (function() {
   }
 
   function positionHandler(pos) {
-    logPos(loc.pos = pos);
+    console.warn("Warning: loc.positionHandler(pos) not implemented.");
+    //logPos(loc.pos = pos);
   }
 
   return {

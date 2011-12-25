@@ -18,11 +18,13 @@
 var playlist = (function() {
   var dir = "data/";
   var req = new XMLHttpRequest();
+  var callback = false;
 
   function notify(str) {
     document.getElementById("notification").innerHTML = str;
   }
 
+  // Requests the contents of the playlist from the server.
   function reqPlaylist(elem) {
     var url = document.location.pathname + "list.php?playlist=" +
         elem.innerHTML.replace(/^\s+|\s+$/g,"");
@@ -71,7 +73,7 @@ var playlist = (function() {
     }
   }
 
-
+  // Set the callback for the request.
   req.onreadystatechange = function() {
     switch (req.readyState) {
       case 0: break;
@@ -88,12 +90,27 @@ var playlist = (function() {
       default:
         notify("Not sure what happened ... (default) ... error?");
     }
+
+    if (callback) {
+      callback(req);
+    }
+  };
+
+  // Sets the callback after the list is loaded.
+  function setCallback(cb) {
+    console.log("set cb");
+    callback = cb;
   };
 
   return {
     swapAfter : false,
 
-    onclick : function(elem, swapAfter) {
+    // Register that a playlist was clicked (to be loaded).
+    //        elem: The clicked element.
+    //   swapAfter: Whether the list the user is controlling should be
+    //              swapped after it is loaded.
+    //          cb: (optional) Callback after the list is loaded.
+    onclick : function(elem, swapAfter, cb) {
       if (elem.getAttribute("class") === "selected") {
         return;
       }
@@ -108,6 +125,7 @@ var playlist = (function() {
       }
       elem.setAttribute("class", "selected");
       reqPlaylist(elem);
+      setCallback(cb);
     }
   };
 })();

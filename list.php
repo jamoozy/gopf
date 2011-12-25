@@ -31,7 +31,7 @@ function ls($dir) {
 
 // Generates playlist from playlist files.  Playlist files are simple text
 // files with each line containing the relative path to a song.
-function generate_playlists() {
+function generate_playlists($playlist) {
   global $playlist_dir;
 
   $dir = dirname(__FILE__)."/$playlist_dir";
@@ -50,13 +50,34 @@ function generate_playlists() {
 
   $rtn = '';
   if (sort($fnames)) {
-    foreach ($fnames as $fname) {
-      $rtn.="<li class=\"unselected\" onclick=\"playlist.onclick(this)\">$fname</li>";
+    if ($playlist) {
+      foreach ($fnames as $fname) {
+        $rtn.="<li class=\"".(strcmp($playlist, $fname) != 0 ? 'un' : '')."selected\" onclick=\"playlist.onclick(this)\">$fname</li>";
+      }
+    } else {
+      foreach ($fnames as $fname) {
+        $rtn.="<li class=\"unselected\" onclick=\"playlist.onclick(this)\">$fname</li>";
+      }
     }
   } else {
-    $rtn.="<div class=\"error\">An internal error occurred, and your request could not be completed.</div>";
+    $rtn.="<div class=\"error\">\n";
+    $rtn.="  An internal error occurred, and your request could not be";
+    $rtn.=" completed.\n";
+    $rtn.="</div>";
   }
   return $rtn;
+}
+
+function generate_media($playlist, $media) {
+  global $playlist_dir;
+
+  $paths = split("\n", file_get_contents($playlist_dir.$playlist));
+  foreach ($paths as $path) {
+    $name = substr($path, strrpos($path, '/') + 1, -4);
+    $html .= '<li class="media'.(strcmp($name, $media) == 0 ? ' playing' : '').'" path="'.urlencode(str_replace(array('%2F', '..'), array('/', 'data'), $path))."\" onclick=\"media.onclick(this)\">$name</li>\n";
+  }
+
+  return $html;
 }
 
 if ($_GET) {
@@ -68,7 +89,7 @@ if ($_GET) {
 
   // Contents of return page are just text.  Playlist must be in utf-8.
   if (array_key_exists('playlist', $_GET)) {
-    echo file_get_contents($playlist_dir.$_GET['playlist']);
+    echo file_get_contents($playlist_dir.urldecode($_GET['playlist']));
   }
 }
 ?>
