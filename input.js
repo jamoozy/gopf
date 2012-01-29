@@ -275,10 +275,22 @@ var input = (function() {
         if (document.getElementsByClassName("dummy").length > 0) {
           viewMedia = false;
         } else {
-          select(document.getElementById("media").childNodes[0]);
+          var media = document.getElementById("media");
+          var playing = media.getElementsByClassName("playing");
+          if (playing.length > 0) {
+            select(playing[0]);
+          } else {
+            select(media.childNodes[0]);
+          }
         }
       } else {
-        select(document.getElementById("playlists").childNodes[0]);
+        var playlists = document.getElementById("playlists");
+        var selected = playlists.getElementsByClassName("selected");
+        if (selected.length > 0) {
+          select(selected[0]);
+        } else {
+          select(playlists.childNodes[0]);
+        }
       }
     }
   };
