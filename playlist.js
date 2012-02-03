@@ -33,7 +33,7 @@ var playlist = (function() {
   }
 
   function loadPlaylist(req) {
-    var media = req.responseText.replace(/\.\.\//g, dir).split("\n");
+    var path = req.responseText.replace(/\.\.\//g, dir).split("\n");
     var queue = document.getElementById("media");
     var player = document.getElementById("player");
     var mediaTag, i;
@@ -47,16 +47,18 @@ var playlist = (function() {
     }
 
     // Add the new children.
-    for (i = 0; i < media.length; i++) {
-      if (media[i].length > 0) {
-        var media_first = media[i].lastIndexOf("/") + 1;
-        var media_length = media[i].lastIndexOf(".") - media_first;
-        var name = media[i].substr(media_first, media_length);
+    for (i = 0; i < path.length; i++) {
+      if (path[i].length > 0) {
+        var media_first = path[i].lastIndexOf("/") + 1;
+        var media_length = path[i].lastIndexOf(".") - media_first;
+        var name = path[i].substr(media_first, media_length);
 
         mediaTag = document.createElement("li");
         mediaTag.setAttribute("class", "media");
-        mediaTag.setAttribute("path", escape(media[i]));
-        mediaTag.setAttribute("onclick", "media.onclick(this)");
+        mediaTag.setAttribute("path", escape(path[i]));
+        mediaTag.addEventListener("click", function(event) {
+            media.onclick(this);
+        }, true);
         mediaTag.innerHTML = name;
 
         queue.appendChild(mediaTag);
@@ -105,6 +107,17 @@ var playlist = (function() {
   return {
     swapAfter : false,
 
+    init : function() {
+      // Initialize the playlists' "onclick" events.
+      var unselected = document.getElementsByClassName("unselected");
+      for (var i = 0; i < unselected.length; i++) {
+        unselected[i].addEventListener("click", function(event) {
+            window.console.log("A playlist was clicked: " + this);
+            playlist.onclick(this);
+        }, true);
+      }
+    },
+
     // Register that a playlist was clicked (to be loaded).
     //        elem: The clicked element.
     //   swapAfter: Whether the list the user is controlling should be
@@ -129,3 +142,5 @@ var playlist = (function() {
     }
   };
 })();
+
+window.addEventListener("load", playlist.init, true);

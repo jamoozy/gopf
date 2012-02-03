@@ -52,11 +52,11 @@ function generate_playlists($playlist) {
   if (sort($fnames)) {
     if ($playlist) {
       foreach ($fnames as $fname) {
-        $rtn.="<li class=\"".(strcmp($playlist, $fname) != 0 ? 'un' : '')."selected\" onclick=\"playlist.onclick(this)\">$fname</li>";
+        $rtn.="<li class=\"unselected".(strcmp($playlist, $fname) != 0 ? ' selected' : '')."\">$fname</li>";
       }
     } else {
       foreach ($fnames as $fname) {
-        $rtn.="<li class=\"unselected\" onclick=\"playlist.onclick(this)\">$fname</li>";
+        $rtn.="<li class=\"unselected\">$fname</li>";
       }
     }
   } else {
