@@ -83,7 +83,7 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
 
     <footer id="footer">
       <div class="name">
-        <a href="http://code.google.com/p/gopf" target="_blank">
+        <a href="http://github.com/jamoozy/gopf" target="_blank">
           GOPF: The GNU Online Player Framework
         </a>
       </div>
