@@ -49,7 +49,7 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
     <div id="player-container" class="player-container">
       <div id="title-header">
         <h1 class="header">Now Playing:</h1>
-        <div class="title"></div>
+        <div class="title">(nothing loaded)</div>
       </div>
       <div id="notification"> </div>
       <audio id="player" src="" seek="true" controls>
