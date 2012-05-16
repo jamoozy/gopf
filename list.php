@@ -74,7 +74,7 @@ function generate_media($playlist, $media) {
   $paths = split("\n", file_get_contents($playlist_dir.$playlist));
   foreach ($paths as $path) {
     $name = substr($path, strrpos($path, '/') + 1, -4);
-    $html .= '<li class="media'.(strcmp($name, $media) == 0 ? ' playing' : '').'" path="'.urlencode(str_replace(array('%2F', '..'), array('/', 'data'), $path))."\" onclick=\"media.onclick(this)\">$name</li>\n";
+    $html .= '<li class="media'.(strcmp($name, $media) == 0 ? ' playing' : '').'" path="'.str_replace('..', 'data', $path)."\" onclick=\"media.onclick(this)\">$name</li>\n";
   }
 
   return $html;
@@ -89,7 +89,7 @@ if ($_GET) {
 
   // Contents of return page are just text.  Playlist must be in utf-8.
   if (array_key_exists('playlist', $_GET)) {
-    echo file_get_contents($playlist_dir.urldecode($_GET['playlist']));
+    echo file_get_contents($playlist_dir.$_GET['playlist']);
   }
 }
 ?>
