@@ -224,6 +224,8 @@ var input = (function() {
           }
         }
         break;
+
+      // TODO key for displaying help
     }
   }
 
@@ -269,6 +271,8 @@ var input = (function() {
 
       window.addEventListener("resize", function(e) { adjustSize(); }, true);
       window.addEventListener("keydown", onkey, true);
+      document.getElementById("player").addEventListener(
+          "canplay", function(e) { adjustSize(); }, true);
       adjustSize();
     },
 
