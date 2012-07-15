@@ -242,6 +242,8 @@ var input = (function() {
     var playlistCont = document.getElementById("playlist-container");
     var playlists = document.getElementById("playlists");
     var playlistHead = document.getElementById("playlist-header");
+    var controls = document.getElementById("controls");
+    var anElem = document.getElementsByClassName("unselected")[0];
 
     // Upper player container and lower "GOPF" label.
     var playerCont = document.getElementById("player-container");
@@ -258,6 +260,13 @@ var input = (function() {
 
     playlistCont.style.maxHeight = height + "px";
     playlists.style.maxHeight = height - playlistHead.offsetHeight + "px";
+
+    // Set max dims of the video element.
+    var margin = 10; // px
+    player.style.maxWidth = playerCont.offsetWidth - 2 * margin + "px"
+    var topSp = player.offsetTop;
+    var bottomSp = mediaHead.offsetHeight + controls.offsetHeight + 3 * anElem.offsetHeight;
+    player.style.maxHeight = footer.offsetTop - topSp - bottomSp + "px";
   }
 
   return {
