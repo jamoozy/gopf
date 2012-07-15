@@ -48,21 +48,22 @@ var playlist = (function() {
 
     // Add the new children.
     for (i = 0; i < path.length; i++) {
-      if (path[i].length > 0) {
-        var media_first = path[i].lastIndexOf("/") + 1;
-        var media_length = path[i].lastIndexOf(".") - media_first;
-        var name = path[i].substr(media_first, media_length);
-
-        mediaTag = document.createElement("li");
-        mediaTag.setAttribute("class", "media");
-        mediaTag.setAttribute("path", path[i]);
-        mediaTag.addEventListener("click", function(event) {
-            media.onclick(this);
-        }, true);
-        mediaTag.innerHTML = name;
-
-        queue.appendChild(mediaTag);
+      if (path[i].length <= 0 || path[i][0] == "#") {
+        continue;
       }
+      var media_first = path[i].lastIndexOf("/") + 1;
+      var media_length = path[i].lastIndexOf(".") - media_first;
+      var name = path[i].substr(media_first, media_length);
+
+      mediaTag = document.createElement("li");
+      mediaTag.setAttribute("class", "media");
+      mediaTag.setAttribute("path", path[i]);
+      mediaTag.addEventListener("click", function(event) {
+          media.onclick(this);
+      }, true);
+      mediaTag.innerHTML = name;
+
+      queue.appendChild(mediaTag);
     }
 
     // Ensure the media queue isn't overlapping things.
