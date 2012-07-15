@@ -148,6 +148,7 @@ li.selected, li.playing {
 
 .playlist-container {
   float: left;
+  max-width: 260px;
 }
 
 .media-container {
@@ -163,10 +164,6 @@ ul.playlists, ul.media {
   margin: 0px -1px -1px -1px;
 
   border: 1px solid white;
-}
-
-.playlist-container {
-  max-width: 260px;
 }
 
 #selected.media, #selected.unselected {
