@@ -52,9 +52,9 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
         <div class="title">(nothing loaded)</div>
       </div>
       <div id="notification"> </div>
-      <audio id="player" src="" seek="true" controls>
+      <video id="player" src="" seek="true" controls>
         Hey, man, get an HTML5-compatible browser, okay?
-      </audio>
+      </video>
       <div id="controls" class="controls-container">
         <span id="prev" class="controls">&lt;&lt;</span>
         <input id="loop" type="checkbox">
