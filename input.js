@@ -170,10 +170,10 @@ var input = (function() {
         break;
 
       case 219:  // [
-        player.playbackRate *= 0.5;
+        player.playbackRate -= 0.5;
         break;
       case 221:  // ]
-        player.playbackRate *= 2;
+        player.playbackRate += 0.5;
         break;
       case 8:  // backspace
         player.playbackRate = 1.0;
@@ -200,7 +200,7 @@ var input = (function() {
         adjustSize();
         break;
       case 53:  // 5
-        document.getElementById("player").width = 1000;
+        player.width = 1000;
         adjustSize();
         break;
 
@@ -226,6 +226,8 @@ var input = (function() {
         break;
 
       // TODO key for displaying help
+      case 191:  // ?
+        break;
     }
   }
 
