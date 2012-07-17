@@ -28,6 +28,265 @@ var input = (function() {
     document.getElementById("notification").innerHTML = str;
   }
 
+  var swapEntry = {
+    key: '` or H',
+    use: 'Switch between media and playlist lists.',
+    func: function(e) {
+      input.swap();
+      e.stopPropagation();
+    }
+  };
+
+  var helpOrder = [
+    'Navigation',
+    33, 34, 75, 74, 192, 72, 13,
+    'Scanning',
+    38, 40, 37, 39,
+    'Player Controls',
+    80, 78, 83, 76, 77, 32,
+    'Speed Controls',
+    219, 221, 8,
+    'Size Controls',
+    48, 49, 50, 51, 52, 53,
+    'Other',
+    191
+  ];
+
+
+  function bindings() {
+    var player = document.getElementById("player");
+    return {
+      33: {
+        key: 'Page Up',
+        use: 'Move up 10.',
+        func: function(e) {
+          prev(10);
+          e.stopPropagation();
+        }
+      },
+      34: {
+        key: 'Page Down',
+        use: 'Move down 10.',
+        func: function(e) {
+          next(10);
+          e.stopPropagation();
+        }
+      },
+      75: {
+        key: 'K',
+        use: 'Move up 1.',
+        func: function(e) {
+          prev(1);
+          e.stopPropagation();
+        }
+      },
+      74: {
+        key: 'J',
+        use: 'Move down 1.',
+        func: function(e) {
+          next(1);
+          e.stopPropagation();
+        }
+      },
+      192: swapEntry,  // `
+      72: swapEntry,   // H
+      13: {
+        key: 'Enter',
+        use: 'Select highlighted playlist/media.',
+        func: function(e) {
+          var sel = document.getElementById("selected");
+          if (sel !== null && sel !== undefined) {
+            if (viewMedia) {
+              media.onclick(sel);
+            } else {
+              playlist.onclick(sel, true);
+            }
+          }
+        }
+      },
+
+      38: {
+        key: 'Up / Ctrl + Up',
+        use: 'Go forward 5 / 10 minutes',
+        func: function(e) {
+          player.currentTime += e.ctrlKey ? 600 : 300;
+        }
+      },
+      40: {
+        key: 'Down / Ctrl + Down',
+        use: 'Go back 5 / 10 minutes',
+        func: function(e) {
+          player.currentTime -= e.ctrlKey ? 600 : 300;
+        }
+      },
+      37: {
+        key: 'Left / Ctrl + Left',
+        use: 'Go forward 10 / 60 seconds',
+        func: function(e) {
+          player.currentTime -= e.ctrlKey ? 60 : 10;
+        }
+      },
+      39: {
+        key: 'Right / Ctrl + Right',
+        use: 'Go back 10 / 60 seconds',
+        func: function(e) {
+          player.currentTime += e.ctrlKey ? 60 : 10;
+        }
+      },
+
+      80: {
+        key: 'P',
+        use: 'Previous track',
+        func : function(e) {
+          media.prev();
+        }
+      },
+      78: {
+        key: 'N',
+        use: 'Next track',
+        func : function(e) {
+          media.next();
+        }
+      },
+      83: {
+        key: 'S',
+        use: 'Toggle Shuffle',
+        func: function(e) {
+          document.getElementById("shuf").click();
+        }
+      },
+      76: {
+        key: 'L',
+        use: 'Toggle Loop',
+        func: function(e) {
+          document.getElementById("loop").click();
+        }
+      },
+      77: {
+        key: 'M',
+        use: 'Mute/unmute player',
+        func: function(e) {
+          player.muted = !player.muted;
+        }
+      },
+      32: {
+        key: 'Spacebar',
+        use: 'Pause / unpause',
+        func: function(e) {
+          if (player.paused) {
+            player.play();
+          } else {
+            player.pause();
+          }
+        }
+      },
+
+      219: {
+        key: '[',
+        use: 'Subtract 0.5 from playback rate',
+        func: function(e) {
+          player.playbackRate -= 0.5;
+        }
+      },
+      221: {
+        key: ']',
+        use: 'Add 0.5 to playback rate',
+        func: function(e) {
+          player.playbackRate += 0.5;
+        }
+      },
+      8: {
+        key: 'Backspace',
+        use: 'Return playback to normal speed',
+        func: function(e) {
+          player.playbackRate = 1.0;
+        }
+      },
+
+      48: {
+        key: '0',
+        use: 'Set video width to max',
+        func: function(e) {
+          player.removeAttribute("width");
+          adjustSize();
+        }
+      },
+      49: {
+        key: '1',
+        use: 'Set video width to 200px',
+        func: function(e) {
+          player.width = 200;
+          adjustSize();
+        }
+      },
+      50: {
+        key: '2',
+        use: 'Set video width to 400px',
+        func: function(e) {
+          player.width = 400;
+          adjustSize();
+        }
+      },
+      51: {
+        key: '3',
+        use: 'Set video width to 600px',
+        func: function(e) {
+          player.width = 600;
+          adjustSize();
+        }
+      },
+      52: {
+        key: '4',
+        use: 'Set video width to 800px',
+        func: function(e) {
+          player.width = 800;
+          adjustSize();
+        }
+      },
+      53: {
+        key: '5',
+        use: 'Set video width to 1000px',
+        func: function(e) {
+          player.width = 1000;
+          adjustSize();
+        }
+      },
+
+      191: {
+        key: '?',
+        use: 'Open / close this help dialog.',
+        func: function(e) {
+          toggleHelpDialog();
+        }
+      }
+    };
+  }
+
+  function toggleHelpDialog() {
+    var hd = document.getElementById("help-dialog");
+    if (hd.style.visibility == "hidden") {
+      hd.style.visibility = "visible";
+    } else {
+      hd.style.visibility = "hidden";
+    }
+  }
+
+  function initHelpDialog() {
+    var b = bindings();
+    var html = "<ul>";
+    for (var i in helpOrder) {
+      var elem = helpOrder[i];
+      if (typeof elem === "string") {
+        html += '<li class="help-header">' + elem + "</li>";
+      } else {
+        window.console.log("Checking out element: " + elem);
+        html += "<li>" + b[elem].key + ": " + b[elem].use + "</li>";
+      }
+    }
+    html += "</ul>";
+    document.getElementById('help-dialog').innerHTML = html;
+  }
+
   // Select
   function select(elem) {
     var sel = document.getElementById("selected");
@@ -118,116 +377,9 @@ var input = (function() {
 
   // Key handler.
   function onkey(e) {
-    var player = document.getElementById("player");
-    switch(e.keyCode) {
-      case 33:  // PageUp
-        prev(10);
-        e.stopPropagation();
-        break;
-      case 75:  // k
-        prev(1);
-        e.stopPropagation();
-        break;
-      case 34:  // PageDown
-        next(10);
-        e.stopPropagation();
-        break;
-      case 74:  // j
-        next(1);
-        e.stopPropagation();
-        break;
-      case 192: // back-tick ("`")
-      case 72:  // h
-        input.swap();
-        e.stopPropagation();
-        break;
-
-      case 38:  // up
-        player.currentTime += e.ctrlKey ? 600 : 300;
-        break;
-      case 40:  // down
-        player.currentTime -= e.ctrlKey ? 600 : 300;
-        break;
-      case 37:  // left
-        player.currentTime -= e.ctrlKey ? 60 : 10;
-        break;
-      case 39:  // right
-        player.currentTime += e.ctrlKey ? 60 : 10;
-        break;
-
-      case 80:  // P
-        media.prev();
-        break;
-      case 78:  // N
-        media.next();
-        break;
-
-      case 83:  // S
-        document.getElementById("shuf").click();
-        break;
-      case 76:  // L
-        document.getElementById("loop").click();
-        break;
-
-      case 219:  // [
-        player.playbackRate -= 0.5;
-        break;
-      case 221:  // ]
-        player.playbackRate += 0.5;
-        break;
-      case 8:  // backspace
-        player.playbackRate = 1.0;
-        break;
-
-      case 48:  // 0
-        player.removeAttribute("width");
-        adjustSize();
-        break;
-      case 49:  // 1
-        player.width = 200;
-        adjustSize();
-        break;
-      case 50:  // 2
-        player.width = 400;
-        adjustSize();
-        break;
-      case 51:  // 3
-        player.width = 600;
-        adjustSize();
-        break;
-      case 52:  // 4
-        player.width = 800;
-        adjustSize();
-        break;
-      case 53:  // 5
-        player.width = 1000;
-        adjustSize();
-        break;
-
-      case 77:  // M
-        player.muted = !player.muted;
-        break;
-      case 32:  // space
-        if (player.paused) {
-          player.play();
-        } else {
-          player.pause();
-        }
-        break;
-      case 13:  // enter
-        var sel = document.getElementById("selected");
-        if (sel !== null && sel !== undefined) {
-          if (viewMedia) {
-            media.onclick(sel);
-          } else {
-            playlist.onclick(sel, true);
-          }
-        }
-        break;
-
-      // TODO key for displaying help
-      case 191:  // ?
-        break;
+    var b = bindings()
+    if (e.keyCode in b) {
+      b[e.keyCode].func(e);
     }
   }
 
@@ -247,6 +399,7 @@ var input = (function() {
 
     // Upper player container and lower "GOPF" label.
     var playerCont = document.getElementById("player-container");
+    var player = document.getElementById("player");
     var footer = document.getElementById("footer");
 
     var width = window.innerWidth - playlistCont.offsetLeft -
@@ -284,6 +437,7 @@ var input = (function() {
       window.addEventListener("keydown", onkey, true);
       document.getElementById("player").addEventListener(
           "canplay", function(e) { adjustSize(); }, true);
+      initHelpDialog();
       adjustSize();
     },
 

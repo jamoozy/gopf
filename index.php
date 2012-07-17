@@ -81,6 +81,8 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
       </div>
     </nav>
 
+    <div id="help-dialog" class="help-dialog"></div>
+
     <footer id="footer">
       <div class="name">
         <a href="http://github.com/jamoozy/gopf" target="_blank">

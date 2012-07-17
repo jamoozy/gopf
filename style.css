@@ -28,6 +28,32 @@ body {
 }
 
 
+.help-dialog {
+  float: top;
+  position: absolute;
+  top: 3em;
+  right: 3em;
+  bottom: 3em;
+  left: 3em;
+  background-color: rgba(10, 10, 10, 32);
+  color: white;
+  border: 2px solid white;
+  border-radius: 1em;
+}
+
+.help-dialog ul li {
+  list-style-type: none;
+  position: relative;
+}
+
+.help-dialog ul li.help-header {
+  margin: 1em 3em 0 0;
+  border-bottom: 1px solid gray;
+  font-weight: bold;
+  color: yellow;
+}
+
+
 
 /*********************************************************\
 |                    main media player                    |
@@ -182,6 +208,12 @@ ul.playlists, ul.media {
 .controls {
   cursor: pointer;
 }
+
+
+
+/*********************************************************\
+|                          footer                         |
+\*********************************************************/
 
 footer {
   float: bottom;
