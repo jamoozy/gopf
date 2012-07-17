@@ -39,6 +39,7 @@ body {
   color: white;
   border: 2px solid white;
   border-radius: 1em;
+  -webkit-columns: 100px 2;
 }
 
 .help-dialog ul li {
