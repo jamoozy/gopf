@@ -59,6 +59,15 @@ body {
   color: yellow;
 }
 
+.help-dialog ul li span.key {
+  font-family: monospace;
+  font-weight: bold;
+  min-width: 3em;
+  max-width: 3em;
+  width: 3em;
+  text-align: right;
+}
+
 
 
 /*********************************************************\

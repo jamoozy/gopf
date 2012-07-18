@@ -280,7 +280,8 @@ var input = (function() {
         html += '<li class="help-header">' + elem + "</li>";
       } else {
         window.console.log("Checking out element: " + elem);
-        html += "<li>" + b[elem].key + ": " + b[elem].use + "</li>";
+        html += '<li><span class="key">' + b[elem].key + '</span>: ' +
+          '<span class="use">' + b[elem].use + "</span></li>";
       }
     }
     html += "</ul>";
