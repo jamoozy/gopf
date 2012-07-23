@@ -28,18 +28,9 @@ var input = (function() {
     document.getElementById("notification").innerHTML = str;
   }
 
-  var swapEntry = {
-    key: '` or H',
-    use: 'Switch between media and playlist lists.',
-    func: function(e) {
-      input.swap();
-      e.stopPropagation();
-    }
-  };
-
   var helpOrder = [
     'Navigation',
-    33, 34, 75, 74, 192, 72, 13,
+    33, 34, 75, 74, 72, 13,
     'Scanning',
     38, 40, 37, 39,
     'Player Controls',
@@ -57,7 +48,7 @@ var input = (function() {
     var player = document.getElementById("player");
     return {
       33: {
-        key: 'Page Up',
+        key: 'Pg&uarr;',
         use: 'Move up 10.',
         func: function(e) {
           prev(10);
@@ -65,7 +56,7 @@ var input = (function() {
         }
       },
       34: {
-        key: 'Page Down',
+        key: 'Pg&darr;',
         use: 'Move down 10.',
         func: function(e) {
           next(10);
@@ -88,8 +79,14 @@ var input = (function() {
           e.stopPropagation();
         }
       },
-      192: swapEntry,  // `
-      72: swapEntry,   // H
+      72: {
+        key: 'H',
+        use: 'Switch between media and playlist lists.',
+        func: function(e) {
+          input.swap();
+          e.stopPropagation();
+        }
+      },
       13: {
         key: 'Enter',
         use: 'Select highlighted playlist/media.',
@@ -106,28 +103,28 @@ var input = (function() {
       },
 
       38: {
-        key: 'Up / Ctrl + Up',
+        key: '&uarr; / Ctrl &uarr;',
         use: 'Go forward 5 / 10 minutes',
         func: function(e) {
           player.currentTime += e.ctrlKey ? 600 : 300;
         }
       },
       40: {
-        key: 'Down / Ctrl + Down',
+        key: '&darr; / Ctrl &darr;',
         use: 'Go back 5 / 10 minutes',
         func: function(e) {
           player.currentTime -= e.ctrlKey ? 600 : 300;
         }
       },
       37: {
-        key: 'Left / Ctrl + Left',
+        key: '&larr; / Ctrl &larr;',
         use: 'Go forward 10 / 60 seconds',
         func: function(e) {
           player.currentTime -= e.ctrlKey ? 60 : 10;
         }
       },
       39: {
-        key: 'Right / Ctrl + Right',
+        key: '&rarr; / Ctrl &rarr;',
         use: 'Go back 10 / 60 seconds',
         func: function(e) {
           player.currentTime += e.ctrlKey ? 60 : 10;
@@ -170,7 +167,7 @@ var input = (function() {
         }
       },
       32: {
-        key: 'Spacebar',
+        key: 'Spbar',
         use: 'Pause / unpause',
         func: function(e) {
           if (player.paused) {
@@ -196,7 +193,7 @@ var input = (function() {
         }
       },
       8: {
-        key: 'Backspace',
+        key: 'Bksp',
         use: 'Return playback to normal speed',
         func: function(e) {
           player.playbackRate = 1.0;
