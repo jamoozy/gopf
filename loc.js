@@ -17,8 +17,10 @@
 
 var loc = (function() {
   function deletePage() {
-    var body = document.getElementsByTagName("body")[0];
-    body.innerHTML = "<div style=\"text-align:center;margin-top:40px\"><h1> NO SOUP FOR YOU </h1></div>"; }
+    // Do nothing ... Location checking doesn't work properly yet.
+    //var body = document.getElementsByTagName("body")[0];
+    //body.innerHTML = "<div style=\"text-align:center;margin-top:40px\"><h1> NO SOUP FOR YOU </h1></div>";
+  }
 
   function errorHandler() {
     window.console.log("Therer was an error.");
