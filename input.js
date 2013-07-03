@@ -431,6 +431,7 @@ var input = (function() {
         }
       }
 
+      document.getElementById("help-dialog").style.visibility = "hidden";
       window.addEventListener("resize", function(e) { adjustSize(); }, true);
       window.addEventListener("keydown", onkey, true);
       document.getElementById("player").addEventListener(
