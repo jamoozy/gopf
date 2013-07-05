@@ -163,8 +163,10 @@ li.selected, li.playing {
 |                   individual elements                   |
 \*********************************************************/
 
-.title {
-  padding-bottom: 1em;
+
+.download {
+  font-size:8pt;
+  padding-bottom:1em;
 }
 
 .mnemonic {

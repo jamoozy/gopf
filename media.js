@@ -52,7 +52,8 @@ var media = (function() {
     var th = document.getElementById("title-header");
     title.innerHTML = elem.innerHTML;
     th.innerHTML = '<h1 class="header">Now Playing:</h1>\n' +
-                      '<div class="title">' + elem.innerHTML; + "</div>";
+                   '<div class="title">' + elem.innerHTML + "</div>" +
+                   '<a download="" class="download" href="' + path + '">(download)</a>';
 
     elem.setAttribute("class", "media playing");
     player.setAttribute("src", path);
