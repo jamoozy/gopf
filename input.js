@@ -413,7 +413,9 @@ var input = (function() {
     media.style.minHeight = height - mediaHead.offsetHeight + "px";
 
     playlistCont.style.maxHeight = height + "px";
+    playlistCont.style.minHeight = height + "px";
     playlists.style.maxHeight = height - playlistHead.offsetHeight + "px";
+    playlists.style.minHeight = height - playlistHead.offsetHeight + "px";
 
     // Set max dims of the video element.
     var margin = 10; // px
