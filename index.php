@@ -76,7 +76,7 @@ include("list.php");
 
       <div id="media-container" class="media-container">
         <ul id="media" class="media">
-          <li class="dummy"><span style="font-size:24pt;float:left;position:relative;margin-top:1px">&larr;</span> &nbsp; select a song</li>
+          <li class="dummy"><span style="font-size:24pt;float:left;position:relative;margin-top:1px">&larr;</span> &nbsp; select a playlist</li>
         </ul>
         <h1 id="media-header" class="header">Songs</h1>
       </div>
