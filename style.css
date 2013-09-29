@@ -23,7 +23,7 @@ body {
     90deg, gray, white
   );
 
-  font-family: "Arial", sans-serif;
+  font-family: Tinos;
   font-size: 12pt;
 }
 
@@ -68,6 +68,10 @@ body {
   text-align: right;
 }
 
+.playlist-container, .media-container {
+  font-family: Tinos;
+}
+
 
 
 /*********************************************************\
@@ -99,16 +103,20 @@ body {
   cursor: pointer;
 }
 
+ul.media:hover {
+  cursor:default;
+}
+
 .dummy {
   color: white;
   list-style-type: none;
   padding: 2px 1em;
   margin: 2px 1em;
-  margin-left: -2.5em;
   text-align: center;
+  font-family: "Poiret One";
 
-  display: -webkit-box;
-  display: -moz-box;
+  display: -webkit-inline-box;
+  display: -moz-inline-box;
   -webkit-box-pack: center;
   -moz-box-pack: center;
   -webkit-box-align: center;
@@ -116,7 +124,6 @@ body {
 }
 
 li.selected, li.unselected, li.media, li.playing {
-  margin-left: -2.5em;
   padding-right: 0.5em;
 
   overflow: hidden;
@@ -125,12 +132,19 @@ li.selected, li.unselected, li.media, li.playing {
   list-style-type: none;
   text-overflow: clip;
 
-  border-radius: 1em;
+  /*border-radius: 1em;*/
   border: 1px solid black;
-  padding-left: 5px;
+  padding:5px;
   height: 1em;
 
   margin-bottom: -1px;
+}
+
+.title {
+  color: #e0ffff;
+  font-family: 'Headland One';
+  padding-top:5px;
+  font-size:10pt;
 }
 
 li.media, li.unselected {
@@ -148,9 +162,9 @@ li.media, li.unselected {
 li.selected, li.playing {
   background-image: -webkit-gradient(
     linear, left top, left bottom,
-    from(white), to(blue)
+    from(#fff), to(#00f)
   );
-  background: -moz-linear-gradient(90deg, white, blue);
+  background: -moz-linear-gradient(90deg, #fff, #00f);
 
   color: #8db6cd;
   border-color: #8db6cd;
@@ -167,6 +181,7 @@ li.selected, li.playing {
 .download {
   font-size:8pt;
   padding-bottom:1em;
+  color:rgb(92,132,218);
 }
 
 .mnemonic {
@@ -174,11 +189,12 @@ li.selected, li.playing {
 }
 
 .header {
+  font-family:'Poiret One';
   color: #8db6cd;
   float: top;
   text-align: center;
-  padding: 2px;
-  margin: 0px 0em;
+  padding: 2px 2px 5px 2px;
+  margin: 0;
 }
 
 .playlist-container, .media-container {
@@ -187,6 +203,17 @@ li.selected, li.playing {
   border-top: none;
   border-radius: 1em;
   margin: -1px 5px;  /* lines-up with media-container */
+  text-align:left;
+}
+
+.media-container {
+  border-top-right-radius:0;
+  box-shadow:#777 5px 0 0;
+}
+
+.playlist-container {
+  border-top-left-radius:0;
+  box-shadow:#777 -5px 0 0;
 }
 
 .playlist-container {
@@ -205,6 +232,7 @@ ul.playlists, ul.media {
   overflow-y: scroll;
 
   margin: 0px -1px -1px -1px;
+  padding-left:0;
 
   border: 1px solid white;
 }
@@ -215,11 +243,15 @@ ul.playlists, ul.media {
 }
 
 #selected.playing, #selected.selected {
-  background-image: -webkit-gradient(
+  background: -webkit-gradient(
     linear, left bottom, left top,
-    from(white), to(black)
+    from(#222), to(#000)
   );
   background: -moz-linear-gradient(90deg, black, #102520);
+}
+
+.controls-container {
+  font-family:'Poiret One';
 }
 
 .controls {

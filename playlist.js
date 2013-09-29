@@ -114,6 +114,8 @@ var playlist = (function() {
       for (var i = 0; i < unselected.length; i++) {
         unselected[i].addEventListener("click", function(event) {
             window.console.log("A playlist was clicked: " + this);
+            document.getElementById("selected").removeAttribute("id");
+            this.setAttribute("id", "selected");
             playlist.onclick(this);
         }, true);
       }

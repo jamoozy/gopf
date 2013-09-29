@@ -51,7 +51,7 @@ var media = (function() {
     var title = document.getElementById("page-title");
     var th = document.getElementById("title-header");
     title.innerHTML = elem.innerHTML;
-    th.innerHTML = '<h1 class="header">Now Playing:</h1>\n' +
+    th.innerHTML = '<h1 class="header">now playing:</h1>\n' +
                    '<div class="title">' + elem.innerHTML + "</div>" +
                    '<a download="" class="download" href="' + path + '">(download)</a>';
 
@@ -107,6 +107,9 @@ var media = (function() {
         }
       }
       // Set media to #selected?
+      window.console.log("Deleting selected ID");
+      document.getElementById("selected").removeAttribute('id');
+      med.setAttribute('id', 'selected');
       play(med);
     },
 

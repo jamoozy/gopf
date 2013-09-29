@@ -41,6 +41,7 @@ include("list.php");
     <script src="media.js" type="text/javascript"></script>
     <script src="playlist.js" type="text/javascript"></script>
     <script src="input.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Poiret+One|Tinos|Headland+One">
     <link rel="stylesheet" type="text/css" href="style.css">
     <link id="prefetch" rel="prefetch" href="">
   </head>
@@ -48,8 +49,8 @@ include("list.php");
   <body>
     <div id="player-container" class="player-container">
       <div id="title-header">
-        <h1 class="header">Now Playing:</h1>
-        <div class="title">(nothing loaded)</div>
+        <h1 class="header">now playing:</h1>
+        <div class="title" style="font-family:'Poiret One'">(nothing loaded)</div>
       </div>
       <div id="notification"> </div>
       <audio id="player" src="" seek="true" controls>
@@ -75,7 +76,7 @@ include("list.php");
 
       <div id="media-container" class="media-container">
         <ul id="media" class="media">
-          <li class="dummy">(nothing loaded)</li>
+          <li class="dummy"><span style="font-size:24pt;float:left;position:relative;margin-top:1px">&larr;</span> &nbsp; select a song</li>
         </ul>
         <h1 id="media-header" class="header">Songs</h1>
       </div>

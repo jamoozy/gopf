@@ -18,7 +18,7 @@
 var input = (function() {
   // Extra amount to shrink media container by, so that media/playlists
   // don't overlap one onther.
-  var DIVIDER_WIDTH = 40;
+  var DIVIDER_WIDTH = 50;
 
   // Whether the selector is in the media list.  False means it's in the
   // playlists list.
@@ -406,8 +406,11 @@ var input = (function() {
                  playerCont.offsetTop - playlistCont.offsetLeft;
 
     mediaCont.style.maxWidth = width + "px";
+    mediaCont.style.minWidth = width + "px";
     mediaCont.style.maxHeight = height + "px";
+    mediaCont.style.minHeight = height + "px";
     media.style.maxHeight = height - mediaHead.offsetHeight + "px";
+    media.style.minHeight = height - mediaHead.offsetHeight + "px";
 
     playlistCont.style.maxHeight = height + "px";
     playlists.style.maxHeight = height - playlistHead.offsetHeight + "px";
