@@ -37,6 +37,7 @@ include("list.php");
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title id="page-title">Zelda_64_Pachelbels_Ganon_OC_ReMix</title>
+    <script src="jquery-1.10.1.min.js" type="text/javascript"></script>
     <!--script src="loc.js" type="text/javascript"></script-->
     <script src="media.js" type="text/javascript"></script>
     <script src="playlist.js" type="text/javascript"></script>
