@@ -17,12 +17,13 @@
  * along with GOPF. If not, see http://www.gnu.org/licenses/.
  */
 
-body {
-  background: #333333;
-  background-image: -moz-linear-gradient(
-    90deg, gray, white
-  );
+html {
+  height:100%;
+  background:#333;
+  background:linear-gradient(to bottom, #222, #555);
+}
 
+body {
   font-family: Tinos;
   font-size: 12pt;
 }
@@ -278,5 +279,5 @@ footer .name {
 }
 
 footer .name, .name a:visited, .name a:link {
-  color: #777;
+  color: #aaa;
 }
