@@ -24,26 +24,20 @@ var input = (function() {
   // playlists list.
   var viewMedia = false;
 
-  function notify(str) {
-    document.getElementById("notification").innerHTML = str;
-  }
+  // Fullscreened (in a window) state.
+  var fullscreen = false;
 
-  var swapEntry = {
-    key: '` or H',
-    use: 'Switch between media and playlist lists.',
-    func: function(e) {
-      input.swap();
-      e.stopPropagation();
-    }
-  };
+  function notify(str) {
+    $("#notification").html(str);
+  }
 
   var helpOrder = [
     'Navigation',
-    33, 34, 75, 74, 192, 72, 13,
+    33, 34, 75, 74, 72, 13,
     'Scanning',
     38, 40, 37, 39,
     'Player Controls',
-    80, 78, 83, 76, 77, 32,
+    70, 80, 78, 83, 76, 77, 32,
     'Speed Controls',
     219, 221, 8,
     'Size Controls',
@@ -54,10 +48,10 @@ var input = (function() {
 
 
   function bindings() {
-    var player = document.getElementById("player");
+    var player = $("#player");
     return {
       33: {
-        key: 'Page Up',
+        key: 'Pg&uarr;',
         use: 'Move up 10.',
         func: function(e) {
           prev(10);
@@ -65,7 +59,7 @@ var input = (function() {
         }
       },
       34: {
-        key: 'Page Down',
+        key: 'Pg&darr;',
         use: 'Move down 10.',
         func: function(e) {
           next(10);
@@ -88,52 +82,66 @@ var input = (function() {
           e.stopPropagation();
         }
       },
-      192: swapEntry,  // `
-      72: swapEntry,   // H
+      72: {
+        key: 'H',
+        use: 'Switch between media and playlist lists.',
+        func: function(e) {
+          input.swap();
+          e.stopPropagation();
+        }
+      },
       13: {
         key: 'Enter',
         use: 'Select highlighted playlist/media.',
         func: function(e) {
-          var sel = document.getElementById("selected");
+          var sel = $("#selected");
           if (sel !== null && sel !== undefined) {
             if (viewMedia) {
-              media.onclick(sel);
+              $(media).trigger('click', sel);
             } else {
-              playlist.onclick(sel, true);
+              $(playlist).trigger('click', sel, true);
             }
           }
         }
       },
 
       38: {
-        key: 'Up / Ctrl + Up',
+        key: '&uarr; / Ctrl &uarr;',
         use: 'Go forward 5 / 10 minutes',
         func: function(e) {
-          player.currentTime += e.ctrlKey ? 600 : 300;
+          player[0].currentTime += e.ctrlKey ? 600 : 300;
         }
       },
       40: {
-        key: 'Down / Ctrl + Down',
+        key: '&darr; / Ctrl &darr;',
         use: 'Go back 5 / 10 minutes',
         func: function(e) {
-          player.currentTime -= e.ctrlKey ? 600 : 300;
+          player[0].currentTime -= e.ctrlKey ? 600 : 300;
         }
       },
       37: {
-        key: 'Left / Ctrl + Left',
+        key: '&larr; / Ctrl &larr;',
         use: 'Go forward 10 / 60 seconds',
         func: function(e) {
-          player.currentTime -= e.ctrlKey ? 60 : 10;
+          player[0].currentTime -= e.ctrlKey ? 60 : 10;
         }
       },
       39: {
-        key: 'Right / Ctrl + Right',
+        key: '&rarr; / Ctrl &rarr;',
         use: 'Go back 10 / 60 seconds',
         func: function(e) {
-          player.currentTime += e.ctrlKey ? 60 : 10;
+          player[0].currentTime += e.ctrlKey ? 60 : 10;
         }
       },
 
+      70: {
+        key: 'F',
+        use: 'Toogle (windowed) fullscreen mode',
+        fun: function(e) {
+          toggleFullscreen();
+          e.stopPropagation();
+        }
+      },
       80: {
         key: 'P',
         use: 'Previous track',
@@ -152,31 +160,31 @@ var input = (function() {
         key: 'S',
         use: 'Toggle Shuffle',
         func: function(e) {
-          document.getElementById("shuf").click();
+          $("#shuf").trigger('click');
         }
       },
       76: {
         key: 'L',
         use: 'Toggle Loop',
         func: function(e) {
-          document.getElementById("loop").click();
+          $("#loop").trigger('click');
         }
       },
       77: {
         key: 'M',
         use: 'Mute/unmute player',
         func: function(e) {
-          player.muted = !player.muted;
+          player[0].muted = !player[0].muted;
         }
       },
       32: {
-        key: 'Spacebar',
+        key: 'Spbar',
         use: 'Pause / unpause',
         func: function(e) {
-          if (player.paused) {
-            player.play();
+          if (player[0].paused) {
+            player[0].play();
           } else {
-            player.pause();
+            player[0].pause();
           }
         }
       },
@@ -185,21 +193,21 @@ var input = (function() {
         key: '[',
         use: 'Subtract 0.5 from playback rate',
         func: function(e) {
-          player.playbackRate -= 0.5;
+          player[0].playbackRate -= 0.5;
         }
       },
       221: {
         key: ']',
         use: 'Add 0.5 to playback rate',
         func: function(e) {
-          player.playbackRate += 0.5;
+          player[0].playbackRate += 0.5;
         }
       },
       8: {
-        key: 'Backspace',
+        key: 'Bksp',
         use: 'Return playback to normal speed',
         func: function(e) {
-          player.playbackRate = 1.0;
+          player[0].playbackRate = 1.0;
         }
       },
 
@@ -207,7 +215,7 @@ var input = (function() {
         key: '0',
         use: 'Set video width to max',
         func: function(e) {
-          player.removeAttribute("width");
+          player.removeAttr("width");
           adjustSize();
         }
       },
@@ -215,7 +223,7 @@ var input = (function() {
         key: '1',
         use: 'Set video width to 200px',
         func: function(e) {
-          player.width = 200;
+          player.attr('width', 200);
           adjustSize();
         }
       },
@@ -223,7 +231,7 @@ var input = (function() {
         key: '2',
         use: 'Set video width to 400px',
         func: function(e) {
-          player.width = 400;
+          player.attr('width', 400);
           adjustSize();
         }
       },
@@ -231,7 +239,7 @@ var input = (function() {
         key: '3',
         use: 'Set video width to 600px',
         func: function(e) {
-          player.width = 600;
+          player.attr('width', 600);
           adjustSize();
         }
       },
@@ -239,7 +247,7 @@ var input = (function() {
         key: '4',
         use: 'Set video width to 800px',
         func: function(e) {
-          player.width = 800;
+          player.attr('width', 800);
           adjustSize();
         }
       },
@@ -247,7 +255,7 @@ var input = (function() {
         key: '5',
         use: 'Set video width to 1000px',
         func: function(e) {
-          player.width = 1000;
+          player.attr('width', 1000);
           adjustSize();
         }
       },
@@ -262,118 +270,101 @@ var input = (function() {
     };
   }
 
-  function toggleHelpDialog() {
-    var hd = document.getElementById("help-dialog");
-    if (hd.style.visibility == "hidden") {
-      hd.style.visibility = "visible";
+  function toggleFullscreen() {
+    var player = $("#player");
+    if (player[0].tagName === 'AUDIO') {
+      return;
+    }
+    if (fullscreen = !fullscreen) {
     } else {
-      hd.style.visibility = "hidden";
+    }
+  }
+
+  function toggleHelpDialog() {
+    var hd = $("#help-dialog");
+    if (hd.css("visibility") === "hidden") {
+      hd.show();
+    } else {
+      hd.hide();
     }
   }
 
   function initHelpDialog() {
     var b = bindings();
     var html = "<ul>";
-    for (var i in helpOrder) {
-      var elem = helpOrder[i];
+    $(helpOrder).each(function(i, elem) {
       if (typeof elem === "string") {
         html += '<li class="help-header">' + elem + "</li>";
       } else {
-        window.console.log("Checking out element: " + elem);
         html += '<li><span class="key">' + b[elem].key + '</span>: ' +
           '<span class="use">' + b[elem].use + "</span></li>";
       }
-    }
+    });
     html += "</ul>";
-    document.getElementById('help-dialog').innerHTML = html;
+    $("#help-dialog").html(html);
+    //$("#help-dialog").hide();
   }
 
-  // Select
-  function select(elem) {
-    var sel = document.getElementById("selected");
-    if (sel !== null && sel !== undefined) {
-      sel.removeAttribute("id");
-    }
-    if (elem.setAttribute !== undefined) {
-      elem.setAttribute("id", "selected");
-    } else {
-      getElems()[0].setAttribute("id", "selected");
-    }
+  // Selects the given element.
+  function select(idx) {
+    window.console.log("select("+idx+")");
+    var sel = $("#selected").removeAttr("id");
+    $(getList().get(idx)).attr("id", "selected");
   }
 
   // Gets the elements from the currently-selected list.
   function getElems() {
-    return getList().childNodes;
+    return getList().children();
   }
 
   // Gets the currently-selected list.
   function getList() {
-    if (viewMedia) {
-      return document.getElementById("media");
-    } else {
-      return document.getElementById("playlists");
-    }
-  }
-
-  // Gets the index of an element in the list.
-  function getElemIndex(list, elem) {
-    if (elem === null || elem === undefined) { return 0; }
-    for (var i = 0; i < list.length; i++) {
-      if (list[i] === elem) {
-        return i;
-      }
-    }
-    return 0;
+    return viewMedia ? $("#media") : $("#playlists");
   }
 
   // Ensures the selected element is visible, either by centering the
   // list's view on the element, or scrolling the list all the way up or
   // down so the element is in view.
   function ensureSelectedVisible(i) {
-    var sel = document.getElementById("selected");
     var list = getList();
     // "-1" due to "border-bottom: -1px"
-    list.scrollTop = i * (sel.offsetHeight - 1) - list.offsetHeight / 2;
+    list.scrollTop(i * ($("#selected").height() - 1) - list.height() / 2);
   }
 
   // Selects the previous element in the list.
   function prev(dec) {
-    var sel = document.getElementById("selected");
-    var elems = getElems();
-    var i = getElemIndex(elems, sel);
+    dec = dec || 1;
 
-    if (dec === undefined) {
-      dec = 1;
+    var list = getList();
+    var i = list.index("#selected");
+    var val = i - dec;
+    if (val < 0) {
+      val = 0;
+    } else if (val >= list.size()) {
+      val = list.size() - 1;
     }
 
-    if (!isNaN(i)) {
-      var val = i - dec;
-      if (val < 0) {
-        val = 0;
-      }
-      select(elems[val]);
-      ensureSelectedVisible(val);
-    }
+    window.console.log("val:"+val);
+    select(val);
+    ensureSelectedVisible(val);
   }
 
   // Selects the next element in the list.
   function next(inc) {
-    var sel = document.getElementById("selected");
-    var elems = getElems();
-    var i = getElemIndex(elems, sel);
+    inc = inc || 1;
 
-    if (inc === undefined) {
-      inc = 1;
+    var list = getList();
+    var i = list.index("#selected");
+    var val = i + inc;
+    if (val >= list.size()) {
+      val = list.size() - 1;
+    } else if (val < 0) {
+      val = 0;
     }
 
-    if (!isNaN(i)) {
-      var val = i + inc;
-      if (val >= elems.length) {
-        val = elems.length - 1;
-      }
-      select(elems[val]);
-      ensureSelectedVisible(val);
-    }
+    window.console.log("val:"+val);
+    select(val);
+    ensureSelectedVisible(val);
   }
 
   // Key handler.
@@ -387,57 +378,53 @@ var input = (function() {
   // Window resize handler.
   function adjustSize() {
     // Media container, list, header.
-    var mediaCont = document.getElementById("media-container");
-    var media = document.getElementById("media");
-    var mediaHead = document.getElementById("media-header");
+    var mediaCont = $("#media-container");
+    var media = $("#media");
+    var mediaHead = $("#media-header");
 
     // Play list container, list, and header.
-    var playlistCont = document.getElementById("playlist-container");
-    var playlists = document.getElementById("playlists");
-    var playlistHead = document.getElementById("playlist-header");
-    var controls = document.getElementById("controls");
-    var anElem = document.getElementsByClassName("unselected")[0];
+    var playlistCont = $("#playlist-container");
+    var playlists = $("#playlists");
+    var playlistHead = $("#playlist-header");
+    var controls = $("#controls");
+    var anElem = $(".unselected").first();
 
     // Upper player container and lower "GOPF" label.
-    var playerCont = document.getElementById("player-container");
-    var player = document.getElementById("player");
-    var footer = document.getElementById("footer");
+    var playerCont = $("#player-container");
+    var player = $("#player");
+    var footer = $("#footer");
 
-    var width = window.innerWidth - playlistCont.offsetLeft -
-                playlistCont.offsetWidth - DIVIDER_WIDTH;
-    var height = footer.offsetTop - playerCont.offsetHeight -
-                 playerCont.offsetTop - playlistCont.offsetLeft;
+    var width = $(window).innerWidth() - playlistCont.offset().left -
+                playlistCont.width() - DIVIDER_WIDTH;
+    var height = footer.offset().top - playerCont.height() -
+                 playerCont.offset().top - playlistCont.offset().left;
 
-    mediaCont.style.maxWidth = width + "px";
-    mediaCont.style.maxHeight = height + "px";
-    media.style.maxHeight = height - mediaHead.offsetHeight + "px";
+    mediaCont.css("max-width", width + "px");
+    mediaCont.css("max-height", height + "px");
+    media.css("max-height", height - mediaHead.height() + "px");
 
-    playlistCont.style.maxHeight = height + "px";
-    playlists.style.maxHeight = height - playlistHead.offsetHeight + "px";
+    playlistCont.css("max-height", height + "px");
+    playlists.css("max-height", height - playlistHead.height() + "px");
 
     // Set max dims of the video element.
     var margin = 10; // px
-    player.style.maxWidth = playerCont.offsetWidth - 2 * margin + "px"
-    var topSp = player.offsetTop;
-    var bottomSp = mediaHead.offsetHeight + controls.offsetHeight + 3 * anElem.offsetHeight;
-    player.style.maxHeight = footer.offsetTop - topSp - bottomSp + "px";
+    $(player).css("max-width", playerCont.width() - 2 * margin + "px");
+    var topSp = player.offset().top;
+    var bottomSp = mediaHead.height() + controls.height() + 3 * anElem.height();
+    $(player).css("max-height", footer.offset().top - topSp - bottomSp + "px");
   }
 
   return {
     // Initializes the input module by registering event listeners.
     init : function() {
-      var sel = document.getElementById("selected");
-      if (sel === null) {
-        var playlists = document.getElementById("playlists").childNodes;
-        if (playlists.length > 0) {
-          playlists[0].setAttribute("id", "selected");
-        }
+      var sel = $("#selected")[0];
+      if (!sel) {
+        $("#playlists").children().first().attr("id", "selected");
       }
 
-      window.addEventListener("resize", function(e) { adjustSize(); }, true);
-      window.addEventListener("keydown", onkey, true);
-      document.getElementById("player").addEventListener(
-          "canplay", function(e) { adjustSize(); }, true);
+      $(window).resize(function(e) { adjustSize(); });
+      $(window).keydown(onkey);
+      $("#player").on("canplay", function(e) { adjustSize(); });
       initHelpDialog();
       adjustSize();
     },
@@ -446,28 +433,28 @@ var input = (function() {
     swap : function() {
       viewMedia = !viewMedia;
       if (viewMedia) {
-        if (document.getElementsByClassName("dummy").length > 0) {
+        if ($(".dummy").length > 0) {
           viewMedia = false;
         } else {
-          var media = document.getElementById("media");
-          var playing = media.getElementsByClassName("playing");
-          if (playing.length > 0) {
-            select(playing[0]);
+          var media = $("#media");
+          var playing = media.find(".playing");
+          if (playing.size() > 0) {
+            select(0);
           } else {
-            select(media.childNodes[0]);
+            select(0);
           }
         }
       } else {
-        var playlists = document.getElementById("playlists");
-        var selected = playlists.getElementsByClassName("selected");
-        if (selected.length > 0) {
-          select(selected[0]);
+        var playlists = $("#playlists");
+        var selected = playlists.find(".selected");
+        if (selected.size() > 0) {
+          select(0);
         } else {
-          select(playlists.childNodes[0]);
+          select(0);
         }
       }
     }
   };
 })();
 
-window.addEventListener("load", input.init, true);
+$(window).load(input.init);
