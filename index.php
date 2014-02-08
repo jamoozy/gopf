@@ -1,35 +1,35 @@
 <?php
-// Copyright 2012 Andrew "Jamoozy" Correa
+// Copyright 2012-2013 Andrew "Jamoozy" Correa S.
 //
 // This file is part of GOPF.
 //
 // GOPF is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public as published by the Free Software
+// the terms of the GNU Affero General Public as published by the Free Software
 // Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
 // GOPF is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License
 // for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU Affero General Public License
 // along with GOPF. If not, see http://www.gnu.org/licenses/.
 
 include("mysql.php");
 include("list.php");
 
-if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
-  $playlist = false;
-  $media = false;
-  if ($_GET) {
-    if (array_key_exists('p', $_GET)) {
-      $playlist = urldecode($_GET['p']);
-      if (array_key_exists('m', $_GET)) {
-        $media = urldecode($_GET['m']);
-      }
-    }
-  }
+//if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
+//  $playlist = false;
+//  $media = false;
+//  if ($_GET) {
+//    if (array_key_exists('p', $_GET)) {
+//      $playlist = urldecode($_GET['p']);
+//      if (array_key_exists('m', $_GET)) {
+//        $media = urldecode($_GET['m']);
+//      }
+//    }
+//  }
 ?>
 
 <!DOCTYPE html>
@@ -37,10 +37,11 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title id="page-title">Zelda_64_Pachelbels_Ganon_OC_ReMix</title>
-    <script src="loc.js" type="text/javascript"></script>
+    <!--script src="loc.js" type="text/javascript"></script-->
     <script src="media.js" type="text/javascript"></script>
     <script src="playlist.js" type="text/javascript"></script>
     <script src="input.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Poiret+One|Tinos|Headland+One">
     <link rel="stylesheet" type="text/css" href="style.css">
     <link id="prefetch" rel="prefetch" href="">
   </head>
@@ -48,8 +49,8 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
   <body>
     <div id="player-container" class="player-container">
       <div id="title-header">
-        <h1 class="header">Now Playing:</h1>
-        <div class="title">(nothing loaded)</div>
+        <h1 class="header">now playing:</h1>
+        <div class="title" style="font-family:'Poiret One'">(nothing loaded)</div>
       </div>
       <div id="notification"> </div>
       <audio id="player" src="" seek="true" controls>
@@ -75,7 +76,7 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
 
       <div id="media-container" class="media-container">
         <ul id="media" class="media">
-          <li class="dummy">(nothing loaded)</li>
+          <li class="dummy"><span style="font-size:24pt;float:left;position:relative;margin-top:1px">&larr;</span> &nbsp; select a playlist</li>
         </ul>
         <h1 id="media-header" class="header">Songs</h1>
       </div>
@@ -131,12 +132,12 @@ window.addEventListener("load", loadSelectedPlaylist, true);
 <? } ?>
 
 <?php
-} else {
+//} else {
 
 // The following is all done inline (as opposed to having separate CSS
 // and JS files) to decrease complexity.
 ?>
-<html>
+<!--html>
   <head>
     <style type="text/css">
       body {
@@ -176,8 +177,8 @@ window.addEventListener("load", loadSelectedPlaylist, true);
       <p> This website has logged:</p><?=$ip_error?>
     </div>
   </body>
-</html>
+</html-->
 <?php
-  die(1);
-}
+//  die(1);
+//}
 ?>

@@ -1,24 +1,24 @@
-// Copyright 2012 Andrew "Jamoozy" Correa
+// Copyright 2013 Andrew "Jamoozy" Correa S.
 //
 // This file is part of GOPF.
 //
 // GOPF is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public as published by the Free Software
+// the terms of the GNU Affero General Public as published by the Free Software
 // Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
 // GOPF is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License
 // for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU Affero General Public License
 // along with GOPF. If not, see http://www.gnu.org/licenses/.
 
 var input = (function() {
   // Extra amount to shrink media container by, so that media/playlists
   // don't overlap one onther.
-  var DIVIDER_WIDTH = 40;
+  var DIVIDER_WIDTH = 50;
 
   // Whether the selector is in the media list.  False means it's in the
   // playlists list.
@@ -28,18 +28,9 @@ var input = (function() {
     document.getElementById("notification").innerHTML = str;
   }
 
-  var swapEntry = {
-    key: '` or H',
-    use: 'Switch between media and playlist lists.',
-    func: function(e) {
-      input.swap();
-      e.stopPropagation();
-    }
-  };
-
   var helpOrder = [
     'Navigation',
-    33, 34, 75, 74, 192, 72, 13,
+    33, 34, 75, 74, 72, 13,
     'Scanning',
     38, 40, 37, 39,
     'Player Controls',
@@ -57,7 +48,7 @@ var input = (function() {
     var player = document.getElementById("player");
     return {
       33: {
-        key: 'Page Up',
+        key: 'Pg&uarr;',
         use: 'Move up 10.',
         func: function(e) {
           prev(10);
@@ -65,7 +56,7 @@ var input = (function() {
         }
       },
       34: {
-        key: 'Page Down',
+        key: 'Pg&darr;',
         use: 'Move down 10.',
         func: function(e) {
           next(10);
@@ -88,8 +79,14 @@ var input = (function() {
           e.stopPropagation();
         }
       },
-      192: swapEntry,  // `
-      72: swapEntry,   // H
+      72: {
+        key: 'H',
+        use: 'Switch between media and playlist lists.',
+        func: function(e) {
+          input.swap();
+          e.stopPropagation();
+        }
+      },
       13: {
         key: 'Enter',
         use: 'Select highlighted playlist/media.',
@@ -106,28 +103,28 @@ var input = (function() {
       },
 
       38: {
-        key: 'Up / Ctrl + Up',
+        key: '&uarr; / Ctrl &uarr;',
         use: 'Go forward 5 / 10 minutes',
         func: function(e) {
           player.currentTime += e.ctrlKey ? 600 : 300;
         }
       },
       40: {
-        key: 'Down / Ctrl + Down',
+        key: '&darr; / Ctrl &darr;',
         use: 'Go back 5 / 10 minutes',
         func: function(e) {
           player.currentTime -= e.ctrlKey ? 600 : 300;
         }
       },
       37: {
-        key: 'Left / Ctrl + Left',
+        key: '&larr; / Ctrl &larr;',
         use: 'Go forward 10 / 60 seconds',
         func: function(e) {
           player.currentTime -= e.ctrlKey ? 60 : 10;
         }
       },
       39: {
-        key: 'Right / Ctrl + Right',
+        key: '&rarr; / Ctrl &rarr;',
         use: 'Go back 10 / 60 seconds',
         func: function(e) {
           player.currentTime += e.ctrlKey ? 60 : 10;
@@ -170,7 +167,7 @@ var input = (function() {
         }
       },
       32: {
-        key: 'Spacebar',
+        key: 'Spbar',
         use: 'Pause / unpause',
         func: function(e) {
           if (player.paused) {
@@ -196,7 +193,7 @@ var input = (function() {
         }
       },
       8: {
-        key: 'Backspace',
+        key: 'Bksp',
         use: 'Return playback to normal speed',
         func: function(e) {
           player.playbackRate = 1.0;
@@ -409,11 +406,16 @@ var input = (function() {
                  playerCont.offsetTop - playlistCont.offsetLeft;
 
     mediaCont.style.maxWidth = width + "px";
+    mediaCont.style.minWidth = width + "px";
     mediaCont.style.maxHeight = height + "px";
+    mediaCont.style.minHeight = height + "px";
     media.style.maxHeight = height - mediaHead.offsetHeight + "px";
+    media.style.minHeight = height - mediaHead.offsetHeight + "px";
 
     playlistCont.style.maxHeight = height + "px";
+    playlistCont.style.minHeight = height + "px";
     playlists.style.maxHeight = height - playlistHead.offsetHeight + "px";
+    playlists.style.minHeight = height - playlistHead.offsetHeight + "px";
 
     // Set max dims of the video element.
     var margin = 10; // px
@@ -434,6 +436,7 @@ var input = (function() {
         }
       }
 
+      document.getElementById("help-dialog").style.visibility = "hidden";
       window.addEventListener("resize", function(e) { adjustSize(); }, true);
       window.addEventListener("keydown", onkey, true);
       document.getElementById("player").addEventListener(
