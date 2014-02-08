@@ -10,9 +10,11 @@ Please don't hesitate to change, distribute, and make this program available.  I
 
 If you'd like to show your appreciation, you can donate to any one of these addresses:
 
-```Bitcoin (BTC): 1DYeoForwthTgfnhUrkdwCRWL3cSBQwUje
-Litecoin (LTC): LcSBUQdjj3nbgPFBejfP7rExYivHobxR2a
-Dogecoing (DOGE): DUHUB6m1DstTEbrur3xAMNvCEv5nCnRWct```
+```
+   Bitcoin (BTC): 1DYeoForwthTgfnhUrkdwCRWL3cSBQwUje
+  Litecoin (LTC): LcSBUQdjj3nbgPFBejfP7rExYivHobxR2a
+Dogecoing (DOGE): DUHUB6m1DstTEbrur3xAMNvCEv5nCnRWct
+```
 
 ## Bugs
 
