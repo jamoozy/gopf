@@ -19,7 +19,7 @@ var media = (function() {
   // Adds a string to the notification thing---meant for notifications
   // to the user.  To print debug statements, use window.console.log().
   function notify(str) {
-    document.getElementById("notification").innerHTML = str;
+    $("#notification").html(str);
   }
 
   function inspect(obj) {
@@ -31,7 +31,7 @@ var media = (function() {
   }
 
   function get_ith_media(i) {
-    var meds = document.getElementById("media").childNodes;
+    var meds = $("#media").children();
     if (meds.length > i) {
       return meds[i];
     } else {
@@ -40,23 +40,24 @@ var media = (function() {
   }
 
   function play(elem) {
-    var playing = document.getElementsByClassName("playing");
+    var playing = $(".playing");
     if (playing.length > 0) {
-      playing[0].setAttribute("class", "media");
+      playing.first().attr("class", "media");
     }
 
-    var path = elem.getAttribute("path");
-    var player = document.getElementById("player");
+    elem = $(elem);
+    var path = elem.attr("path");
+    var player = $("#player");
 
-    var title = document.getElementById("page-title");
-    var th = document.getElementById("title-header");
-    title.innerHTML = elem.innerHTML;
-    th.innerHTML = '<h1 class="header">Now Playing:</h1>\n' +
-                      '<div class="title">' + elem.innerHTML; + "</div>";
+    var title = $("#page-title");
+    var th = $("#title-header");
+    title.html(elem.html());
+    th.html('<h1 class="header">Now Playing:</h1>\n' +
+        '<div class="title">' + elem.html() + "</div>");
 
-    elem.setAttribute("class", "media playing");
-    player.setAttribute("src", path);
-    player.play();
+    elem.attr("class", "media playing");
+    player.attr("src", path);
+    player[0].play();
   }
 
   function playRandomSong(meds) {
@@ -69,36 +70,36 @@ var media = (function() {
   }
 
   function shouldLoop() {
-    return document.getElementById("loop").checked;
+    return $("#loop").prop('checked');
   }
 
   function shouldShuffle() {
-    return document.getElementById("shuf").checked;
+    return $("#shuf").prop('checked');
   }
 
   return {
     i : 0,  // index of playing media
 
     init : function(e) {
-      var player = document.getElementById("player");
-      player.addEventListener("play", function(e) {
+      var player = $("#player");
+      player.on("play", function(e) {
         media.onplay(player);
-      }, true);
-      player.addEventListener("ended", media.onended, true);
-      player.addEventListener("timeupdate", media.onprogress, true);
+      });
+      player.on("ended", media.onended);
+      player.on("timeupdate", media.onprogress);
 
-      document.getElementById("prev").onclick = media.prev;
-      document.getElementById("next").onclick = media.next;
-      document.getElementById("loop_label").onclick = function(e) {
-        document.getElementById("loop").click();
-      };
-      document.getElementById("shuf_label").onclick = function(e) {
-        document.getElementById("shuf").click();
-      };
+      $("#prev").click(media.prev);
+      $("#next").click(media.next);
+      $("#loop_label").click(function(e) {
+        $("#loop").trigger("click");
+      });
+      $("#shuf_label").click(function(e) {
+        $("#shuf").trigger("click");
+      });
     },
 
     onclick : function(med) {
-      var meds = document.getElementById("media").childNodes;
+      var meds = $("#media").children();
       // Find media's place in the playlist
       for (media.i = 0; media.i < meds.length; media.i++) {
         if (meds[media.i] === med) {
@@ -115,12 +116,12 @@ var media = (function() {
 
     load : function(med) {
       // TODO make sure it's the right type of object.
-      var player = document.getElementById("player");
+      var player = $("#player");
       player.setAttribute("src", med.getAttribute("path"));
     },
 
     next : function(e) {
-      var meds = document.getElementById("media").childNodes;
+      var meds = $("#media").children();
       if (meds.length > 0) {
         if (shouldShuffle()) {
           playRandomSong(meds);
@@ -139,7 +140,7 @@ var media = (function() {
     },
 
     prev : function(e) {
-      var meds = document.getElementById("media").childNodes;
+      var meds = $("#media").children();
       if (shouldShuffle()) {
         playRandomSong(meds);
       } else {
@@ -157,12 +158,12 @@ var media = (function() {
     },
 
     onplay : function(player) {
-      var selected = document.getElementsByClassName("playing");
+      var selected = $(".playing");
       if (selected.length === 0) {
-        play(document.getElementById("media").firstChild);
+        play($("#media").children().first());
       }
     }
   };
 })();
 
-window.addEventListener("load", media.init, true);
+$(window).load(media.init);

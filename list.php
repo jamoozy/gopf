@@ -31,6 +31,8 @@ function ls($dir) {
 
 // Generates playlist from playlist files.  Playlist files are simple text
 // files with each line containing the relative path to a song.
+//
+// $playlist: String name of playlist to start selected.
 function generate_playlists($playlist) {
   global $playlist_dir;
 
@@ -62,7 +64,7 @@ function generate_playlists($playlist) {
   } else {
     $rtn.="<div class=\"error\">\n";
     $rtn.="  An internal error occurred, and your request could not be";
-    $rtn.=" completed.\n";
+    $rtn.="  completed.\n";
     $rtn.="</div>";
   }
   return $rtn;

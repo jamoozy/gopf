@@ -21,7 +21,7 @@ var playlist = (function() {
   var callback = false;
 
   function notify(str) {
-    document.getElementById("notification").innerHTML = str;
+    $("#notification").innerHTML = str;
   }
 
   // Requests the contents of the playlist from the server.
@@ -34,17 +34,17 @@ var playlist = (function() {
 
   function loadPlaylist(req) {
     var path = req.responseText.replace(/\.\.\//g, dir).split("\n");
-    var queue = document.getElementById("media");
-    var player = document.getElementById("player");
+    var queue = $("#media");
+    var player = $("#player");
     var mediaTag, i;
 
     // Remove sources.
-    player.removeAttribute("src");
+    player.removeAttr("src");
 
     // Remove all current children.
-    while (queue.childNodes.length > 0) {
-      queue.removeChild(queue.firstChild);
-    }
+    queue.children().each(function(i,e) {
+      e.remove();
+    });
 
     // Add the new children.
     for (i = 0; i < path.length; i++) {
@@ -55,19 +55,19 @@ var playlist = (function() {
       var media_length = path[i].lastIndexOf(".") - media_first;
       var name = path[i].substr(media_first, media_length);
 
-      mediaTag = document.createElement("li");
-      mediaTag.setAttribute("class", "media");
-      mediaTag.setAttribute("path", path[i]);
-      mediaTag.addEventListener("click", function(event) {
-          media.onclick(this);
-      }, true);
-      mediaTag.innerHTML = name;
+      mediaTag = $("<li>");
+      mediaTag.attr("class", "media");
+      mediaTag.attr("path", path[i]);
+      mediaTag.click(function(e) {
+        media.onclick(this);
+      });
+      mediaTag.html(name);
 
-      queue.appendChild(mediaTag);
+      queue.append(mediaTag);
     }
 
     // Ensure the media queue isn't overlapping things.
-    document.getElementById("media-container").width = (window.innerWidth - document.getElementById("playlist-container").width) / 2;
+    $("#media-container").width = (window.innerWidth - $("#playlist-container").width) / 2;
 
     // If we need to swap the selection, do it.
     if (playlist.swapAfter) {
@@ -110,13 +110,11 @@ var playlist = (function() {
 
     init : function() {
       // Initialize the playlists' "onclick" events.
-      var unselected = document.getElementsByClassName("unselected");
-      for (var i = 0; i < unselected.length; i++) {
-        unselected[i].addEventListener("click", function(event) {
-            window.console.log("A playlist was clicked: " + this);
-            playlist.onclick(this);
-        }, true);
-      }
+      var unselected = $(".unselected");
+      unselected.click(function(event) {
+          window.console.log("A playlist was clicked: " + this);
+          playlist.onclick(this);
+      });
     },
 
     // Register that a playlist was clicked (to be loaded).
@@ -133,7 +131,7 @@ var playlist = (function() {
         playlist.swapAfter = true;
       }
 
-      var selected = document.getElementsByClassName("selected");
+      var selected = $(".selected");
       for (var i = 0; i < selected.length; i++) {
         selected[i].setAttribute("class", "unselected");
       }
