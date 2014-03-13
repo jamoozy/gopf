@@ -1,18 +1,18 @@
-// Copyright 2012 Andrew "Jamoozy" Correa
+// Copyright 2012-2013 Andrew "Jamoozy" Correa S.
 //
 // This file is part of GOPF.
 //
 // GOPF is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public as published by the Free Software
+// the terms of the GNU Affero General Public as published by the Free Software
 // Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
 // GOPF is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License
 // for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU Affero General Public License
 // along with GOPF. If not, see http://www.gnu.org/licenses/.
 
 var media = (function() {
@@ -51,8 +51,9 @@ var media = (function() {
     var title = document.getElementById("page-title");
     var th = document.getElementById("title-header");
     title.innerHTML = elem.innerHTML;
-    th.innerHTML = '<h1 class="header">Now Playing:</h1>\n' +
-                      '<div class="title">' + elem.innerHTML; + "</div>";
+    th.innerHTML = '<h1 class="header">now playing:</h1>\n' +
+                   '<div class="title">' + elem.innerHTML + "</div>" +
+                   '<a download="" class="download" href="' + path + '">(download)</a>';
 
     elem.setAttribute("class", "media playing");
     player.setAttribute("src", path);
@@ -106,6 +107,9 @@ var media = (function() {
         }
       }
       // Set media to #selected?
+      window.console.log("Deleting selected ID");
+      document.getElementById("selected").removeAttribute('id');
+      med.setAttribute('id', 'selected');
       play(med);
     },
 

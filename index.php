@@ -1,19 +1,19 @@
 <?php
-// Copyright 2012 Andrew "Jamoozy" Correa
+// Copyright 2012-2013 Andrew "Jamoozy" Correa S.
 //
 // This file is part of GOPF.
 //
 // GOPF is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public as published by the Free Software
+// the terms of the GNU Affero General Public as published by the Free Software
 // Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
 // GOPF is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License
 // for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU Affero General Public License
 // along with GOPF. If not, see http://www.gnu.org/licenses/.
 
 include("mysql.php");
@@ -41,6 +41,7 @@ include("list.php");
     <script src="media.js" type="text/javascript"></script>
     <script src="playlist.js" type="text/javascript"></script>
     <script src="input.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Poiret+One|Tinos|Headland+One">
     <link rel="stylesheet" type="text/css" href="style.css">
     <link id="prefetch" rel="prefetch" href="">
   </head>
@@ -48,8 +49,8 @@ include("list.php");
   <body>
     <div id="player-container" class="player-container">
       <div id="title-header">
-        <h1 class="header">Now Playing:</h1>
-        <div class="title">(nothing loaded)</div>
+        <h1 class="header">now playing:</h1>
+        <div class="title" style="font-family:'Poiret One'">(nothing loaded)</div>
       </div>
       <div id="notification"> </div>
       <audio id="player" src="" seek="true" controls>
@@ -75,7 +76,7 @@ include("list.php");
 
       <div id="media-container" class="media-container">
         <ul id="media" class="media">
-          <li class="dummy">(nothing loaded)</li>
+          <li class="dummy"><span style="font-size:24pt;float:left;position:relative;margin-top:1px">&larr;</span> &nbsp; select a playlist</li>
         </ul>
         <h1 id="media-header" class="header">Songs</h1>
       </div>
