@@ -1,24 +1,24 @@
-// Copyright 2012 Andrew "Jamoozy" Correa
+// Copyright 2013 Andrew "Jamoozy" Correa S.
 //
 // This file is part of GOPF.
 //
 // GOPF is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public as published by the Free Software
+// the terms of the GNU Affero General Public as published by the Free Software
 // Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
 // GOPF is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License
 // for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU Affero General Public License
 // along with GOPF. If not, see http://www.gnu.org/licenses/.
 
 var input = (function() {
   // Extra amount to shrink media container by, so that media/playlists
   // don't overlap one onther.
-  var DIVIDER_WIDTH = 40;
+  var DIVIDER_WIDTH = 50;
 
   // Whether the selector is in the media list.  False means it's in the
   // playlists list.
@@ -424,6 +424,7 @@ var input = (function() {
 
       $(window).resize(function(e) { adjustSize(); });
       $(window).keydown(onkey);
+      $("#help-dialog").hide();
       $("#player").on("canplay", function(e) { adjustSize(); });
       initHelpDialog();
       adjustSize();
