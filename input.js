@@ -18,7 +18,7 @@
 var input = (function() {
   // Extra amount to shrink media container by, so that media/playlists
   // don't overlap one onther.
-  var DIVIDER_WIDTH = 50;
+  var DIVIDER_WIDTH = 40;
 
   // Whether the selector is in the media list.  False means it's in the
   // playlists list.
@@ -54,32 +54,28 @@ var input = (function() {
         key: 'Pg&uarr;',
         use: 'Move up 10.',
         func: function(e) {
-          prev(10);
-          e.stopPropagation();
+          move(-10);
         }
       },
       34: {
         key: 'Pg&darr;',
         use: 'Move down 10.',
         func: function(e) {
-          next(10);
-          e.stopPropagation();
+          move(10);
         }
       },
       75: {
         key: 'K',
         use: 'Move up 1.',
         func: function(e) {
-          prev(1);
-          e.stopPropagation();
+          move(-1);
         }
       },
       74: {
         key: 'J',
         use: 'Move down 1.',
         func: function(e) {
-          next(1);
-          e.stopPropagation();
+          move(1);
         }
       },
       72: {
@@ -87,7 +83,6 @@ var input = (function() {
         use: 'Switch between media and playlist lists.',
         func: function(e) {
           input.swap();
-          e.stopPropagation();
         }
       },
       13: {
@@ -97,9 +92,9 @@ var input = (function() {
           var sel = $("#selected");
           if (sel !== null && sel !== undefined) {
             if (viewMedia) {
-              $(media).trigger('click', sel);
+              media.onclick(sel);
             } else {
-              $(playlist).trigger('click', sel, true);
+              playlist.onclick(sel, true);
             }
           }
         }
@@ -139,7 +134,6 @@ var input = (function() {
         use: 'Toogle (windowed) fullscreen mode',
         fun: function(e) {
           toggleFullscreen();
-          e.stopPropagation();
         }
       },
       80: {
@@ -309,7 +303,7 @@ var input = (function() {
   function select(idx) {
     window.console.log("select("+idx+")");
     var sel = $("#selected").removeAttr("id");
-    $(getList().get(idx)).attr("id", "selected");
+    $(getElems().get(idx)).attr("id", "selected");
   }
 
   // Gets the elements from the currently-selected list.
@@ -331,33 +325,29 @@ var input = (function() {
     list.scrollTop(i * ($("#selected").height() - 1) - list.height() / 2);
   }
 
-  // Selects the previous element in the list.
-  function prev(dec) {
-    dec = dec || 1;
-
-    var list = getList();
-    var i = list.index("#selected");
-    var val = i - dec;
-    if (val < 0) {
-      val = 0;
-    } else if (val >= list.size()) {
-      val = list.size() - 1;
+  function getSelectedIndex() {
+    var elems = getElems();
+    for (var i = 0; i < elems.size(); i++) {
+      if ($(elems.get(i)).attr('id') === 'selected') {
+        return i;
+      }
     }
-
-    window.console.log("val:"+val);
-    select(val);
-    ensureSelectedVisible(val);
   }
 
   // Selects the next element in the list.
-  function next(inc) {
-    inc = inc || 1;
+  function move(inc) {
+    window.console.log("move("+inc+")");
 
-    var list = getList();
-    var i = list.index("#selected");
+    if (inc === 0) {
+      window.console.log("Warning: inc'd 0");
+      return;
+    }
+
+    var elems = getElems();
+    var i = getSelectedIndex();
     var val = i + inc;
-    if (val >= list.size()) {
-      val = list.size() - 1;
+    if (val >= elems.size()) {
+      val = elems.size() - 1;
     } else if (val < 0) {
       val = 0;
     }
@@ -372,6 +362,7 @@ var input = (function() {
     var b = bindings()
     if (e.keyCode in b) {
       b[e.keyCode].func(e);
+      e.preventDefault();
     }
   }
 
@@ -395,22 +386,27 @@ var input = (function() {
     var footer = $("#footer");
 
     var width = $(window).innerWidth() - playlistCont.offset().left -
-                playlistCont.width() - DIVIDER_WIDTH;
-    var height = footer.offset().top - playerCont.height() -
+                playlistCont.outerWidth(true) - DIVIDER_WIDTH;
+    var height = footer.offset().top - playerCont.outerHeight(true) -
                  playerCont.offset().top - playlistCont.offset().left;
 
     mediaCont.css("max-width", width + "px");
+    mediaCont.css("min-width", width + "px");
     mediaCont.css("max-height", height + "px");
-    media.css("max-height", height - mediaHead.height() + "px");
+    mediaCont.css("min-height", height + "px");
+    media.css("max-height", height - mediaHead.outerHeight(true) + "px");
+    media.css("min-height", height - mediaHead.outerHeight(true) + "px");
 
     playlistCont.css("max-height", height + "px");
-    playlists.css("max-height", height - playlistHead.height() + "px");
+    playlistCont.css("min-height", height + "px");
+    playlists.css("max-height", height - playlistHead.outerHeight(true) + "px");
+    playlists.css("min-height", height - playlistHead.outerHeight(true) + "px");
 
     // Set max dims of the video element.
     var margin = 10; // px
-    $(player).css("max-width", playerCont.width() - 2 * margin + "px");
+    $(player).css("max-width", playerCont.outerWidth(true) - 2 * margin + "px");
     var topSp = player.offset().top;
-    var bottomSp = mediaHead.height() + controls.height() + 3 * anElem.height();
+    var bottomSp = mediaHead.outerHeight(true) + controls.outerHeight(true) + 3 * anElem.height();
     $(player).css("max-height", footer.offset().top - topSp - bottomSp + "px");
   }
 

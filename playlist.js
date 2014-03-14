@@ -26,8 +26,10 @@ var playlist = (function() {
 
   // Requests the contents of the playlist from the server.
   function reqPlaylist(elem) {
-    var url = document.location.pathname + "list.php?playlist=" +
-        elem.innerHTML.replace(/^\s+|\s+$/g,"");
+    window.console.log("reqPlaylist("+elem")");
+    var html = elem.html();
+    html.replace(/^\s+|\s+$/g,"");
+    var url = document.location.pathname + "list.php?playlist=" + html;
     req.open("GET", url, true);
     req.send();
   }
@@ -124,23 +126,24 @@ var playlist = (function() {
     //              swapped after it is loaded.
     //          cb: (optional) Callback after the list is loaded.
     onclick : function(elem, swapAfter, cb) {
-      if (elem.getAttribute("class") === "selected") {
+      elem = $(elem);
+      if (elem.attr("class") === "selected") {
         return;
       }
 
-      if (swapAfter === true) {
+      if (swapAfter) {
         playlist.swapAfter = true;
       }
 
       var selected = $(".selected");
-      for (var i = 0; i < selected.length; i++) {
-        selected[i].setAttribute("class", "unselected");
+      for (var i = 0; i < selected.size(); i++) {
+        selected.get(i).attr("class", "unselected");
       }
-      elem.setAttribute("class", "selected");
+      elem.attr("class", "selected");
       reqPlaylist(elem);
       setCallback(cb);
     }
   };
 })();
 
-window.addEventListener("load", playlist.init, true);
+$(window).load(playlist.init);

@@ -99,15 +99,15 @@ var media = (function() {
     onclick : function(med) {
       var meds = $("#media").children();
       // Find media's place in the playlist
-      for (media.i = 0; media.i < meds.length; media.i++) {
+      for (media.i = 0; media.i < meds.size(); media.i++) {
         if (meds[media.i] === med) {
           break;
         }
       }
       // Set media to #selected?
       window.console.log("Deleting selected ID");
-      document.getElementById("selected").removeAttribute('id');
-      med.setAttribute('id', 'selected');
+      $("#selected").removeAttr('id');
+      $(med).attr('id', 'selected');
       play(med);
     },
 
