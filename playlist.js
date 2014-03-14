@@ -26,7 +26,7 @@ var playlist = (function() {
 
   // Requests the contents of the playlist from the server.
   function reqPlaylist(elem) {
-    window.console.log("reqPlaylist("+elem")");
+    window.console.log("reqPlaylist("+elem+")");
     var html = elem.html();
     html.replace(/^\s+|\s+$/g,"");
     var url = document.location.pathname + "list.php?playlist=" + html;
@@ -137,7 +137,7 @@ var playlist = (function() {
 
       var selected = $(".selected");
       for (var i = 0; i < selected.size(); i++) {
-        selected.get(i).attr("class", "unselected");
+        $(selected.get(i)).attr("class", "unselected");
       }
       elem.attr("class", "selected");
       reqPlaylist(elem);
