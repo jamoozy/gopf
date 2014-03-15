@@ -88,12 +88,12 @@ var media = (function() {
 
       $("#prev").click(media.prev);
       $("#next").click(media.next);
-      $("#loop_label").click(function(e) {
-        $("#loop").trigger("click");
-      });
-      $("#shuf_label").click(function(e) {
-        $("#shuf").trigger("click");
-      });
+      //$("#loop_label").click(function(e) {
+      //  $("#loop").trigger("click");
+      //});
+      //$("#shuf_label").click(function(e) {
+      //  $("#shuf").trigger("click");
+      //});
     },
 
     onclick : function(med) {

@@ -54,17 +54,17 @@ include("list.php");
         <div class="title" style="font-family:'Poiret One'">(nothing loaded)</div>
       </div>
       <div id="notification"> </div>
-      <audio id="player" src="" seek="true" controls>
+      <video id="player" src="" seek="true" controls>
         Hey, man, get an HTML5-compatible browser, okay?
-      </audio>
+      </video>
       <div id="controls" class="controls-container">
         <span id="prev" class="controls">&lt;&lt;</span>
-        <input id="loop" type="checkbox">
+        <!--input id="loop" type="checkbox">
           <span id="loop_label" class="controls"><span class="mnemonic">l</span>oop</span>
         </input>
         <input id="shuf" type="checkbox">
           <span id="shuf_label" class="controls"><span class="mnemonic">s</span>huffle</span>
-        </input>
+        </input-->
         <span id="next" class="controls">&gt;&gt;</span>
       </div>
     </div>
@@ -79,7 +79,7 @@ include("list.php");
         <ul id="media" class="media">
           <li class="dummy"><span style="font-size:24pt;float:left;position:relative;margin-top:1px">&larr;</span> &nbsp; select a playlist</li>
         </ul>
-        <h1 id="media-header" class="header">Songs</h1>
+        <h1 id="media-header" class="header">Videos</h1>
       </div>
     </nav>
 
