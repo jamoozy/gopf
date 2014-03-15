@@ -37,7 +37,7 @@ var input = (function() {
     'Scanning',
     38, 40, 37, 39,
     'Player Controls',
-    70, 80, 78, 83, 76, 77, 32,
+    80, 78, 83, 76, 77, 32, // 70, // (fullscreen)
     'Speed Controls',
     219, 221, 8,
     'Size Controls',
@@ -265,13 +265,15 @@ var input = (function() {
   }
 
   function toggleFullscreen() {
-    var player = $("#player");
-    if (player[0].tagName === 'AUDIO') {
-      return;
-    }
-    if (fullscreen = !fullscreen) {
-    } else {
-    }
+    window.console.log("Warning: fullscreen quickkey not implemented.");
+
+    //var player = $("#player");
+    //if (player[0].tagName === 'AUDIO') {
+    //  return;
+    //}
+    //if (fullscreen = !fullscreen) {
+    //} else {
+    //}
   }
 
   function toggleHelpDialog() {
@@ -369,13 +371,10 @@ var input = (function() {
   // Window resize handler.
   function adjustSize() {
     // Media container, list, header.
-    var mediaCont = $("#media-container");
-    var media = $("#media");
     var mediaHead = $("#media-header");
 
     // Play list container, list, and header.
     var playlistCont = $("#playlist-container");
-    var playlists = $("#playlists");
     var playlistHead = $("#playlist-header");
     var controls = $("#controls");
     var anElem = $(".unselected").first();
@@ -390,24 +389,39 @@ var input = (function() {
     var height = footer.offset().top - playerCont.outerHeight(true) -
                  playerCont.offset().top - playlistCont.offset().left;
 
-    mediaCont.css("max-width", width + "px");
-    mediaCont.css("min-width", width + "px");
-    mediaCont.css("max-height", height + "px");
-    mediaCont.css("min-height", height + "px");
-    media.css("max-height", height - mediaHead.outerHeight(true) + "px");
-    media.css("min-height", height - mediaHead.outerHeight(true) + "px");
+    $("#media-container").css({
+      "max-width" : width + "px",
+      "min-width" : width + "px",
+      "max-height" : height + "px",
+      "min-height" : height + "px"
+    });
+    $("#media").css({
+      "max-height" : height - mediaHead.outerHeight(true) + "px",
+      "min-height" : height - mediaHead.outerHeight(true) + "px"
+    });
 
     playlistCont.css("max-height", height + "px");
     playlistCont.css("min-height", height + "px");
-    playlists.css("max-height", height - playlistHead.outerHeight(true) + "px");
-    playlists.css("min-height", height - playlistHead.outerHeight(true) + "px");
+    $("#playlists").css({
+      "max-height" : height - playlistHead.outerHeight(true) + "px",
+      "min-height" : height - playlistHead.outerHeight(true) + "px"
+    });
 
     // Set max dims of the video element.
-    var margin = 10; // px
-    $(player).css("max-width", playerCont.outerWidth(true) - 2 * margin + "px");
-    var topSp = player.offset().top;
-    var bottomSp = mediaHead.outerHeight(true) + controls.outerHeight(true) + 3 * anElem.height();
-    $(player).css("max-height", footer.offset().top - topSp - bottomSp + "px");
+    if (player[0].webkitDisplayingFullscreen) {
+      player.css({
+        "max-width" : '',
+        "max-height" : ''
+      });
+    } else {
+      var margin = 10; // px
+      var topSp = player.offset().top;
+      var bottomSp = mediaHead.outerHeight(true) + controls.outerHeight(true) + 3 * anElem.height();
+      player.css({
+        "max-width" : playerCont.outerWidth(true) - 2 * margin + "px",
+        "max-height" : footer.offset().top - topSp - bottomSp + "px"
+      });
+    }
   }
 
   return {
@@ -422,6 +436,7 @@ var input = (function() {
       $(window).keydown(onkey);
       $("#help-dialog").hide();
       $("#player").on("canplay", function(e) { adjustSize(); });
+      $("#player").on("webkitfullscreenchange", function(e) { adjustSize(); });
       initHelpDialog();
       adjustSize();
     },
