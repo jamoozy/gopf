@@ -54,7 +54,11 @@ function generate_playlists($playlist) {
   if (sort($fnames)) {
     if ($playlist) {
       foreach ($fnames as $fname) {
-        $rtn.="<li class=\"unselected".(strcmp($playlist, $fname) != 0 ? ' selected' : '')."\">$fname</li>";
+        if (strcmp($playlist, $fname)) {
+          $rtn.='<li class="unselected">'.$fname.'</li>';
+        } else {
+          $rtn.='<li class="unselected selected" id="selected">'.$fname.'</li>';
+        }
       }
     } else {
       foreach ($fnames as $fname) {
@@ -70,7 +74,7 @@ function generate_playlists($playlist) {
   return $rtn;
 }
 
-function generate_media($playlist, $media) {
+function generate_media($playlist, $media=false) {
   global $playlist_dir;
 
   $paths = split("\n", file_get_contents($playlist_dir.$playlist));

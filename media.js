@@ -94,6 +94,14 @@ var media = (function() {
       $("#shuf_label").click(function(e) {
         $("#shuf").trigger("click");
       });
+
+      // Check for a get request that requests we play something right away.
+      var playing = $('.playing');
+      if (playing.size() > 0) {
+        play(playing[0]);
+
+        // TODO something with parsing t=\d+ from URL and setting seconds
+      }
     },
 
     onclick : function(med) {
