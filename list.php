@@ -79,6 +79,9 @@ function generate_media($playlist, $media=false) {
 
   $paths = split("\n", file_get_contents($playlist_dir.$playlist));
   foreach ($paths as $path) {
+    if (strlen(trim($path)) <= 0) {
+      continue;
+    }
     $name = substr($path, strrpos($path, '/') + 1, -4);
     $html .= '<li class="media'.(strcmp($name, $media) == 0 ? ' playing' : '').'" path="'.str_replace('..', 'data', $path)."\" onclick=\"media.onclick(this)\">$name</li>\n";
   }
