@@ -98,6 +98,7 @@ var media = (function() {
       // Check for a get request that requests we play something right away.
       var playing = $('.playing');
       if (playing.size() > 0) {
+        media.i = $(".media").index(playing) - 1;
         play(playing[0]);
 
         // TODO something with parsing t=\d+ from URL and setting seconds
