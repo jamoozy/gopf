@@ -50,7 +50,7 @@ var playlist = (function() {
 
     // Add the new children.
     for (i = 0; i < path.length; i++) {
-      if (path[i].length <= 0 || path[i][0] == "#") {
+      if (path[i].trim().length <= 0 || path[i][0] == "#") {
         continue;
       }
       var media_first = path[i].lastIndexOf("/") + 1;
