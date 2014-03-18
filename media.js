@@ -101,6 +101,15 @@ var media = (function() {
         play(playing[0]);
 
         // TODO something with parsing t=\d+ from URL and setting seconds
+        var match = /\Wt=(\d+)/.exec(document.location.href);
+        if (match) {
+          var quickplay = function() {
+            this.currentTime = parseInt(match[1]);
+            $(this).off('playing', null, quickplay);
+            this.play();
+          }
+          $("#player").on('playing', quickplay);
+        }
       }
     },
 
