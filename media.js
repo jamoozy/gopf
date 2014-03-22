@@ -95,6 +95,14 @@ var media = (function() {
         $("#shuf").trigger("click");
       });
 
+      // On any kind of player error (during playback?), just go to the next
+      // song.
+      player.on("error", function(e) {
+        window.console.log("Warning!  Got a playback error:");
+        window.console.log(e);
+        media.next(e);
+      });
+
       // Check for a get request that requests we play something right away.
       var playing = $('.playing');
       if (playing.size() > 0) {
