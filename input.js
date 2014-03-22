@@ -322,7 +322,7 @@ var input = (function() {
   function ensureSelectedVisible(i) {
     var list = getList();
     // "-1" due to "border-bottom: -1px"
-    list.scrollTop(i * ($("#selected").height() - 1) - list.height() / 2);
+    list.scrollTop(i * ($("#selected").innerHeight() + 1) - list.height() / 2);
   }
 
   function getSelectedIndex() {
