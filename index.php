@@ -89,7 +89,7 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
           <?=generate_media($playlist)?>
         <?}?>
         </ul>
-        <h1 id="media-header" class="header">Songs</h1>
+        <h1 id="media-header" class="header">Videos</h1>
       </div>
     </nav>
 
