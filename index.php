@@ -1,19 +1,19 @@
 <?php
-// Copyright 2012 Andrew "Jamoozy" Correa
+// Copyright 2012-2013 Andrew "Jamoozy" Correa S.
 //
 // This file is part of GOPF.
 //
 // GOPF is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public as published by the Free Software
+// the terms of the GNU Affero General Public as published by the Free Software
 // Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
 // GOPF is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License
 // for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU Affero General Public License
 // along with GOPF. If not, see http://www.gnu.org/licenses/.
 
 include("mysql.php");
@@ -27,20 +27,28 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
       $playlist = urldecode($_GET['p']);
       if (array_key_exists('m', $_GET)) {
         $media = urldecode($_GET['m']);
+
+        // TODO
+        //if (array_key_exists('t', $_GET)) {
+        //  $time = urldecode($_GET['t']);
+        //}
       }
     }
   }
+}
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8"/>
     <title id="page-title">Zelda_64_Pachelbels_Ganon_OC_ReMix</title>
-    <script src="loc.js" type="text/javascript"></script>
+    <script src="jquery-1.11.0.min.js" type="text/javascript"></script>
+    <!--script src="loc.js" type="text/javascript"></script-->
     <script src="media.js" type="text/javascript"></script>
     <script src="playlist.js" type="text/javascript"></script>
     <script src="input.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Poiret+One|Tinos|Headland+One">
     <link rel="stylesheet" type="text/css" href="style.css">
     <link id="prefetch" rel="prefetch" href="">
   </head>
@@ -48,8 +56,8 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
   <body>
     <div id="player-container" class="player-container">
       <div id="title-header">
-        <h1 class="header">Now Playing:</h1>
-        <div class="title">(nothing loaded)</div>
+        <h1 class="header">now playing:</h1>
+        <div class="title" style="font-family:'Poiret One'">(nothing loaded)</div>
       </div>
       <div id="notification"> </div>
       <video id="player" src="" seek="true" controls>
@@ -75,11 +83,17 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
 
       <div id="media-container" class="media-container">
         <ul id="media" class="media">
-          <li class="dummy">(nothing loaded)</li>
+        <?if ($media) {?>
+          <?=generate_media($playlist, $media)?>
+        <?}else{?>
+          <?=generate_media($playlist)?>
+        <?}?>
         </ul>
         <h1 id="media-header" class="header">Songs</h1>
       </div>
     </nav>
+
+    <div id="help-dialog" class="help-dialog"></div>
 
     <footer id="footer">
       <div class="name">
@@ -94,7 +108,7 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
   </body>
 </html>
 
-<? if ($playlist && $media) { ?>
+<!--? if ($playlist && $media) { ?>
 <script type="text/javascript">
 // Handle Clicked media
 var clickPassedMedia = function(req) {
@@ -126,15 +140,15 @@ function loadSelectedPlaylist(e) {
 // Listen for the page to load, so that this can load the playlist.
 window.addEventListener("load", loadSelectedPlaylist, true);
 </script>
-<? } ?>
+<!--? } ?>
 
-<?php
-} else {
+<!--?php
+//} else {
 
 // The following is all done inline (as opposed to having separate CSS
 // and JS files) to decrease complexity.
-?>
-<html>
+?--!>
+<!--html>
   <head>
     <style type="text/css">
       body {
@@ -174,8 +188,8 @@ window.addEventListener("load", loadSelectedPlaylist, true);
       <p> This website has logged:</p><?=$ip_error?>
     </div>
   </body>
-</html>
+</html-->
 <?php
-  die(1);
-}
+//  die(1);
+//}
 ?>

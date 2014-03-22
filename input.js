@@ -1,18 +1,18 @@
-// Copyright 2012 Andrew "Jamoozy" Correa
+// Copyright 2013 Andrew "Jamoozy" Correa S.
 //
 // This file is part of GOPF.
 //
 // GOPF is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public as published by the Free Software
+// the terms of the GNU Affero General Public as published by the Free Software
 // Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
 // GOPF is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License
 // for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU Affero General Public License
 // along with GOPF. If not, see http://www.gnu.org/licenses/.
 
 var input = (function() {
@@ -24,266 +24,405 @@ var input = (function() {
   // playlists list.
   var viewMedia = false;
 
+  // Fullscreened (in a window) state.
+  var fullscreen = false;
+
   function notify(str) {
-    document.getElementById("notification").innerHTML = str;
+    $("#notification").html(str);
   }
 
-  // Select
-  function select(elem) {
-    var sel = document.getElementById("selected");
-    if (sel !== null && sel !== undefined) {
-      sel.removeAttribute("id");
+  var helpOrder = [
+    'Navigation',
+    33, 34, 75, 74, 72, 13,
+    'Scanning',
+    38, 40, 37, 39,
+    'Player Controls',
+    70, 80, 78, 83, 76, 77, 32,
+    'Speed Controls',
+    219, 221, 8,
+    'Size Controls',
+    48, 49, 50, 51, 52, 53,
+    'Other',
+    191
+  ];
+
+
+  function bindings() {
+    var player = $("#player");
+    return {
+      33: {
+        key: 'Pg&uarr;',
+        use: 'Move up 10.',
+        func: function(e) {
+          move(-10);
+        }
+      },
+      34: {
+        key: 'Pg&darr;',
+        use: 'Move down 10.',
+        func: function(e) {
+          move(10);
+        }
+      },
+      75: {
+        key: 'K',
+        use: 'Move up 1.',
+        func: function(e) {
+          move(-1);
+        }
+      },
+      74: {
+        key: 'J',
+        use: 'Move down 1.',
+        func: function(e) {
+          move(1);
+        }
+      },
+      72: {
+        key: 'H',
+        use: 'Switch between media and playlist lists.',
+        func: function(e) {
+          input.swap();
+        }
+      },
+      13: {
+        key: 'Enter',
+        use: 'Select highlighted playlist/media.',
+        func: function(e) {
+          var sel = $("#selected");
+          if (sel !== null && sel !== undefined) {
+            if (viewMedia) {
+              media.onclick(sel);
+            } else {
+              playlist.onclick(sel, true);
+            }
+          }
+        }
+      },
+
+      38: {
+        key: '&uarr; / Ctrl &uarr;',
+        use: 'Go forward 5 / 10 minutes',
+        func: function(e) {
+          player[0].currentTime += e.ctrlKey ? 600 : 300;
+        }
+      },
+      40: {
+        key: '&darr; / Ctrl &darr;',
+        use: 'Go back 5 / 10 minutes',
+        func: function(e) {
+          player[0].currentTime -= e.ctrlKey ? 600 : 300;
+        }
+      },
+      37: {
+        key: '&larr; / Ctrl &larr;',
+        use: 'Go forward 10 / 60 seconds',
+        func: function(e) {
+          player[0].currentTime -= e.ctrlKey ? 60 : 10;
+        }
+      },
+      39: {
+        key: '&rarr; / Ctrl &rarr;',
+        use: 'Go back 10 / 60 seconds',
+        func: function(e) {
+          player[0].currentTime += e.ctrlKey ? 60 : 10;
+        }
+      },
+
+      70: {
+        key: 'F',
+        use: 'Toogle (windowed) fullscreen mode',
+        fun: function(e) {
+          toggleFullscreen();
+        }
+      },
+      80: {
+        key: 'P',
+        use: 'Previous track',
+        func : function(e) {
+          media.prev();
+        }
+      },
+      78: {
+        key: 'N',
+        use: 'Next track',
+        func : function(e) {
+          media.next();
+        }
+      },
+      83: {
+        key: 'S',
+        use: 'Toggle Shuffle',
+        func: function(e) {
+          $("#shuf").trigger('click');
+        }
+      },
+      76: {
+        key: 'L',
+        use: 'Toggle Loop',
+        func: function(e) {
+          $("#loop").trigger('click');
+        }
+      },
+      77: {
+        key: 'M',
+        use: 'Mute/unmute player',
+        func: function(e) {
+          player[0].muted = !player[0].muted;
+        }
+      },
+      32: {
+        key: 'Spbar',
+        use: 'Pause / unpause',
+        func: function(e) {
+          if (player[0].paused) {
+            player[0].play();
+          } else {
+            player[0].pause();
+          }
+        }
+      },
+
+      219: {
+        key: '[',
+        use: 'Subtract 0.5 from playback rate',
+        func: function(e) {
+          player[0].playbackRate -= 0.5;
+        }
+      },
+      221: {
+        key: ']',
+        use: 'Add 0.5 to playback rate',
+        func: function(e) {
+          player[0].playbackRate += 0.5;
+        }
+      },
+      8: {
+        key: 'Bksp',
+        use: 'Return playback to normal speed',
+        func: function(e) {
+          player[0].playbackRate = 1.0;
+        }
+      },
+
+      48: {
+        key: '0',
+        use: 'Set video width to max',
+        func: function(e) {
+          player.removeAttr("width");
+          adjustSize();
+        }
+      },
+      49: {
+        key: '1',
+        use: 'Set video width to 200px',
+        func: function(e) {
+          player.attr('width', 200);
+          adjustSize();
+        }
+      },
+      50: {
+        key: '2',
+        use: 'Set video width to 400px',
+        func: function(e) {
+          player.attr('width', 400);
+          adjustSize();
+        }
+      },
+      51: {
+        key: '3',
+        use: 'Set video width to 600px',
+        func: function(e) {
+          player.attr('width', 600);
+          adjustSize();
+        }
+      },
+      52: {
+        key: '4',
+        use: 'Set video width to 800px',
+        func: function(e) {
+          player.attr('width', 800);
+          adjustSize();
+        }
+      },
+      53: {
+        key: '5',
+        use: 'Set video width to 1000px',
+        func: function(e) {
+          player.attr('width', 1000);
+          adjustSize();
+        }
+      },
+
+      191: {
+        key: '?',
+        use: 'Open / close this help dialog.',
+        func: function(e) {
+          toggleHelpDialog();
+        }
+      }
+    };
+  }
+
+  function toggleFullscreen() {
+    var player = $("#player");
+    if (player[0].tagName === 'AUDIO') {
+      return;
     }
-    if (elem.setAttribute !== undefined) {
-      elem.setAttribute("id", "selected");
+    if (fullscreen = !fullscreen) {
     } else {
-      getElems()[0].setAttribute("id", "selected");
     }
+  }
+
+  function toggleHelpDialog() {
+    var hd = $("#help-dialog");
+    if (hd.css("visibility") === "hidden") {
+      hd.show();
+    } else {
+      hd.hide();
+    }
+  }
+
+  function initHelpDialog() {
+    var b = bindings();
+    var html = "<ul>";
+    $(helpOrder).each(function(i, elem) {
+      if (typeof elem === "string") {
+        html += '<li class="help-header">' + elem + "</li>";
+      } else {
+        html += '<li><span class="key">' + b[elem].key + '</span>: ' +
+          '<span class="use">' + b[elem].use + "</span></li>";
+      }
+    });
+    html += "</ul>";
+    $("#help-dialog").html(html);
+    //$("#help-dialog").hide();
+  }
+
+  // Selects the given element.
+  function select(idx) {
+    window.console.log("select("+idx+")");
+    var sel = $("#selected").removeAttr("id");
+    $(getElems().get(idx)).attr("id", "selected");
   }
 
   // Gets the elements from the currently-selected list.
   function getElems() {
-    return getList().childNodes;
+    return getList().children();
   }
 
   // Gets the currently-selected list.
   function getList() {
-    if (viewMedia) {
-      return document.getElementById("media");
-    } else {
-      return document.getElementById("playlists");
-    }
-  }
-
-  // Gets the index of an element in the list.
-  function getElemIndex(list, elem) {
-    if (elem === null || elem === undefined) { return 0; }
-    for (var i = 0; i < list.length; i++) {
-      if (list[i] === elem) {
-        return i;
-      }
-    }
-    return 0;
+    return viewMedia ? $("#media") : $("#playlists");
   }
 
   // Ensures the selected element is visible, either by centering the
   // list's view on the element, or scrolling the list all the way up or
   // down so the element is in view.
   function ensureSelectedVisible(i) {
-    var sel = document.getElementById("selected");
     var list = getList();
     // "-1" due to "border-bottom: -1px"
-    list.scrollTop = i * (sel.offsetHeight - 1) - list.offsetHeight / 2;
+    list.scrollTop(i * ($("#selected").height() - 1) - list.height() / 2);
   }
 
-  // Selects the previous element in the list.
-  function prev(dec) {
-    var sel = document.getElementById("selected");
+  function getSelectedIndex() {
     var elems = getElems();
-    var i = getElemIndex(elems, sel);
-
-    if (dec === undefined) {
-      dec = 1;
-    }
-
-    if (!isNaN(i)) {
-      var val = i - dec;
-      if (val < 0) {
-        val = 0;
+    for (var i = 0; i < elems.size(); i++) {
+      if ($(elems.get(i)).attr('id') === 'selected') {
+        return i;
       }
-      select(elems[val]);
-      ensureSelectedVisible(val);
     }
   }
 
   // Selects the next element in the list.
-  function next(inc) {
-    var sel = document.getElementById("selected");
+  function move(inc) {
+    window.console.log("move("+inc+")");
+
+    if (inc === 0) {
+      window.console.log("Warning: inc'd 0");
+      return;
+    }
+
     var elems = getElems();
-    var i = getElemIndex(elems, sel);
-
-    if (inc === undefined) {
-      inc = 1;
+    var i = getSelectedIndex();
+    var val = i + inc;
+    if (val >= elems.size()) {
+      val = elems.size() - 1;
+    } else if (val < 0) {
+      val = 0;
     }
 
-    if (!isNaN(i)) {
-      var val = i + inc;
-      if (val >= elems.length) {
-        val = elems.length - 1;
-      }
-      select(elems[val]);
-      ensureSelectedVisible(val);
-    }
+    window.console.log("val:"+val);
+    select(val);
+    ensureSelectedVisible(val);
   }
 
   // Key handler.
   function onkey(e) {
-    var player = document.getElementById("player");
-    switch(e.keyCode) {
-      case 33:  // PageUp
-        prev(10);
-        e.stopPropagation();
-        break;
-      case 75:  // k
-        prev(1);
-        e.stopPropagation();
-        break;
-      case 34:  // PageDown
-        next(10);
-        e.stopPropagation();
-        break;
-      case 74:  // j
-        next(1);
-        e.stopPropagation();
-        break;
-      case 192: // back-tick ("`")
-      case 72:  // h
-        input.swap();
-        e.stopPropagation();
-        break;
-
-      case 38:  // up
-        player.currentTime += e.ctrlKey ? 600 : 300;
-        break;
-      case 40:  // down
-        player.currentTime -= e.ctrlKey ? 600 : 300;
-        break;
-      case 37:  // left
-        player.currentTime -= e.ctrlKey ? 60 : 10;
-        break;
-      case 39:  // right
-        player.currentTime += e.ctrlKey ? 60 : 10;
-        break;
-
-      case 80:  // P
-        media.prev();
-        break;
-      case 78:  // N
-        media.next();
-        break;
-
-      case 83:  // S
-        document.getElementById("shuf").click();
-        break;
-      case 76:  // L
-        document.getElementById("loop").click();
-        break;
-
-      case 219:  // [
-        player.playbackRate -= 0.5;
-        break;
-      case 221:  // ]
-        player.playbackRate += 0.5;
-        break;
-      case 8:  // backspace
-        player.playbackRate = 1.0;
-        break;
-
-      case 48:  // 0
-        player.removeAttribute("width");
-        adjustSize();
-        break;
-      case 49:  // 1
-        player.width = 200;
-        adjustSize();
-        break;
-      case 50:  // 2
-        player.width = 400;
-        adjustSize();
-        break;
-      case 51:  // 3
-        player.width = 600;
-        adjustSize();
-        break;
-      case 52:  // 4
-        player.width = 800;
-        adjustSize();
-        break;
-      case 53:  // 5
-        player.width = 1000;
-        adjustSize();
-        break;
-
-      case 77:  // M
-        player.muted = !player.muted;
-        break;
-      case 32:  // space
-        if (player.paused) {
-          player.play();
-        } else {
-          player.pause();
-        }
-        break;
-      case 13:  // enter
-        var sel = document.getElementById("selected");
-        if (sel !== null && sel !== undefined) {
-          if (viewMedia) {
-            media.onclick(sel);
-          } else {
-            playlist.onclick(sel, true);
-          }
-        }
-        break;
-
-      // TODO key for displaying help
-      case 191:  // ?
-        break;
+    var b = bindings()
+    if (e.keyCode in b) {
+      b[e.keyCode].func(e);
+      e.preventDefault();
     }
   }
 
   // Window resize handler.
   function adjustSize() {
     // Media container, list, header.
-    var mediaCont = document.getElementById("media-container");
-    var media = document.getElementById("media");
-    var mediaHead = document.getElementById("media-header");
+    var mediaCont = $("#media-container");
+    var media = $("#media");
+    var mediaHead = $("#media-header");
 
     // Play list container, list, and header.
-    var playlistCont = document.getElementById("playlist-container");
-    var playlists = document.getElementById("playlists");
-    var playlistHead = document.getElementById("playlist-header");
-    var controls = document.getElementById("controls");
-    var anElem = document.getElementsByClassName("unselected")[0];
+    var playlistCont = $("#playlist-container");
+    var playlists = $("#playlists");
+    var playlistHead = $("#playlist-header");
+    var controls = $("#controls");
+    var anElem = $(".unselected").first();
 
     // Upper player container and lower "GOPF" label.
-    var playerCont = document.getElementById("player-container");
-    var footer = document.getElementById("footer");
+    var playerCont = $("#player-container");
+    var player = $("#player");
+    var footer = $("#footer");
 
-    var width = window.innerWidth - playlistCont.offsetLeft -
-                playlistCont.offsetWidth - DIVIDER_WIDTH;
-    var height = footer.offsetTop - playerCont.offsetHeight -
-                 playerCont.offsetTop - playlistCont.offsetLeft;
+    var width = $(window).innerWidth() - playlistCont.offset().left -
+                playlistCont.outerWidth(true) - DIVIDER_WIDTH;
+    var height = footer.offset().top - playerCont.outerHeight(true) -
+                 playerCont.offset().top - playlistCont.offset().left;
 
-    mediaCont.style.maxWidth = width + "px";
-    mediaCont.style.maxHeight = height + "px";
-    media.style.maxHeight = height - mediaHead.offsetHeight + "px";
+    mediaCont.css("max-width", width + "px");
+    mediaCont.css("min-width", width + "px");
+    mediaCont.css("max-height", height + "px");
+    mediaCont.css("min-height", height + "px");
+    media.css("max-height", height - mediaHead.outerHeight(true) + "px");
+    media.css("min-height", height - mediaHead.outerHeight(true) + "px");
 
-    playlistCont.style.maxHeight = height + "px";
-    playlists.style.maxHeight = height - playlistHead.offsetHeight + "px";
+    playlistCont.css("max-height", height + "px");
+    playlistCont.css("min-height", height + "px");
+    playlists.css("max-height", height - playlistHead.outerHeight(true) + "px");
+    playlists.css("min-height", height - playlistHead.outerHeight(true) + "px");
 
     // Set max dims of the video element.
     var margin = 10; // px
-    player.style.maxWidth = playerCont.offsetWidth - 2 * margin + "px"
-    var topSp = player.offsetTop;
-    var bottomSp = mediaHead.offsetHeight + controls.offsetHeight + 3 * anElem.offsetHeight;
-    player.style.maxHeight = footer.offsetTop - topSp - bottomSp + "px";
+    $(player).css("max-width", playerCont.outerWidth(true) - 2 * margin + "px");
+    var topSp = player.offset().top;
+    var bottomSp = mediaHead.outerHeight(true) + controls.outerHeight(true) + 3 * anElem.height();
+    $(player).css("max-height", footer.offset().top - topSp - bottomSp + "px");
   }
 
   return {
     // Initializes the input module by registering event listeners.
     init : function() {
-      var sel = document.getElementById("selected");
-      if (sel === null) {
-        var playlists = document.getElementById("playlists").childNodes;
-        if (playlists.length > 0) {
-          playlists[0].setAttribute("id", "selected");
-        }
+      var sel = $("#selected")[0];
+      if (!sel) {
+        $("#playlists").children().first().attr("id", "selected");
       }
 
-      window.addEventListener("resize", function(e) { adjustSize(); }, true);
-      window.addEventListener("keydown", onkey, true);
-      document.getElementById("player").addEventListener(
-          "canplay", function(e) { adjustSize(); }, true);
+      $(window).resize(function(e) { adjustSize(); });
+      $(window).keydown(onkey);
+      $("#help-dialog").hide();
+      $("#player").on("canplay", function(e) { adjustSize(); });
+      initHelpDialog();
       adjustSize();
     },
 
@@ -291,28 +430,28 @@ var input = (function() {
     swap : function() {
       viewMedia = !viewMedia;
       if (viewMedia) {
-        if (document.getElementsByClassName("dummy").length > 0) {
+        if ($(".dummy").length > 0) {
           viewMedia = false;
         } else {
-          var media = document.getElementById("media");
-          var playing = media.getElementsByClassName("playing");
-          if (playing.length > 0) {
-            select(playing[0]);
+          var media = $("#media");
+          var playing = media.find(".playing");
+          if (playing.size() > 0) {
+            select(0);
           } else {
-            select(media.childNodes[0]);
+            select(0);
           }
         }
       } else {
-        var playlists = document.getElementById("playlists");
-        var selected = playlists.getElementsByClassName("selected");
-        if (selected.length > 0) {
-          select(selected[0]);
+        var playlists = $("#playlists");
+        var selected = playlists.find(".selected");
+        if (selected.size() > 0) {
+          select(0);
         } else {
-          select(playlists.childNodes[0]);
+          select(0);
         }
       }
     }
   };
 })();
 
-window.addEventListener("load", input.init, true);
+$(window).load(input.init);
