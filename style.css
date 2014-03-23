@@ -95,6 +95,25 @@ body {
   width:50%;
 }
 
+.url {
+  background:#102520;
+  display:none;
+  position:absolute;
+  border:1px solid #8db6cd;
+  top:0;
+  left:0;
+  padding:2px 5px;
+  margin:4px;
+}
+
+.url-link {
+  cursor:pointer;
+  font-size:200%;
+  text-decoration:none;
+  font-family:sans-serif;
+  color:#8db6cd;
+}
+
 
 
 /*********************************************************\

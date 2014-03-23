@@ -55,6 +55,7 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
 
   <body>
     <div id="player-container" class="player-container">
+      <div id="url" class="url"></div>
       <div id="title-header">
         <h1 class="header">now playing:</h1>
         <div class="title" style="font-family:'Poiret One'">(nothing loaded)</div>

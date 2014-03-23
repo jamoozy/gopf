@@ -51,7 +51,15 @@ var media = (function() {
 
     $("#page-title").html(elem.html());
     $("#title-header").html('<h1 class="header">Now Playing:</h1>\n' +
-        '<div class="title">' + elem.html() + "</div>");
+        '<div class="title"><span id="url-link" class="url-link" href="#">☃</span> ' + elem.html() + "</div>");
+    $("#url-link").click(function(e) {
+      window.console.log("toggling " + $("#url"));
+      $("#url").html(document.location.origin + document.location.pathname +
+        "?p=" + encodeURIComponent($(".selected").html()) +
+        "&m=" + encodeURIComponent($(".playing").html()) +
+        "&t=" + Math.round($("#player")[0].currentTime));
+      $("#url").toggle();
+    });
 
     elem.attr("class", "media playing");
     player.attr("src", path);
@@ -131,7 +139,6 @@ var media = (function() {
         }
       }
       // Set media to #selected?
-      window.console.log("Deleting selected ID");
       $("#selected").removeAttr('id');
       $(med).attr('id', 'selected');
       play(med);
