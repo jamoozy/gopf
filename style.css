@@ -41,6 +41,7 @@ body {
   border-radius:1em;
   -webkit-columns:300px auto;
   -moz-columns:300px auto;
+  columns:300px auto;
 }
 
 .help-dialog ul {
@@ -118,10 +119,13 @@ ul.media:hover {
 
   display:-webkit-inline-box;
   display:-moz-inline-box;
+  display:inline-box;
   -webkit-box-pack:center;
   -moz-box-pack:center;
+  box-pack:center;
   -webkit-box-align:center;
   -moz-box-align:center;
+  box-align:center;
 }
 
 li.selected, li.unselected, li.media, li.playing {
