@@ -433,22 +433,10 @@ var input = (function() {
         if ($(".dummy").length > 0) {
           viewMedia = false;
         } else {
-          var media = $("#media");
-          var playing = media.find(".playing");
-          if (playing.size() > 0) {
-            select(0);
-          } else {
-            select(0);
-          }
+          select(0);
         }
       } else {
-        var playlists = $("#playlists");
-        var selected = playlists.find(".selected");
-        if (selected.size() > 0) {
-          select(0);
-        } else {
-          select(0);
-        }
+        select(0);
       }
     }
   };
