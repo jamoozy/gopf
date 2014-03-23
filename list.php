@@ -78,6 +78,7 @@ function generate_media($playlist, $media=false) {
   global $playlist_dir;
 
   $paths = split("\n", file_get_contents($playlist_dir.$playlist));
+  $html = '';
   foreach ($paths as $path) {
     if (strlen(trim($path)) <= 0) {
       continue;
