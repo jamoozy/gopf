@@ -105,11 +105,7 @@ var media = (function() {
 
       // On any kind of player error (during playback?), just go to the next
       // song.
-      player.on("error", function(e) {
-        window.console.log("Warning!  Got a playback error:");
-        window.console.log(e);
-        media.next(e);
-      });
+      player.on("error", media.onerror);
 
       // Check for a get request that requests we play something right away.
       var playing = $('.playing');
@@ -145,7 +141,14 @@ var media = (function() {
     },
 
     onended : function(e) {
+      window.console.log("Media ended.  Calling next.");
       media.next(e);
+    },
+
+    onerror : function(e) {
+      window.console.log("Warning!  Got a playback error:");
+      window.console.log(e);
+      media.onerror(e);
     },
 
     load : function(med) {
