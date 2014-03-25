@@ -37,11 +37,10 @@ var playlist = (function() {
   function loadPlaylist(req) {
     var path = req.responseText.replace(/\.\.\//g, dir).split("\n");
     var queue = $("#media");
-    var player = $("#player");
     var mediaTag, i;
 
     // Remove sources.
-    player.removeAttr("src");
+    $("#player").removeAttr("src");
 
     // Remove all current children.
     queue.children().each(function(i,e) {
