@@ -148,7 +148,7 @@ var media = (function() {
     onerror : function(e) {
       window.console.log("Warning!  Got a playback error:");
       window.console.log(e);
-      media.onerror(e);
+      media.next(e);
     },
 
     load : function(med) {
