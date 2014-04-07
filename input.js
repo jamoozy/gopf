@@ -55,6 +55,7 @@ var input = (function() {
         use: 'Move up 10.',
         func: function(e) {
           move(-10);
+          return true;
         }
       },
       34: {
@@ -62,6 +63,7 @@ var input = (function() {
         use: 'Move down 10.',
         func: function(e) {
           move(10);
+          return true;
         }
       },
       75: {
@@ -69,6 +71,7 @@ var input = (function() {
         use: 'Move up 1.',
         func: function(e) {
           move(-1);
+          return true;
         }
       },
       74: {
@@ -76,6 +79,7 @@ var input = (function() {
         use: 'Move down 1.',
         func: function(e) {
           move(1);
+          return true;
         }
       },
       72: {
@@ -83,6 +87,7 @@ var input = (function() {
         use: 'Switch between media and playlist lists.',
         func: function(e) {
           input.swap();
+          return true;
         }
       },
       13: {
@@ -97,6 +102,7 @@ var input = (function() {
               playlist.onclick(sel, true);
             }
           }
+          return true;
         }
       },
 
@@ -105,6 +111,7 @@ var input = (function() {
         use: 'Go forward 5 / 10 minutes',
         func: function(e) {
           player[0].currentTime += e.ctrlKey ? 600 : 300;
+          return true;
         }
       },
       40: {
@@ -112,6 +119,7 @@ var input = (function() {
         use: 'Go back 5 / 10 minutes',
         func: function(e) {
           player[0].currentTime -= e.ctrlKey ? 600 : 300;
+          return true;
         }
       },
       37: {
@@ -119,6 +127,7 @@ var input = (function() {
         use: 'Go forward 10 / 60 seconds',
         func: function(e) {
           player[0].currentTime -= e.ctrlKey ? 60 : 10;
+          return true;
         }
       },
       39: {
@@ -126,6 +135,7 @@ var input = (function() {
         use: 'Go back 10 / 60 seconds',
         func: function(e) {
           player[0].currentTime += e.ctrlKey ? 60 : 10;
+          return true;
         }
       },
 
@@ -141,6 +151,7 @@ var input = (function() {
         use: 'Previous track',
         func : function(e) {
           media.prev();
+          return true;
         }
       },
       78: {
@@ -148,6 +159,7 @@ var input = (function() {
         use: 'Next track',
         func : function(e) {
           media.next();
+          return true;
         }
       },
       83: {
@@ -155,13 +167,17 @@ var input = (function() {
         use: 'Toggle Shuffle',
         func: function(e) {
           $("#shuf").trigger('click');
+          return true;
         }
       },
       76: {
         key: 'L',
         use: 'Toggle Loop',
         func: function(e) {
-          $("#loop").trigger('click');
+          if (!e.ctrlKey) {
+            $("#loop").trigger('click');
+            return true;
+          }
         }
       },
       77: {
@@ -169,6 +185,7 @@ var input = (function() {
         use: 'Mute/unmute player',
         func: function(e) {
           player[0].muted = !player[0].muted;
+          return true;
         }
       },
       32: {
@@ -180,6 +197,7 @@ var input = (function() {
           } else {
             player[0].pause();
           }
+          return true;
         }
       },
 
@@ -188,6 +206,7 @@ var input = (function() {
         use: 'Subtract 0.5 from playback rate',
         func: function(e) {
           player[0].playbackRate -= 0.5;
+          return true;
         }
       },
       221: {
@@ -195,6 +214,7 @@ var input = (function() {
         use: 'Add 0.5 to playback rate',
         func: function(e) {
           player[0].playbackRate += 0.5;
+          return true;
         }
       },
       8: {
@@ -202,6 +222,7 @@ var input = (function() {
         use: 'Return playback to normal speed',
         func: function(e) {
           player[0].playbackRate = 1.0;
+          return true;
         }
       },
 
@@ -211,6 +232,7 @@ var input = (function() {
         func: function(e) {
           player.removeAttr("width");
           adjustSize();
+          return true;
         }
       },
       49: {
@@ -219,6 +241,7 @@ var input = (function() {
         func: function(e) {
           player.attr('width', 200);
           adjustSize();
+          return true;
         }
       },
       50: {
@@ -227,6 +250,7 @@ var input = (function() {
         func: function(e) {
           player.attr('width', 400);
           adjustSize();
+          return true;
         }
       },
       51: {
@@ -235,6 +259,7 @@ var input = (function() {
         func: function(e) {
           player.attr('width', 600);
           adjustSize();
+          return true;
         }
       },
       52: {
@@ -243,6 +268,7 @@ var input = (function() {
         func: function(e) {
           player.attr('width', 800);
           adjustSize();
+          return true;
         }
       },
       53: {
@@ -251,6 +277,7 @@ var input = (function() {
         func: function(e) {
           player.attr('width', 1000);
           adjustSize();
+          return true;
         }
       },
 
@@ -259,6 +286,7 @@ var input = (function() {
         use: 'Open / close this help dialog.',
         func: function(e) {
           toggleHelpDialog();
+          return true;
         }
       }
     };
@@ -361,8 +389,9 @@ var input = (function() {
   function onkey(e) {
     var b = bindings()
     if (e.keyCode in b) {
-      b[e.keyCode].func(e);
-      e.preventDefault();
+      if (b[e.keyCode].func(e)) {
+        e.preventDefault();
+      }
     }
   }
 
