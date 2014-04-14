@@ -93,7 +93,11 @@ function generate_media($playlist, $media=false) {
 if ($_GET) {
   if (array_key_exists('op', $_GET)) {
     if ($_GET['op'] == "ls") {
-      echo ls($_GET['dir']);
+      if (array_key_exists('dir', $_GET)) {
+        echo ls($_GET['dir']);
+      } else {
+        echo '{error:"Expected \"dir\" key."}';
+      }
     }
   }
 
