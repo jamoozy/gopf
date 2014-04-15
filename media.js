@@ -88,12 +88,31 @@ var media = (function() {
 
       $("#prev").click(media.prev);
       $("#next").click(media.next);
-      //$("#loop_label").click(function(e) {
-      //  $("#loop").trigger("click");
-      //});
-      //$("#shuf_label").click(function(e) {
-      //  $("#shuf").trigger("click");
-      //});
+
+      $("#loop_label").click(function(e) {
+        $("#loop").trigger("click");
+      });
+      $("#shuf_label").click(function(e) {
+        $("#shuf").trigger("click");
+      });
+
+      // Check for a get request that requests we play something right away.
+      var playing = $('.playing');
+      if (playing.size() > 0) {
+        media.i = $(".media").index(playing) - 1;
+        play(playing[0]);
+
+        // TODO something with parsing t=\d+ from URL and setting seconds
+        var match = /\Wt=(\d+)/.exec(document.location.href);
+        if (match) {
+          var quickplay = function() {
+            this.currentTime = parseInt(match[1]);
+            $(this).off('playing', null, quickplay);
+            this.play();
+          }
+          $("#player").on('playing', quickplay);
+        }
+      }
     },
 
     onclick : function(med) {
