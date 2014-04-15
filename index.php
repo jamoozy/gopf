@@ -39,9 +39,9 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8"/>
     <title id="page-title">Zelda_64_Pachelbels_Ganon_OC_ReMix</title>
     <script src="jquery-1.11.0.min.js" type="text/javascript"></script>
     <!--script src="loc.js" type="text/javascript"></script-->
@@ -65,12 +65,12 @@ if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
       </video>
       <div id="controls" class="controls-container">
         <span id="prev" class="controls">&lt;&lt;</span>
-        <!--input id="loop" type="checkbox">
+        <input id="loop" type="checkbox">
           <span id="loop_label" class="controls"><span class="mnemonic">l</span>oop</span>
         </input>
         <input id="shuf" type="checkbox">
           <span id="shuf_label" class="controls"><span class="mnemonic">s</span>huffle</span>
-        </input-->
+        </input>
         <span id="next" class="controls">&gt;&gt;</span>
       </div>
     </div>
