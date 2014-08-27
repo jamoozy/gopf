@@ -21,53 +21,54 @@ var playlist = (function() {
   var callback = false;
 
   function notify(str) {
-    document.getElementById("notification").innerHTML = str;
+    $("#notification").innerHTML = str;
   }
 
   // Requests the contents of the playlist from the server.
   function reqPlaylist(elem) {
-    var url = document.location.pathname + "list.php?playlist=" +
-        elem.innerHTML.replace(/^\s+|\s+$/g,"");
+    window.console.log("reqPlaylist("+elem+")");
+    var html = elem.html();
+    html.replace(/^\s+|\s+$/g,"");
+    var url = document.location.pathname + "list.php?playlist=" + html;
     req.open("GET", url, true);
     req.send();
   }
 
   function loadPlaylist(req) {
     var path = req.responseText.replace(/\.\.\//g, dir).split("\n");
-    var queue = document.getElementById("media");
-    var player = document.getElementById("player");
+    var queue = $("#media");
     var mediaTag, i;
 
     // Remove sources.
-    player.removeAttribute("src");
+    $("#player").removeAttr("src");
 
     // Remove all current children.
-    while (queue.childNodes.length > 0) {
-      queue.removeChild(queue.firstChild);
-    }
+    queue.children().each(function(i,e) {
+      e.remove();
+    });
 
     // Add the new children.
     for (i = 0; i < path.length; i++) {
-      if (path[i].length <= 0 || path[i][0] == "#") {
+      if (path[i].trim().length <= 0 || path[i][0] == "#") {
         continue;
       }
       var media_first = path[i].lastIndexOf("/") + 1;
       var media_length = path[i].lastIndexOf(".") - media_first;
       var name = path[i].substr(media_first, media_length);
 
-      mediaTag = document.createElement("li");
-      mediaTag.setAttribute("class", "media");
-      mediaTag.setAttribute("path", path[i]);
-      mediaTag.addEventListener("click", function(event) {
-          media.onclick(this);
-      }, true);
-      mediaTag.innerHTML = name;
+      mediaTag = $("<li>");
+      mediaTag.attr("class", "media");
+      mediaTag.attr("path", path[i]);
+      mediaTag.click(function(e) {
+        media.onclick(this);
+      });
+      mediaTag.html(name);
 
-      queue.appendChild(mediaTag);
+      queue.append(mediaTag);
     }
 
     // Ensure the media queue isn't overlapping things.
-    document.getElementById("media-container").width = (window.innerWidth - document.getElementById("playlist-container").width) / 2;
+    $("#media-container").width = (window.innerWidth - $("#playlist-container").width) / 2;
 
     // If we need to swap the selection, do it.
     if (playlist.swapAfter) {
@@ -110,15 +111,12 @@ var playlist = (function() {
 
     init : function() {
       // Initialize the playlists' "onclick" events.
-      var unselected = document.getElementsByClassName("unselected");
-      for (var i = 0; i < unselected.length; i++) {
-        unselected[i].addEventListener("click", function(event) {
-            window.console.log("A playlist was clicked: " + this);
-            document.getElementById("selected").removeAttribute("id");
-            this.setAttribute("id", "selected");
-            playlist.onclick(this);
-        }, true);
-      }
+      $(".unselected").click(function(event) {
+          window.console.log("A playlist was clicked: " + this);
+          $("#selected").removeAttr("id");
+          $(this).attr("id", "selected");
+          playlist.onclick(this);
+      });
     },
 
     // Register that a playlist was clicked (to be loaded).
@@ -127,23 +125,24 @@ var playlist = (function() {
     //              swapped after it is loaded.
     //          cb: (optional) Callback after the list is loaded.
     onclick : function(elem, swapAfter, cb) {
-      if (elem.getAttribute("class") === "selected") {
+      elem = $(elem);
+      if (elem.attr("class") === "selected") {
         return;
       }
 
-      if (swapAfter === true) {
+      if (swapAfter) {
         playlist.swapAfter = true;
       }
 
-      var selected = document.getElementsByClassName("selected");
-      for (var i = 0; i < selected.length; i++) {
-        selected[i].setAttribute("class", "unselected");
+      var selected = $(".selected");
+      for (var i = 0; i < selected.size(); i++) {
+        $(selected.get(i)).attr("class", "unselected");
       }
-      elem.setAttribute("class", "selected");
+      elem.attr("class", "selected");
       reqPlaylist(elem);
       setCallback(cb);
     }
   };
 })();
 
-window.addEventListener("load", playlist.init, true);
+$(window).load(playlist.init);

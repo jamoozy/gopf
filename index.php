@@ -19,24 +19,31 @@
 include("mysql.php");
 include("list.php");
 
-//if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
-//  $playlist = false;
-//  $media = false;
-//  if ($_GET) {
-//    if (array_key_exists('p', $_GET)) {
-//      $playlist = urldecode($_GET['p']);
-//      if (array_key_exists('m', $_GET)) {
-//        $media = urldecode($_GET['m']);
-//      }
-//    }
-//  }
+if (!($ip_error = ip_is_ok($_SERVER["REMOTE_ADDR"]))) {
+  $playlist = false;
+  $media = false;
+  if ($_GET) {
+    if (array_key_exists('p', $_GET)) {
+      $playlist = urldecode($_GET['p']);
+      if (array_key_exists('m', $_GET)) {
+        $media = urldecode($_GET['m']);
+
+        // TODO
+        //if (array_key_exists('t', $_GET)) {
+        //  $time = urldecode($_GET['t']);
+        //}
+      }
+    }
+  }
+}
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8"/>
     <title id="page-title">Zelda_64_Pachelbels_Ganon_OC_ReMix</title>
+    <script src="jquery-1.11.0.min.js" type="text/javascript"></script>
     <!--script src="loc.js" type="text/javascript"></script-->
     <script src="media.js" type="text/javascript"></script>
     <script src="playlist.js" type="text/javascript"></script>
@@ -48,6 +55,7 @@ include("list.php");
 
   <body>
     <div id="player-container" class="player-container">
+      <div id="url" class="url"></div>
       <div id="title-header">
         <h1 class="header">now playing:</h1>
         <div class="title" style="font-family:'Poiret One'">(nothing loaded)</div>
@@ -76,7 +84,11 @@ include("list.php");
 
       <div id="media-container" class="media-container">
         <ul id="media" class="media">
-          <li class="dummy"><span style="font-size:24pt;float:left;position:relative;margin-top:1px">&larr;</span> &nbsp; select a playlist</li>
+        <?if ($media) {?>
+          <?=generate_media($playlist, $media)?>
+        <?}else{?>
+          <?=generate_media($playlist)?>
+        <?}?>
         </ul>
         <h1 id="media-header" class="header">Songs</h1>
       </div>
@@ -97,7 +109,7 @@ include("list.php");
   </body>
 </html>
 
-<? if ($playlist && $media) { ?>
+<!--? if ($playlist && $media) { ?>
 <script type="text/javascript">
 // Handle Clicked media
 var clickPassedMedia = function(req) {
@@ -129,14 +141,14 @@ function loadSelectedPlaylist(e) {
 // Listen for the page to load, so that this can load the playlist.
 window.addEventListener("load", loadSelectedPlaylist, true);
 </script>
-<? } ?>
+<!--? } ?>
 
-<?php
+<!--?php
 //} else {
 
 // The following is all done inline (as opposed to having separate CSS
 // and JS files) to decrease complexity.
-?>
+?--!>
 <!--html>
   <head>
     <style type="text/css">

@@ -24,53 +24,54 @@ html {
 }
 
 body {
-  font-family: Tinos;
-  font-size: 12pt;
+  font-family:Tinos;
+  font-size:12pt;
 }
 
 
 .help-dialog {
-  padding: 1em;
-  position: absolute;
-  top: 1em;
-  right: 1em;
-  bottom: 1em;
-  left: 1em;
-  background-color: rgba(10, 10, 10, .88);
-  color: white;
-  border-radius: 1em;
-  -webkit-columns: 300px auto;
-  -moz-columns: 300px auto;
+  padding:1em;
+  position:absolute;
+  top:1em;
+  right:1em;
+  bottom:1em;
+  left:1em;
+  background-color:rgba(10, 10, 10, .88);
+  color:white;
+  border-radius:1em;
+  -webkit-columns:300px auto;
+  -moz-columns:300px auto;
+  columns:300px auto;
 }
 
 .help-dialog ul {
-  margin: 3em 0 0 -1.5em;
+  margin:3em 0 0 -1.5em;
 }
 
 .help-dialog ul li {
-  list-style-type: none;
-  position: relative;
-  margin-right: 1em;
+  list-style-type:none;
+  position:relative;
+  margin-right:1em;
 }
 
 .help-dialog ul li.help-header {
-  padding-top: 1em;
-  border-bottom: 1px solid gray;
-  font-weight: bold;
-  color: yellow;
+  padding-top:1em;
+  border-bottom:1px solid gray;
+  font-weight:bold;
+  color:yellow;
 }
 
 .help-dialog ul li span.key {
-  font-family: monospace;
-  font-weight: bold;
-  min-width: 3em;
-  max-width: 3em;
-  width: 3em;
-  text-align: right;
+  font-family:monospace;
+  font-weight:bold;
+  min-width:3em;
+  max-width:3em;
+  width:3em;
+  text-align:right;
 }
 
 .playlist-container, .media-container {
-  font-family: Tinos;
+  font-family:Tinos;
 }
 
 
@@ -80,18 +81,37 @@ body {
 \*********************************************************/
 
 .player-container {
-  background: #102520;
-  color: #8db6cd;
+  background:#102520;
+  color:#8db6cd;
 
-  float: center;
-  border: 1px solid white;
-  border-radius: 4px;
+  float:center;
+  border:1px solid white;
+  border-radius:4px;
 
-  text-align: center;
+  text-align:center;
 }
 
 .progress {
-  width: 50%;
+  width:50%;
+}
+
+.url {
+  background:#102520;
+  display:none;
+  position:absolute;
+  border:1px solid #8db6cd;
+  top:0;
+  left:0;
+  padding:2px 5px;
+  margin:4px;
+}
+
+.url-link {
+  cursor:pointer;
+  font-size:200%;
+  text-decoration:none;
+  font-family:sans-serif;
+  color:#8db6cd;
 }
 
 
@@ -101,7 +121,7 @@ body {
 \*********************************************************/
 
 .unselected:hover, .media:hover {
-  cursor: pointer;
+  cursor:pointer;
 }
 
 ul.media:hover {
@@ -109,67 +129,70 @@ ul.media:hover {
 }
 
 .dummy {
-  color: white;
-  list-style-type: none;
-  padding: 2px 1em;
-  margin: 2px 1em;
-  text-align: center;
-  font-family: "Poiret One";
+  color:white;
+  list-style-type:none;
+  padding:2px 1em;
+  margin:2px 1em;
+  text-align:center;
+  font-family:"Poiret One";
 
-  display: -webkit-inline-box;
-  display: -moz-inline-box;
-  -webkit-box-pack: center;
-  -moz-box-pack: center;
-  -webkit-box-align: center;
-  -moz-box-align: center;
+  display:-webkit-inline-box;
+  display:-moz-inline-box;
+  display:inline-box;
+  -webkit-box-pack:center;
+  -moz-box-pack:center;
+  box-pack:center;
+  -webkit-box-align:center;
+  -moz-box-align:center;
+  box-align:center;
 }
 
 li.selected, li.unselected, li.media, li.playing {
-  padding-right: 0.5em;
+  padding-right:0.5em;
 
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow:hidden;
+  text-overflow:ellipsis;
 
-  list-style-type: none;
-  text-overflow: clip;
+  list-style-type:none;
+  text-overflow:clip;
 
-  /*border-radius: 1em;*/
-  border: 1px solid black;
+  /*border-radius:1em;*/
+  border:1px solid black;
   padding:5px;
-  height: 1em;
+  height:1em;
 
-  margin-bottom: -1px;
+  margin-bottom:-1px;
 }
 
 .title {
-  color: #e0ffff;
-  font-family: 'Headland One';
+  color:#e0ffff;
+  font-family:'Headland One';
   padding:5px 0 5px 0;
   font-size:10pt;
 }
 
 li.media, li.unselected {
-  background-image: -webkit-gradient(
+  background-image:-webkit-gradient(
     linear, left bottom, left top,
     from(gray), to(white)
   );
-  background: -moz-linear-gradient(90deg, gray, white);
+  background:-moz-linear-gradient(90deg, gray, white);
 
-  color: #e0ffff;
-  border-color: #e0ffff;
-  background: black;
+  color:#e0ffff;
+  border-color:#e0ffff;
+  background:black;
 }
 
 li.selected, li.playing {
-  background-image: -webkit-gradient(
+  background-image:-webkit-gradient(
     linear, left top, left bottom,
     from(#fff), to(#00f)
   );
-  background: -moz-linear-gradient(90deg, #fff, #00f);
+  background:-moz-linear-gradient(90deg, #fff, #00f);
 
-  color: #8db6cd;
-  border-color: #8db6cd;
-  background: #102520;
+  color:#8db6cd;
+  border-color:#8db6cd;
+  background:#102520;
 }
 
 
@@ -186,24 +209,24 @@ li.selected, li.playing {
 }
 
 .mnemonic {
-  text-decoration: underline;
+  text-decoration:underline;
 }
 
 .header {
   font-family:'Poiret One';
-  color: #8db6cd;
-  float: top;
-  text-align: center;
-  padding: 2px 2px 5px 2px;
-  margin: 0;
+  color:#8db6cd;
+  float:top;
+  text-align:center;
+  padding:2px 2px 5px 2px;
+  margin:0;
 }
 
 .playlist-container, .media-container {
-  background: #102520;
-  border: 1px solid white;
-  border-top: none;
-  border-radius: 1em;
-  margin: -1px 5px;  /* lines-up with media-container */
+  background:#102520;
+  border:1px solid white;
+  border-top:none;
+  border-radius:1em;
+  margin:-1px 5px;  /* lines-up with media-container */
   text-align:left;
 }
 
@@ -218,37 +241,37 @@ li.selected, li.playing {
 }
 
 .playlist-container {
-  float: left;
-  max-width: 260px;
+  float:left;
+  max-width:260px;
 }
 
 .media-container {
-  float: right;
+  float:right;
 }
 
 ul.playlists, ul.media {
-  background: #102520;
+  background:#102520;
 
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-x:hidden;
+  overflow-y:scroll;
 
-  margin: 0px -1px -1px -1px;
+  margin:0px -1px -1px -1px;
   padding-left:0;
 
-  border: 1px solid white;
+  border:1px solid white;
 }
 
 #selected.media, #selected.unselected {
-  color: #36648b;
-  background: white;
+  color:#36648b;
+  background:white;
 }
 
 #selected.playing, #selected.selected {
-  background: -webkit-gradient(
+  background:-webkit-gradient(
     linear, left bottom, left top,
     from(#222), to(#000)
   );
-  background: -moz-linear-gradient(90deg, black, #102520);
+  background:-moz-linear-gradient(90deg, black, #102520);
 }
 
 .controls-container {
@@ -256,7 +279,7 @@ ul.playlists, ul.media {
 }
 
 .controls {
-  cursor: pointer;
+  cursor:pointer;
 }
 
 
@@ -266,18 +289,18 @@ ul.playlists, ul.media {
 \*********************************************************/
 
 footer {
-  float: bottom;
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
+  float:bottom;
+  position:absolute;
+  bottom:8px;
+  right:8px;
 }
 
 footer .name {
-  text-align: right;
-  font-size: 8pt;
-  font-family: Times;
+  text-align:right;
+  font-size:8pt;
+  font-family:Times;
 }
 
 footer .name, .name a:visited, .name a:link {
-  color: #aaa;
+  color:#aaa;
 }
