@@ -21,7 +21,7 @@ var playlist = (function() {
   var callback = false;
 
   function notify(str) {
-    $("#notification").innerHTML = str;
+    $("#notification").html(str);
   }
 
   // Requests the contents of the playlist from the server.
