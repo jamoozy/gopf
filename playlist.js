@@ -29,7 +29,7 @@ var playlist = (function() {
     window.console.log("reqPlaylist("+elem+")");
     var html = elem.html();
     html.replace(/^\s+|\s+$/g,"");
-    var url = document.location.pathname + "list.php?playlist=" + html;
+    var url = document.location.pathname + "list.rb?playlist=" + html;
     req.open("GET", url, true);
     req.send();
   }
