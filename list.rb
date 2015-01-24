@@ -1,18 +1,18 @@
 #!/usr/bin/ruby -w
-
-# Copyright 2012-2013 Andrew "Jamoozy" Correa S.
+#
+# Copyright (C) 2011-2015 Andrew "Jamoozy" Sabisch
 #
 # This file is part of GOPF.
 #
-# GOPF is free software: you can redistribute it and/or modify it under
-# the terms of the GNU Affero General Public as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any
-# later version.
+# GOPF is free software: you can redistribute it and/or modify it under the
+# terms of the GNU Affero General Public as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
 #
-# GOPF is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License
-# for more details.
+# GOPF is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with GOPF. If not, see http://www.gnu.org/licenses/.
@@ -33,23 +33,24 @@ $playlist_dir = "#$data_dir/playlists/";
 #
 # Returns the HTML for the playlist list.
 def generate_playlists(playlist=false)
-  fnames = Dir[$playlist_dir].map do |fname|
+  fnames = Dir["#$playlist_dir/*"].reject do |fname|
     raise "#{fname} DNE?" unless File.exists?(fname) # sanity check
-    next if fname.start_with?('.') or File.executable?(fname) or fname[-1..-1] == "~"
-  end.reject {|x| x == nil }.sort
+    fname.start_with?('.') or File.executable?(fname) or fname[-1..-1] == "~"
+  end.map do |fname|
+    File.basename(fname)
+  end.sort
 
-  if playlist
-    fnames.inject("") do |prev,fname|
-      if playlist == fname
-        prev + "<li class=\"unselected\">#{fname}</li>"
-      else
-        prev + "<li class=\"unselected selected\" id=\"selected\">#{fname}</li>"
-      end
+  # If we have a playlist, be sure to "select" the given playlist.
+  return fnames.inject("") do |prev,fname|
+    if playlist == fname
+      prev + "<li class=\"unselected\">#{fname}</li>"
+    else
+      prev + "<li class=\"unselected#{playlist == fname ? ' selected' : ''}\" id=\"selected\">#{fname}</li>"
     end
-  else
-    fnames.inject('') do |prev,fname|
-      prev + "<li class=\"unselected\">#{fname}</li>";
-    end
+  end if playlist
+
+  return fnames.inject('') do |prev,fname|
+    prev + "<li class=\"unselected\">#{fname}</li>"
   end
 end
 
@@ -63,7 +64,7 @@ end
 #
 # Returns the HTML for the contents of the playlist with the passed name.
 def generate_media(playlist, media=false)
-  paths = split("\n", file_get_contents("#$playlist_dir/#{playlist}"));
+  paths = File.readlines("#$playlist_dir/#{playlist}")
 
   paths.inject('') do |prev, path|
     if path.strip.len <= 0
@@ -92,7 +93,7 @@ if __FILE__ == $0
         cgi.out("text/json") { '{error:"Expected \"dir\" key."}' }
       end
     when 'playlist'
-      generate_playlists(cgi.params.has_key?('playlist') ? cgi.params['playlist'] : false)
+      cgi.out("text/html") { generate_playlists(cgi.params.has_key?('playlist') ? cgi.params['playlist'] : false) }
     end
   elsif cgi.params.has_key?('playlist')
     playlist = File.join($playlist_dir, cgi.params['playlist'])

@@ -1,6 +1,7 @@
 AddType audio/ogg .ogg
 
-RewriteEngine On
+Options +ExecCGI
 
 AddHandler cgi-script .rb
-Options +ExecCGI
+
+DirectoryIndex index.rb

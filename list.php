@@ -1,5 +1,5 @@
 <?
-// Copyright 2012-2013 Andrew "Jamoozy" Correa S.
+// Copyright (C) 2011-2015 Andrew "Jamoozy" Sabisch
 //
 // This file is part of GOPF.
 //

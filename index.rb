@@ -1,57 +1,31 @@
 #!/usr/bin/env ruby
-
-#  Copyright (c) 2011 Henrik Hodne
 #
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation
-# files (the "Software"), to deal in the Software without
-# restriction, including without limitation the rights to use,
-# copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the
-# Software is furnished to do so, subject to the following
-# conditions:
+# Copyright (C) 2011-2015 Andrew "Jamoozy" Sabisch
 #
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
+# This file is part of GOPF.
 #
-# Except as contained in this notice, the name(s) of the above
-# copyright holders shall not be used in advertising or otherwise
-# to promote the sale, use or other dealings in this Software
-# without prior written authorization.
+# GOPF is free software: you can redistribute it and/or modify it under the
+# terms of the GNU Affero General Public as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-# OTHER DEALINGS IN THE SOFTWARE.
+# GOPF is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with GOPF. If not, see http://www.gnu.org/licenses/.
 
 require 'cgi'
 require 'erb'
 
 $cgi = CGI.new
-include ERB::Util
 
-# Use this to output a header. This will output the header immediately,
-# and ensures that it's printed before the other content
-# This accepts either string(s) or a hash
-# To force html content type, in your erb you must specify:
-#   <% header "Content-Type" => "text/html" %>
-#   or
-#   name the filewith extension .html.erb
-def header(*args)
-  if args.length == 1
-    args.first.each do |key, value|
-      puts "#{key}: #{value}\r\n"
-    end
-  else
-    args.each {|s| puts s+"\r\n" }
+bind = binding
+
+$cgi.out('text/html') do
+  File.open('index.html.erb', "r") do |f|
+    ERB.new(f.read).result(bind)
   end
-  ($HEADERS ||= []).push(*args)
 end
-
-bind = binding # To prevent the erb script to have access to "f"
-
-puts "\r\n" + File.open($cgi.path_translated, "r") {|f| ERB.new(f.read).result(bind) }
