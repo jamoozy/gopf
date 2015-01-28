@@ -1,1 +1,7 @@
 AddType audio/ogg .ogg
+
+Options +ExecCGI
+
+AddHandler cgi-script .rb
+
+DirectoryIndex index.rb

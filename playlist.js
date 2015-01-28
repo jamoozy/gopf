@@ -1,16 +1,16 @@
-// Copyright 2012-2013 Andrew "Jamoozy" Correa S.
+// Copyright (C) 2011-2015 Andrew "Jamoozy" Sabisch
 //
 // This file is part of GOPF.
 //
-// GOPF is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public as published by the Free Software
-// Foundation, either version 3 of the License, or (at your option) any
-// later version.
+// GOPF is free software: you can redistribute it and/or modify it under the
+// terms of the GNU Affero General Public as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
 //
-// GOPF is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License
-// for more details.
+// GOPF is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GOPF. If not, see http://www.gnu.org/licenses/.
@@ -21,7 +21,7 @@ var playlist = (function() {
   var callback = false;
 
   function notify(str) {
-    $("#notification").innerHTML = str;
+    $("#notification").html(str);
   }
 
   // Requests the contents of the playlist from the server.
@@ -29,7 +29,7 @@ var playlist = (function() {
     window.console.log("reqPlaylist("+elem+")");
     var html = elem.html();
     html.replace(/^\s+|\s+$/g,"");
-    var url = document.location.pathname + "list.php?playlist=" + html;
+    var url = document.location.pathname + "list.rb?playlist=" + html;
     req.open("GET", url, true);
     req.send();
   }
