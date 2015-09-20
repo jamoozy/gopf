@@ -6,3 +6,4 @@ data
 
 *.db
 sqlite-service
+index.html

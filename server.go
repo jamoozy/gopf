@@ -25,97 +25,16 @@ import (
   "encoding/json"
   "errors"
   "fmt"
+  "html/template"
   "log"
   "net/http"
   "regexp"
-  "strings"
+//  "strings"
   "time"
 )
 
-// 3rd party libraries.
-import (
-  _ "github.com/mattn/go-sqlite3"
-)
-
-// Type of parsing function for sqlQuery().
-type RowParser func(*sql.Rows) ([][]string, error)
-
-// Creates a simple RowParser that returns an error if rows is empty.
-func SingleStringRowParser(rows *sql.Rows) ([][]string, error) {
-  rtn := make([][]string, 0, 100)  // 100 is a guess.
-  for rows.Next() {
-    var fname string
-    if err := rows.Scan(&fname); err != nil {
-      return nil, err
-    }
-    rtn = append(rtn, []string{fname})
-  }
-  return rtn, nil
-}
-
-// Converts a [][]string with one string per sub-array into a simple []string
-// with the single string contents of each sub-[]string from the original
-// [][]string as an entry.
-func toArray(orig [][]string) []string {
-  fnames := make([]string, len(orig))
-  for i := 0; i < len(orig); i++ {
-    fnames[i] = orig[i][0]
-  }
-  return fnames
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-//                                SQL Helpers                                 //
-////////////////////////////////////////////////////////////////////////////////
-
-// Gets a SQL context and passes a *sql.DB to the passed function.
-func sqlCtx(fn func(*sql.DB) error) error {
-  db, err := sql.Open("sqlite3", "sqlite3.db")
-  if err != nil {
-    return err
-  }
-  defer db.Close()
-
-  return fn(db)
-}
-
-// Runs a SQL query.  Parses the rows with the passed function, fn.
-func sqlQuery(fn RowParser, stmt string, args ...interface{}) ([][]string, error) {
-  var parsedOutput [][]string
-  log.Printf("Running command: %s <-- %s\n", stmt, args)
-  return parsedOutput, sqlCtx(func(db *sql.DB) error {
-    rows, err := db.Query(stmt, args...)
-    if err != nil {
-      return err
-    }
-    defer rows.Close()
-
-    parsedOutput, err = fn(rows)
-    return err
-  })
-}
-
-// Executes a function that doesn't return rows.
-func sqlExec(stmt string, args ...interface{}) (error) {
-  return sqlCtx(func(db *sql.DB) error {
-    result, err := db.Exec(stmt, args...)
-    if err != nil {
-      return err
-    }
-
-    num, err := result.RowsAffected()
-    if err != nil {
-      return err
-    } else if num > 0 {
-      return nil
-    } else {
-      return errors.New("No rows affected.")
-    }
-  })
-}
-
+// My libraries
+import "libs/dblayer"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,73 +42,115 @@ func sqlExec(stmt string, args ...interface{}) (error) {
 ////////////////////////////////////////////////////////////////////////////////
 
 // Type that all of my handler functions are.
-type handlerFunc func(http.ResponseWriter, *http.Request, string, string)
+type handlerFunc func(http.ResponseWriter, *http.Request, string, string) error
 
 // Sets a tag on a file.
-func settag(w http.ResponseWriter, r *http.Request, tag string, file string) {
+func settag(w http.ResponseWriter, r *http.Request, tag string, file string) error {
   log.Printf("Creating tag for tag:'%s', file:'%s'\n", tag, file)
 
-  err := sqlExec("insert or ignore into tags('name') values(?)", tag)
+  err := dblayer.SqlExec("insert or ignore into tags('name') values(?)", tag)
   if err != nil {
-    log.Println(err)
-    http.ServeContent(w, r, "", time.Now(), strings.NewReader(err.Error()))
-    return
+    return err
   }
 
-  err = sqlExec("insert into file_tags(file_id,tag_id)" +
-                "  select files.id, tags.id" +
-                "    from files, tags" +
-                "    where files.path=? and tags.name=?", file, tag)
+  err = dblayer.SqlExec("insert into file_tags(file_id,tag_id)" +
+                        "  select files.id, tags.id" +
+                        "    from files, tags" +
+                        "    where files.path=? and tags.name=?", file, tag)
   if err != nil {
-    log.Println(err)
-    w.WriteHeader(http.StatusBadRequest)
-    http.ServeContent(w, r, "", time.Now(), strings.NewReader("No such file."))
-    return
+    return err
   }
 
   log.Println("Successfully added file tag.")
+  return nil
 }
 
 // Gets all files in the tag.  "file" is ignored; it's only there so this
 // conforms to the handlerFunc type.
-func gettag(w http.ResponseWriter, r *http.Request, tag string, file string) {
-  rtn, err := sqlQuery(
+func gettag(w http.ResponseWriter, r *http.Request, tag string, file string) error {
+  rtn, err := dblayer.SqlQuery(
     SingleStringRowParser,
     "select files.path from files, tags, file_tags" +
     "  where files.id = file_tags.file_id" +
     "    and tags.id = file_tags.tag_id" +
     "    and tags.name = ?", tag)
   if err != nil {
-    log.Println(err)
-    return
+    return err
   }
 
   j, err := json.Marshal(toArray(rtn))
   if err != nil {
-    log.Println(err)
-    return
+    return err
   }
 
   http.ServeContent(w, r, "", time.Now(), bytes.NewReader(j))
+  return nil
 }
 
-func gettags(w http.ResponseWriter, r *http.Request, tag string, file string) {
+// Gets a list of all the tags in existence.
+func gettags(w http.ResponseWriter, r *http.Request, tag string, file string) error {
   log.Println("In /gettags")
-  rtn, err:= sqlQuery(SingleStringRowParser, "select tags.name from tags")
+  rtn, err := dblayer.QueryTags()
   if err != nil {
-    log.Println(err)
-    return
+    return err
   }
 
   fmt.Printf("There are %d return values.\n", len(rtn))
 
   j, err := json.Marshal(toArray(rtn))
   if err != nil {
-    log.Println(err)
-    return
+    return err
   }
 
   http.ServeContent(w, r, "", time.Now(), bytes.NewReader(j))
+  return nil
+}
+
+// Simply serves the main page, index.hml
+func serveIndex(w http.ResponseWriter, r *http.Request) {
+  logErr := func(err error) {
+    log.Println(err)
+    http.Error(w, err.Error(), http.StatusInternalServerError)
+  }
+
+  t, err := template.New("index.tmpl").ParseFiles("index.tmpl")
+  if err != nil {
+    logErr(err)
+    return
+  }
+
+  // Build data for the template.
+  data := struct {
+    Title string
+    Playlists []string
+    Selected string
+    Media []string
+    Playing string
+  }{
+    "GOPF",
+    []string{},
+    r.Form.Get("p"),
+    []string{},
+    r.Form.Get("m"),
+  }
+
+  data.Playlists, err = dblayer.QueryPlaylists()
+  if err != nil {
+    logErr(err)
+    return
+  }
+  if data.Selected != "" {
+    data.Media, err = dblayer.QueryMedia(data.Selected)
+    if err != nil {
+      logErr(err)
+      return
+    }
+  }
+  err = t.Execute(w, data)
+  if err != nil {
+    logErr(err)
+    return
+  }
 }
 
 
@@ -222,8 +183,34 @@ func wrapHandler(fn handlerFunc, methods map[string]bool) http.HandlerFunc {
       return
     }
 
-    fn(w, r, m[3], m[4])
+    err := fn(w, r, m[3], m[4])
+    if err != nil {
+      log.Println(err)
+      http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
   }
+}
+
+// Matches HTML, JavaScript, and CSS files for the default handler.
+var servableFiles = regexp.MustCompile(
+  "/(.*\\.(html|js|css)|data/.*\\.(mp[34]|ogg|ogv))")
+
+// Handles all default requests.
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+  if r.URL.Path == "/" {
+    log.Printf("Satisfied request for index.html")
+    http.Redirect(w, r, "/index.html", http.StatusMovedPermanently)
+    return
+  }
+
+  m := servableFiles.FindStringSubmatch(r.URL.Path)
+  if m == nil {
+    log.Printf(`Unrecognized endpoint: "%s".\n`, r.URL.Path)
+    http.NotFound(w, r)
+    return
+  }
+  log.Println("Got request for file: " + m[1])
+  http.ServeFile(w, r, m[1])
 }
 
 
@@ -239,7 +226,10 @@ func main() {
   http.HandleFunc("/settag/", wrapHandler(settag, put))
   http.HandleFunc("/gettag/", wrapHandler(gettag, get))
   http.HandleFunc("/gettags/", wrapHandler(gettags, get))
+  http.HandleFunc("/index.html", serveIndex)
+  http.HandleFunc("/", rootHandler)
 
-  fmt.Println("Running server on port 8079")
-  http.ListenAndServe(":8079", nil)
+  port := ":8079"
+  fmt.Println("Running server on " + port)
+  http.ListenAndServe(port, nil)
 }
