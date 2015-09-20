@@ -6,6 +6,15 @@ GOPF works on a LAMP server, and takes advantage of HTML5's `<audio>` and `<vide
 
 Please don't hesitate to change, distribute, and make this program available.  It's free software!  Let it be free!
 
+## Installing and Running
+
+Use the Go build system!  From the root directory of your project, type:
+```sh
+$ export GOPATH=$GOPATH:`pwd`
+$ go install server
+$ bin/server
+```
+
 ## Support
 
 If you'd like to show your appreciation, you can donate to any one of these addresses:
