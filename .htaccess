@@ -1,7 +1,8 @@
 AddType audio/ogg .ogg
+AddType video/mp4 .mp4
 
-Options +ExecCGI
-
-AddHandler cgi-script .rb
+RewriteEngine On
 
 DirectoryIndex index.rb
+
+RewriteRule (.*)$ %{HTTP_HOST}:8079/$1
