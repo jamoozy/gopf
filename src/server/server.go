@@ -21,9 +21,7 @@ package main
 // System libraries
 import (
   "bytes"
-  "database/sql"
   "encoding/json"
-  "errors"
   "fmt"
   "html/template"
   "log"
@@ -34,7 +32,7 @@ import (
 )
 
 // My libraries
-import "libs/dblayer"
+import "dblayer"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,20 +63,15 @@ func settag(w http.ResponseWriter, r *http.Request, tag string, file string) err
   return nil
 }
 
-// Gets all files in the tag.  "file" is ignored; it's only there so this
-// conforms to the handlerFunc type.
+// Gets all files tagged with the specified tag.  "file" is ignored; it's only
+// there so this conforms to the handlerFunc type.
 func gettag(w http.ResponseWriter, r *http.Request, tag string, file string) error {
-  rtn, err := dblayer.SqlQuery(
-    SingleStringRowParser,
-    "select files.path from files, tags, file_tags" +
-    "  where files.id = file_tags.file_id" +
-    "    and tags.id = file_tags.tag_id" +
-    "    and tags.name = ?", tag)
+  rtn, err := dblayer.QueryFiles(tag)
   if err != nil {
     return err
   }
 
-  j, err := json.Marshal(toArray(rtn))
+  j, err := json.Marshal(rtn)
   if err != nil {
     return err
   }
@@ -95,9 +88,7 @@ func gettags(w http.ResponseWriter, r *http.Request, tag string, file string) er
     return err
   }
 
-  fmt.Printf("There are %d return values.\n", len(rtn))
-
-  j, err := json.Marshal(toArray(rtn))
+  j, err := json.Marshal(rtn)
   if err != nil {
     return err
   }

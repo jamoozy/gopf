@@ -105,6 +105,20 @@ func QueryTags() ([]string, error) {
   return toArray(rtn), nil
 }
 
+func QueryFiles(tag string) ([]string, error) {
+  rtn, err := SqlQuery(
+    SingleStringRowParser,
+    "select files.path from files, tags, file_tags" +
+    "  where files.id = file_tags.file_id" +
+    "    and tags.id = file_tags.tag_id" +
+    "    and tags.name = ?", tag)
+  if err != nil {
+    return nil, err
+  }
+
+  return toArray(rtn), nil
+}
+
 // Gets all the playlists in the system.
 func QueryPlaylists() ([]string, error) {
   playlists, err := SqlQuery(SingleStringRowParser,

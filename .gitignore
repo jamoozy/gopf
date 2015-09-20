@@ -7,3 +7,7 @@ data
 *.db
 sqlite-service
 index.html
+
+# Go-specific ignores.
+/bin/
+/pkg/
