@@ -3,3 +3,6 @@
 *.swo
 *.log
 data
+
+*.db
+sqlite-service
