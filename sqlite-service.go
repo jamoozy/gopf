@@ -111,24 +111,24 @@ type handlerFunc func(http.ResponseWriter, *http.Request, string, string)
 func settag(w http.ResponseWriter, r *http.Request, tag string, file string) {
   log.Printf("Creating tag for tag:'%s', file:'%s'\n", tag, file)
 
-  err := sqlExec("insert or ignore into tags('name') values('?')", tag)
+  err := sqlExec("insert or ignore into tags('name') values(?)", tag)
   if err != nil {
     log.Println(err)
     http.ServeContent(w, r, "", time.Now(), strings.NewReader(err.Error()))
     return
   }
 
-  err := sqlExec("insert into file_tags(file_id,tag_id)" +
-                 "  select files.id, tags.id" +
-                 "    from files, tags" +
-                 "    where files.path='?' and tags.name='?'", file, tag)
-
+  err = sqlExec("insert into file_tags(file_id,tag_id)" +
+                "  select files.id, tags.id" +
+                "    from files, tags" +
+                "    where files.path=? and tags.name=?", file, tag)
   if err != nil {
     log.Println(err)
     w.WriteHeader(http.StatusBadRequest)
-    http.ServeContent(w, r, "", time.Now(), strings.NewReader(err.Error()))
+    http.ServeContent(w, r, "", time.Now(), strings.NewReader("No such file."))
     return
   }
+
   log.Println("Successfully added file tag.")
 }
 
@@ -140,7 +140,7 @@ func gettag(w http.ResponseWriter, r *http.Request, tag string, file string) {
     "select files.path from files, tags, file_tags" +
     "  where files.id = file_tags.file_id" +
     "    and tags.id = file_tags.tag_id" +
-    "    and tags.name = '?'", tag)
+    "    and tags.name = ?", tag)
   if err != nil {
     log.Println(err)
     return
@@ -204,7 +204,7 @@ func wrapHandler(fn handlerFunc, methods map[string]bool) http.HandlerFunc {
       return
     }
 
-    fn(w, r, m[2], m[3])
+    fn(w, r, m[3], m[4])
   }
 }
 
