@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env ruby2.0
 #
 # Copyright (C) 2011-2015 Andrew "Jamoozy" Sabisch
 #
