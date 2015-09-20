@@ -1,8 +1,0 @@
-AddType audio/ogg .ogg
-AddType video/mp4 .mp4
-
-RewriteEngine On
-
-DirectoryIndex index.rb
-
-RewriteRule (.*)$ %{HTTP_HOST}:8079/$1
