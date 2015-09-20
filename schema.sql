@@ -2,19 +2,19 @@
 drop table if exists playlists;
 create table playlists (
   id integer primary key autoincrement,
-  name text not null
+  name text not null on conflict abort unique on conflict fail
 );
 
 drop table if exists files;
 create table files (
   id integer primary key autoincrement,
-  path text not null
+  path text not null on conflict abort unique on conflict ignore
 );
 
 drop table if exists tags;
 create table tags (
   id integer primary key autoincrement,
-  name text not null
+  name text not null on conflict abort unique on conflict ignore
 );
 
 drop table if exists playlist_files;
