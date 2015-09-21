@@ -8,12 +8,18 @@ Please don't hesitate to change, distribute, and make this program available.  I
 
 ## Installing and Running
 
-Use the Go build system!  From the root directory of your project, type:
+Use the [Go](https://golang.org) build system!  From the root directory of your project, type:
 ```sh
 $ export GOPATH=$GOPATH:`pwd`
-$ go install server
-$ bin/server
+$ go install gopf
+$ bin/gopf
 ```
+
+You should see it print out:
+```
+Running server on :8079
+```
+If you see that, you'll know everything worked!
 
 ## Support
 
