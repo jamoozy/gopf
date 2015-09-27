@@ -17,7 +17,7 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 
 // The verbosity var; meant only to be used with flag.Var().
-var vv verbVar
+var vv = verbVar{0}
 
 // Sets up the command line arguments for logging.
 func init() {
