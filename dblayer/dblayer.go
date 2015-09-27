@@ -49,6 +49,9 @@ func toArray(orig [][]string) []string {
 // Function that runs some SQL query.
 type SqlRunner func(*sql.DB) error
 
+// The name of the DB file.
+var DbName string
+
 // Gets a SQL context and passes a *sql.DB to the passed function.
 func SqlCtx(fn SqlRunner) error {
   db, err := sql.Open("sqlite3", "sqlite3.db")
@@ -142,5 +145,3 @@ func QueryMedia(playlist string) ([]string, error) {
   }
   return toArray(media), nil
 }
-
-

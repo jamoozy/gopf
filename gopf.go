@@ -22,17 +22,17 @@ package main
 import (
   "bytes"
   "encoding/json"
+  "flag"
   "fmt"
   "html/template"
   "log"
   "net/http"
   "regexp"
-//  "strings"
   "time"
 )
 
 // My libraries
-import "dblayer"
+import "github.com/jamoozy/gopf/dblayer"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -210,7 +210,18 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 //                                    Main                                    //
 ////////////////////////////////////////////////////////////////////////////////
 
+// The GOPF context.
+var (
+  dataDir string    // Directory where data is stored.
+  port string       // Port to open HTTP(S) server on.
+)
+
 func main() {
+  flag.StringVar(&dataDir, "data", "data", "Data directory.")
+  flag.StringVar(&dblayer.DbName, "db", "gopf.db", "Name of the DB file.")
+  flag.StringVar(&port, "port", "8080", "Port to server on.")
+  flag.Parse()
+
   get := map[string]bool{"GET": true}
   put := map[string]bool{"PUT": true}
 
@@ -220,7 +231,9 @@ func main() {
   http.HandleFunc("/index.html", serveIndex)
   http.HandleFunc("/", rootHandler)
 
-  port := ":8079"
   fmt.Println("Running server on " + port)
-  http.ListenAndServe(port, nil)
+  err := http.ListenAndServe(":" + port, nil)
+  if err != nil {
+    log.Fatal(err)
+  }
 }
