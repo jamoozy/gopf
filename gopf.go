@@ -199,15 +199,17 @@ func wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.Hand
 
 // Matches HTML, JavaScript, and CSS files for the default handler.
 var servableFiles = regexp.MustCompile(
-    fmt.Sprintf("/(.*\\.(html|js|css)|media/.*\\.(mp[34]|ogg|ogv))"))
+    fmt.Sprintf("/([a-zA-Z0-9_.-]+\\.(html|js|css)|media/.*\\.(mp[34]|ogg|ogv))"))
 
 // Handles all default requests.
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-  if r.URL.Path == "/" {
+  if r.URL.Path == "" || r.URL.Path == "/" {
     log.Printf("Satisfied request for index.html")
     http.Redirect(w, r, "/index.html", http.StatusMovedPermanently)
     return
   }
+
+  vrb(`rootHandler got request at path "%s"`, r.URL.Path)
 
   m := servableFiles.FindStringSubmatch(r.URL.Path)
   if m == nil {
@@ -215,7 +217,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
     http.NotFound(w, r)
     return
   }
-  log.Println("Got request for file: " + m[1])
+  vrb(`rootHandler serving file: "%s"`, m[1])
   http.ServeFile(w, r, m[1])
 }
 
@@ -280,7 +282,6 @@ func parseArgs() {
     log.Fatalln("%s: directory")
   }
   vrb("%s: file", fileInfo.Name())
-
 }
 
 func main() {
@@ -295,7 +296,7 @@ func main() {
   http.HandleFunc("/index.html", serveIndex)
   http.HandleFunc("/", rootHandler)
 
-  fmt.Println("Running server on " + port)
+  vrb("Running server on %s", port)
   err := http.ListenAndServe(":" + port, nil)
   if err != nil {
     log.Fatal(err)
