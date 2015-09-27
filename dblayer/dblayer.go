@@ -54,7 +54,7 @@ var DbName string
 
 // Gets a SQL context and passes a *sql.DB to the passed function.
 func SqlCtx(fn SqlRunner) error {
-  db, err := sql.Open("sqlite3", "sqlite3.db")
+  db, err := sql.Open("sqlite3", DbName)
   if err != nil {
     return err
   }
