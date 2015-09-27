@@ -1,7 +1,9 @@
 package util
 
 import (
+  "errors"
   "os"
+  "strings"
 )
 
 import (
@@ -30,4 +32,19 @@ func IsFile(name string) bool {
     return false
   }
   return !fileInfo.IsDir()
+}
+
+// Returns the directory of the specified path.  Can be either a directory or a
+// file path.  If the root directory (i.e., "/") is passed, return an error.
+func DirOf(path string) (string, error) {
+  path = strings.TrimRight(path, "\t ")
+  if path == "/" {
+    msg := "Attempted to get directory of root directory."
+    lg.Trc("%s ... Returning.", msg)
+    return "", errors.New(msg)
+  }
+
+  lg.Trc("DirOf(%s)", path)
+  path = strings.TrimRight(path, "/")
+  return path[0:strings.LastIndex(path, "/")], nil
 }
