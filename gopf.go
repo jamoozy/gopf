@@ -34,7 +34,10 @@ import (
 )
 
 // My libraries
-import "github.com/jamoozy/gopf/dblayer"
+import (
+  "github.com/jamoozy/gopf/dblayer"
+  "github.com/jamoozy/gopf/util"
+)
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -179,6 +182,7 @@ func wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.Hand
       return
     }
 
+    // Call the function and wrap any errors.
     err := fn(w, r, args...)
     if err != nil {
       log.Println(err)
@@ -207,8 +211,14 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
     http.NotFound(w, r)
     return
   }
-  vrb(`rootHandler serving file: "%s"`, m[1])
-  http.ServeFile(w, r, m[1])
+
+  if fname := "static" + m[0] ; util.IsFile(fname) {
+    vrb("%s: It's a file.", fname)
+    http.ServeFile(w, r, fname)
+  } else {
+    vrb("%s: not a file", fname)
+    http.NotFound(w, r)
+  }
 }
 
 
@@ -219,9 +229,10 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 // The GOPF context.
 var (
-  mediaDir string    // Directory where data is stored.
+  mediaDir string   // Directory where data is stored.
   port string       // Port to open HTTP(S) server on.
   verbose bool      // Whether to print "verbose" logs.
+  wd string         // Working directory.
 )
 
 // Print verbosely.
@@ -240,38 +251,8 @@ func parseArgs() {
   flag.Parse()
 
   // Some minor validation.
-  fileInfo, err := os.Stat(mediaDir)
-  if err != nil {
-    if os.IsNotExist(err) {
-      log.Fatalf("%d: does not exist", mediaDir)
-    }
-    log.Fatalf(err.Error())
-  }
-  vrb("%s: exists", mediaDir)
-
-  if !fileInfo.IsDir() {
-    log.Fatalf("%d: not a directory", mediaDir)
-  }
-  vrb("%s: is a dir", mediaDir)
-
-  fileInfo, err = os.Stat(dblayer.DbName)
-  if err != nil {
-    if os.IsNotExist(err) {
-      log.Printf("%d: does not exist.  Creating new.", dblayer.DbName)
-
-      // TODO Create new DB.
-      log.Fatalln("Not implemented :-(")
-    } else {
-      vrb("%s: exists")
-      log.Fatalln(err.Error())
-    }
-  }
-  vrb("%s: exists", fileInfo.Name())
-
-  if fileInfo.IsDir() {
-    log.Fatalln("%s: directory")
-  }
-  vrb("%s: file", fileInfo.Name())
+  util.IsFile(mediaDir)
+  util.IsDir(dblayer.DbName)
 }
 
 func main() {
@@ -287,7 +268,21 @@ func main() {
   http.HandleFunc("/", rootHandler)
 
   vrb("Running server on %s", port)
-  err := http.ListenAndServe(":" + port, nil)
+  var err error
+  wd, err = os.Getwd()
+  if err != nil {
+    log.Println("can't determine working directory.")
+    wd = "."
+  } else {
+    if util.IsDir(wd) {
+      vrb("true")
+    } else {
+      vrb("false")
+    }
+    vrb("Running server from %s", wd)
+  }
+
+  err = http.ListenAndServe(":" + port, nil)
   if err != nil {
     log.Fatal(err)
   }
