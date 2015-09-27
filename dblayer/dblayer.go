@@ -3,7 +3,11 @@ package dblayer
 import (
   "database/sql"
   "errors"
-  "log"
+)
+
+// Internal libraries.
+import (
+  "github.com/jamoozy/gopf/lg"
 )
 
 // 3rd party libraries.
@@ -66,11 +70,11 @@ func SqlCtx(fn SqlRunner) error {
 // Runs a SQL query.  Parses the rows with the passed function, fn.
 func SqlQuery(fn RowParser, stmt string, args ...interface{}) ([][]string, error) {
   var parsedOutput [][]string
-  log.Printf("Running command: %s <-- %s\n", stmt, args)
+  lg.Trc("Running command: %s <-- %s\n", stmt, args)
   return parsedOutput, SqlCtx(func(db *sql.DB) error {
     rows, err := db.Query(stmt, args...)
     if err != nil {
-      log.Printf("Error: %s\n", err.Error())
+      lg.Ftl(err.Error())
       return err
     }
     defer rows.Close()

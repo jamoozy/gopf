@@ -25,7 +25,6 @@ import (
   "flag"
   "fmt"
   "html/template"
-  "log"
   "net/http"
   "os"
   "regexp"
@@ -33,10 +32,11 @@ import (
   "time"
 )
 
-// My libraries
+// Internal libraries.
 import (
   "github.com/jamoozy/gopf/dblayer"
   "github.com/jamoozy/gopf/util"
+  "github.com/jamoozy/gopf/lg"
 )
 
 
@@ -49,25 +49,25 @@ type handlerFunc func(http.ResponseWriter, *http.Request, ...string) error
 
 // Sets a tag on a file.
 func settag(w http.ResponseWriter, r *http.Request, args ...string) error {
-  log.Printf("Creating tag for tag:'%s', file:'%s'\n", args)
+  lg.Trc("settag(w, r, %s)\n", args)
 
   err := dblayer.TagFile(args[0], args[1])
   if err != nil {
     return err
   }
 
-  log.Println("Successfully added file tag.")
+  lg.Vrb("Successfully added file tag.")
   return nil
 }
 
 // Gets all files tagged with the specified tag.
 func gettag(w http.ResponseWriter, r *http.Request, args ...string) error {
+  lg.Trc("gettag(w, r, %s)\n", args)
   rtn, err := dblayer.QueryFiles(args[0])
 
   if err != nil {
     return err
   }
-
 
   j, err := json.Marshal(rtn)
   if err != nil {
@@ -80,7 +80,7 @@ func gettag(w http.ResponseWriter, r *http.Request, args ...string) error {
 
 // Gets a list of all the tags in existence.
 func gettags(w http.ResponseWriter, r *http.Request, args ...string) error {
-  log.Println("In /gettags")
+  lg.Trc("gettags(w, r, %s)\n", args)
   rtn, err := dblayer.QueryTags()
   if err != nil {
     return err
@@ -98,7 +98,7 @@ func gettags(w http.ResponseWriter, r *http.Request, args ...string) error {
 // Simply serves the main page, index.hml
 func serveIndex(w http.ResponseWriter, r *http.Request) {
   logErr := func(err error) {
-    log.Println(err)
+    lg.Ifo("Got error: %s", err)
     http.Error(w, err.Error(), http.StatusInternalServerError)
   }
 
@@ -162,7 +162,7 @@ func wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.Hand
   return func(w http.ResponseWriter, r *http.Request) {
     // Ensure this is a valid method for this function.
     if !methods[r.Method] {
-      log.Printf("Method not allowed: %s %s", r.Method, r.URL.Path)
+      lg.Ifo("Method not allowed: %s %s\n", r.Method, r.URL.Path)
       w.WriteHeader(http.StatusMethodNotAllowed)
       return
     }
@@ -170,7 +170,7 @@ func wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.Hand
     // Ensure that the URL matches.
     m := validMethods.FindStringSubmatch(r.URL.Path)
     if m == nil {
-      log.Printf("Page '%s' Not found.\n", r.URL.Path)
+      lg.Ifo("Page '%s' Not found.\n", r.URL.Path)
       http.NotFound(w, r)
       return
     }
@@ -178,14 +178,16 @@ func wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.Hand
     // Split into separate args; make sure there are the right amount.
     args := strings.Split(m[4], "/")
     if len(args) != numArgs {
-      http.Error(w, "Wrong #args.", http.StatusBadRequest)
+      msg := "Wrong #args."
+      lg.Ifo(msg)
+      http.Error(w, msg, http.StatusBadRequest)
       return
     }
 
     // Call the function and wrap any errors.
     err := fn(w, r, args...)
     if err != nil {
-      log.Println(err)
+      lg.Ifo(err.Error())
       http.Error(w, err.Error(), http.StatusInternalServerError)
     }
   }
@@ -198,25 +200,23 @@ var servableFiles = regexp.MustCompile(
 // Handles all default requests.
 func rootHandler(w http.ResponseWriter, r *http.Request) {
   if r.URL.Path == "" || r.URL.Path == "/" {
-    log.Printf("Satisfied request for index.html")
+    lg.Ifo("Satisfied request for index.html")
     http.Redirect(w, r, "/index.html", http.StatusMovedPermanently)
     return
   }
 
-  vrb(`rootHandler got request at path "%s"`, r.URL.Path)
+  lg.Vrb(`rootHandler got request at path "%s"`, r.URL.Path)
 
   m := servableFiles.FindStringSubmatch(r.URL.Path)
   if m == nil {
-    log.Printf(`Unrecognized endpoint: "%s".\n`, r.URL.Path)
+    lg.Ifo(`Unrecognized endpoint: "%s".\n`, r.URL.Path)
     http.NotFound(w, r)
     return
   }
 
   if fname := "static" + m[0] ; util.IsFile(fname) {
-    vrb("%s: It's a file.", fname)
     http.ServeFile(w, r, fname)
   } else {
-    vrb("%s: not a file", fname)
     http.NotFound(w, r)
   }
 }
@@ -229,25 +229,16 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 // The GOPF context.
 var (
-  mediaDir string   // Directory where data is stored.
-  port string       // Port to open HTTP(S) server on.
-  verbose bool      // Whether to print "verbose" logs.
-  wd string         // Working directory.
+  mediaDir string         // Directory where data is stored.
+  port string             // Port to open HTTP(S) server on.
+  wd string               // Working directory.
 )
 
-// Print verbosely.
-func vrb(fmt string, args ...interface{}) {
-  if !verbose {
-    return
-  }
-  log.Printf(fmt, args...)
-}
-
+// Set default, parse, and validate args.
 func parseArgs() {
   flag.StringVar(&mediaDir, "data", "data", "Data directory.")
   flag.StringVar(&dblayer.DbName, "db", "gopf.db", "Name of the DB file.")
   flag.StringVar(&port, "port", "8080", "Port to server on.")
-  flag.BoolVar(&verbose, "verbose", false, "Switch on verbose mode.")
   flag.Parse()
 
   // Some minor validation.
@@ -267,23 +258,16 @@ func main() {
   http.HandleFunc("/index.html", serveIndex)
   http.HandleFunc("/", rootHandler)
 
-  vrb("Running server on %s", port)
   var err error
   wd, err = os.Getwd()
   if err != nil {
-    log.Println("can't determine working directory.")
+    lg.Wrn("can't determine working directory.")
     wd = "."
-  } else {
-    if util.IsDir(wd) {
-      vrb("true")
-    } else {
-      vrb("false")
-    }
-    vrb("Running server from %s", wd)
   }
+  lg.Vrb("Running server on %s at %s", port, wd)
 
   err = http.ListenAndServe(":" + port, nil)
   if err != nil {
-    log.Fatal(err)
+    lg.Ftl(err.Error())
   }
 }
