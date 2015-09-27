@@ -99,6 +99,12 @@ func SqlExec(stmt string, args ...interface{}) (error) {
   })
 }
 
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                       Querying Convenience Functions                       //
+////////////////////////////////////////////////////////////////////////////////
+
 // Checks the DB for all the tags.
 func QueryTags() ([]string, error) {
   rtn, err := SqlQuery(SingleStringRowParser, "select tags.name from tags")
@@ -108,6 +114,7 @@ func QueryTags() ([]string, error) {
   return toArray(rtn), nil
 }
 
+// Returns list of all files with the given tag.
 func QueryFiles(tag string) ([]string, error) {
   rtn, err := SqlQuery(
     SingleStringRowParser,
@@ -144,4 +151,23 @@ func QueryMedia(playlist string) ([]string, error) {
     return nil, err
   }
   return toArray(media), nil
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                       Querying Convenience Functions                       //
+////////////////////////////////////////////////////////////////////////////////
+
+// Tags the file with the tag.
+func TagFile(tag, file string) error {
+  err := SqlExec("insert or ignore into tags('name') values(?)", tag)
+  if err != nil {
+    return err
+  }
+
+  return SqlExec("insert into file_tags(file_id,tag_id)" +
+                 "  select files.id, tags.id" +
+                 "    from files, tags" +
+                 "    where files.path=? and tags.name=?", file, tag)
 }

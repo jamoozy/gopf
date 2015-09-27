@@ -48,17 +48,7 @@ type handlerFunc func(http.ResponseWriter, *http.Request, ...string) error
 func settag(w http.ResponseWriter, r *http.Request, args ...string) error {
   log.Printf("Creating tag for tag:'%s', file:'%s'\n", args)
 
-  tag, file := args[0], args[1]
-
-  err := dblayer.SqlExec("insert or ignore into tags('name') values(?)", tag)
-  if err != nil {
-    return err
-  }
-
-  err = dblayer.SqlExec("insert into file_tags(file_id,tag_id)" +
-                        "  select files.id, tags.id" +
-                        "    from files, tags" +
-                        "    where files.path=? and tags.name=?", file, tag)
+  err := dblayer.TagFile(args[0], args[1])
   if err != nil {
     return err
   }
