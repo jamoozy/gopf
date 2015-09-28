@@ -58,8 +58,9 @@
     <nav id="navigator">
       <div id="playlist-container" class="playlist-container">
         <ul id="playlists" class="playlists">
+          {{$s := .Selected}}
           {{range .Playlists}}
-            <li class="{{if ne .Selected .}}un{{end}}selected">{{.}}</li>
+            <li class="{{if ne $s .}}un{{end}}selected">{{.}}</li>
           {{else}}
             <li>No playlists</li>
           {{end}}
@@ -69,8 +70,9 @@
 
       <div id="media-container" class="media-container">
         <ul id="media" class="media">
+          {{$p := .Playing}}
           {{range .Media}}
-            <li class="media{{if eq .Playing .}} playing{{end}}">{{.}}<li>
+            <li class="media{{if eq $p .}} playing{{end}}">{{.}}<li>
           {{else}}
             <li>Nothing selected</li>
           {{end}}
