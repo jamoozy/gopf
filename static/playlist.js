@@ -17,7 +17,6 @@
 
 var playlist = (function() {
   var dir = "data/";
-  var req = new XMLHttpRequest();
   var callback = false;
 
   function notify(str) {
@@ -26,79 +25,56 @@ var playlist = (function() {
 
   // Requests the contents of the playlist from the server.
   function reqPlaylist(elem) {
-    window.console.log("reqPlaylist("+elem+")");
-    var html = elem.html();
-    html.replace(/^\s+|\s+$/g,"");
-    var url = document.location.pathname + "list.rb?playlist=" + html;
-    req.open("GET", url, true);
-    req.send();
-  }
+    window.console.log("reqPlaylist(...):");
+    window.console.log(elem);
 
-  function loadPlaylist(req) {
-    var path = req.responseText.replace(/\.\.\//g, dir).split("\n");
-    var queue = $("#media");
-    var mediaTag, i;
+    $.get("playlist/" + elem.html(), null, function(data, textStatus, jqXHR) {
+      window.console.log("Got data:");
+      window.console.log(data);
 
-    // Remove sources.
-    $("#player").removeAttr("src");
+      var queue = $("#media"),
+          mediaTag,
+          i;
 
-    // Remove all current children.
-    queue.children().each(function(i,e) {
-      e.remove();
-    });
+      // Remove sources.
+      $("#player").removeAttr("src");
 
-    // Add the new children.
-    for (i = 0; i < path.length; i++) {
-      if (path[i].trim().length <= 0 || path[i][0] == "#") {
-        continue;
-      }
-      var media_first = path[i].lastIndexOf("/") + 1;
-      var media_length = path[i].lastIndexOf(".") - media_first;
-      var name = path[i].substr(media_first, media_length);
-
-      mediaTag = $("<li>");
-      mediaTag.attr("class", "media");
-      mediaTag.attr("path", path[i]);
-      mediaTag.click(function(e) {
-        media.onclick(this);
+      // Remove all current children.
+      queue.children().each(function(i,e) {
+        e.remove();
       });
-      mediaTag.html(name);
 
-      queue.append(mediaTag);
-    }
-
-    // Ensure the media queue isn't overlapping things.
-    $("#media-container").width = (window.innerWidth - $("#playlist-container").width) / 2;
-
-    // If we need to swap the selection, do it.
-    if (playlist.swapAfter) {
-      input.swap();
-      playlist.swapAfter = false;
-    }
-  }
-
-  // Set the callback for the request.
-  req.onreadystatechange = function() {
-    switch (req.readyState) {
-      case 0: break;
-      case 1: break;
-      case 2: break;
-      case 3: break;
-      case 4:
-        if (req.status === 200) {
-          loadPlaylist(req);
-        } else {
-          // error?
+      // Add the new children.
+      for (i = 0; i < data.Files.length; i++) {
+        if (data.Files[i].trim().length <= 0 || data.Files[i][0] == "#") {
+          continue;
         }
-        break;
-      default:
-        notify("Not sure what happened ... (default) ... error?");
-    }
+        var media_first = data.Files[i].lastIndexOf("/") + 1;
+        var media_length = data.Files[i].lastIndexOf(".") - media_first;
+        var name = data.Files[i].substr(media_first, media_length);
 
-    if (callback) {
-      callback(req);
-    }
-  };
+        mediaTag = $("<li>");
+        mediaTag.attr("class", "media");
+        mediaTag.attr("path", data.Files[i]);
+        mediaTag.click(function(e) {
+          media.onclick(this);
+        });
+        mediaTag.html(name);
+
+        queue.append(mediaTag);
+      }
+
+      // Ensure the media queue isn't overlapping things.
+      $("#media-container").width = (
+          window.innerWidth - $("#playlist-container").width) / 2;
+
+      // If we need to swap the selection, do it.
+      if (playlist.swapAfter) {
+        input.swap();
+        playlist.swapAfter = false;
+      }
+    }, "json");
+  }
 
   // Sets the callback after the list is loaded.
   function setCallback(cb) {
