@@ -47,6 +47,31 @@ import (
 // Type that all of my handler functions are.
 type handlerFunc func(http.ResponseWriter, *http.Request, ...string) error
 
+// Gets the contents of a playlist.
+func playlist(w http.ResponseWriter, r *http.Request, args ...string) error {
+  lg.Trc("playlist(w, r, %s)\n", args)
+
+  files, err := dblayer.GetPlaylist(args[0])
+  if err != nil {
+    return err
+  }
+
+  lg.Vrb("Sending %d files.", len(files))
+  rtn := struct {
+    Files []string
+  }{
+    Files: files,
+  }
+
+  j, err := json.Marshal(rtn)
+  if err != nil {
+    return err
+  }
+
+  http.ServeContent(w, r, "", time.Now(), bytes.NewReader(j))
+  return nil
+}
+
 // Sets a tag on a file.
 func settag(w http.ResponseWriter, r *http.Request, args ...string) error {
   lg.Trc("settag(w, r, %s)\n", args)
@@ -63,8 +88,8 @@ func settag(w http.ResponseWriter, r *http.Request, args ...string) error {
 // Gets all files tagged with the specified tag.
 func gettag(w http.ResponseWriter, r *http.Request, args ...string) error {
   lg.Trc("gettag(w, r, %s)\n", args)
-  rtn, err := dblayer.QueryFiles(args[0])
 
+  rtn, err := dblayer.QueryFiles(args[0])
   if err != nil {
     return err
   }
@@ -154,7 +179,7 @@ func serveIndex(w http.ResponseWriter, r *http.Request) {
 // Regular expression defining valid URLs.  This variable simplifies the
 // redirection process.
 var validMethods = regexp.MustCompile(
-    "^/(gettags|(settag|hastag|gettag)/(.*))/?$")
+    "^/(gettags|(settag|hastag|gettag|playlist)/(.*))/?$")
 
 // Wraps my handlerFunc into an http.HandlerFunc given the set of allowable
 // methods and number of additional string arguments to pass to fn.
@@ -179,7 +204,7 @@ func wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.Hand
     }
 
     // Split into separate args; make sure there are the right amount.
-    args := strings.Split(m[4], "/")
+    args := strings.Split(m[3], "/")
     if len(args) != numArgs {
       msg := "Wrong #args."
       lg.Ifo(msg)
@@ -275,6 +300,7 @@ func main() {
   put := map[string]bool{"PUT": true}
 
   // All the endpoints.
+  http.HandleFunc("/playlist/", wrapHandler(playlist, get, 1))
   http.HandleFunc("/settag/", wrapHandler(settag, put, 2))
   http.HandleFunc("/gettag/", wrapHandler(gettag, get, 1))
   http.HandleFunc("/gettags/", wrapHandler(gettags, get, 0))

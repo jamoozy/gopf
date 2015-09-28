@@ -175,6 +175,8 @@ func QueryPlaylists() ([]string, error) {
 
 // Gets all the files in the passed playlist.
 func QueryMedia(playlist string) ([]string, error) {
+  lg.Trc("QueryMedia(%s)", playlist)
+
   media, err := SqlQuery(
     SingleStringRowParser,
     `select files.name from playlists, files, playlist_files
@@ -193,28 +195,44 @@ func QueryMedia(playlist string) ([]string, error) {
 //                       Querying Convenience Functions                       //
 ////////////////////////////////////////////////////////////////////////////////
 
+// Gets the list of file names in the playlist.
+func GetPlaylist(playlist string) ([]string, error) {
+  lg.Trc("GetPlaylist(%s)", playlist)
+
+  files, err := SqlQuery(
+    SingleStringRowParser,
+    `select files.path from files, playlists, playlist_files
+       where playlist_files.playlist_id = playlists.id
+         and playlist_files.file_id = files.id
+         and playlists.name = ?`, playlist)
+  if err != nil {
+    return nil, err
+  }
+  return toArray(files), nil
+}
+
 // Tags the file with the tag.
 func TagFile(tag, file string) error {
   lg.Trc("Tagging file %s with %s", file, tag)
 
-  err := SqlExec("insert or ignore into tags(name) values(?)", tag)
+  err := SqlExec(`insert or ignore into tags(name) values(?)`, tag)
   if err != nil {
     lg.Trc("Error: %s", err.Error())
     return err
   }
 
-  return SqlExec("insert into file_tags(file_id,tag_id)" +
-                 "  select files.id, tags.id" +
-                 "    from files, tags" +
-                 "    where files.path=? and tags.name=?", file, tag)
+  return SqlExec(`insert into file_tags(file_id,tag_id)
+                    select files.id, tags.id
+                      from files, tags
+                      where files.path=? and tags.name=?`, file, tag)
 }
 
 func AddToPlaylist(playlist, file string) error {
   lg.Trc("AddToPlaylist(%s, %s)", playlist, file)
-  return SqlExec("insert into playlist_files(file_id,playlist_id)" +
-                 "  select files.id, playlists.id" +
-                 "    from files, playlists" +
-                 "    where files.path=? and playlists.name=?", file, playlist)
+  return SqlExec(`insert into playlist_files(file_id,playlist_id)
+                    select files.id, playlists.id
+                      from files, playlists
+                      where files.path=? and playlists.name=?`, file, playlist)
 }
 
 func CreatePlaylist(playlist string, fPaths ...string) (err error) {
