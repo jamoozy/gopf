@@ -205,7 +205,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  lg.Vrb(`rootHandler got request at path "%s"`, r.URL.Path)
+  lg.Trc(`rootHandler got request at path "%s"`, r.URL.Path)
 
   m := servableFiles.FindStringSubmatch(r.URL.Path)
   if m == nil {
@@ -217,6 +217,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
   if fname := "static" + m[0] ; util.IsFile(fname) {
     http.ServeFile(w, r, fname)
   } else {
+    lg.Dbg("%s not found.", fname)
     http.NotFound(w, r)
   }
 }
@@ -227,7 +228,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 //                                    Main                                    //
 ////////////////////////////////////////////////////////////////////////////////
 
-// The GOPF context.
+// These variables together are the GOPF context.
 var (
   mediaDir string         // Directory where data is stored.
   port string             // Port to open HTTP(S) server on.
@@ -237,13 +238,11 @@ var (
 // Set default, parse, and validate args.
 func parseArgs() {
   flag.StringVar(&mediaDir, "data", "data", "Data directory.")
-  flag.StringVar(&dblayer.DbName, "db", "gopf.db", "Name of the DB file.")
   flag.StringVar(&port, "port", "8080", "Port to server on.")
   flag.Parse()
 
   // Some minor validation.
   util.IsFile(mediaDir)
-  util.IsDir(dblayer.DbName)
 }
 
 func main() {

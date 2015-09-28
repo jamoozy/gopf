@@ -3,11 +3,14 @@ package dblayer
 import (
   "database/sql"
   "errors"
+  "flag"
+  "fmt"
 )
 
 // Internal libraries.
 import (
   "github.com/jamoozy/gopf/lg"
+  "github.com/jamoozy/gopf/util"
 )
 
 // 3rd party libraries.
@@ -16,6 +19,39 @@ import (
   _ "github.com/mattn/go-sqlite3"
 )
 
+
+// Variable for setting the database path.
+var dv = dbVar{path: "gopf.db"}
+
+// The name of the DB file.
+type dbVar struct {
+  path string
+}
+
+// Returns currently set DB path.
+func (dv *dbVar) String() string {
+  return dv.path
+}
+
+// Set the dbVar path.
+func (dv *dbVar) Set(path string) error {
+  if !util.IsFile(path) {
+    return errors.New(fmt.Sprintf("File: %s D.N.E.", path))
+  }
+  dv.path = path
+  return nil
+}
+
+// Initialize the database file path with
+func init() {
+  flag.Var(&dv, "db", "Name of the DB file.")
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                SQL Helpers                                 //
+////////////////////////////////////////////////////////////////////////////////
 
 // Type of parsing function for SqlQuery().
 type RowParser func(*sql.Rows) ([][]string, error)
@@ -44,21 +80,12 @@ func toArray(orig [][]string) []string {
   return fnames
 }
 
-
-
-////////////////////////////////////////////////////////////////////////////////
-//                                SQL Helpers                                 //
-////////////////////////////////////////////////////////////////////////////////
-
 // Function that runs some SQL query.
 type SqlRunner func(*sql.DB) error
 
-// The name of the DB file.
-var DbName string
-
 // Gets a SQL context and passes a *sql.DB to the passed function.
 func SqlCtx(fn SqlRunner) error {
-  db, err := sql.Open("sqlite3", DbName)
+  db, err := sql.Open("sqlite3", dv.path)
   if err != nil {
     return err
   }
