@@ -86,7 +86,7 @@ var (
   TrcLg = New(os.Stdout, "trc", 0,  3, false)   // Trace logger.
   DbgLg = New(os.Stdout, "dbg", 0,  2, false)   // Debug logger.
   VrbLg = New(os.Stdout, "vrb", 0,  1, false)   // Verbose logger.
-  IfoLg = New(os.Stdout, "inf", 0,  0,  true)   // Info logger.
+  IfoLg = New(os.Stdout, "ifo", 0,  0,  true)   // Info logger.
   WrnLg = New(os.Stdout, "wrn", 0, -1,  true)   // Warn logger.
   ErrLg = New(os.Stderr, "err", 0, -2,  true)   // Error logger.
   FtlLg = New(os.Stderr, "ftl", 0, -3,  true)   // Fatal logger.
