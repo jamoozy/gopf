@@ -23,7 +23,6 @@ import (
   "bytes"
   "encoding/json"
   "flag"
-  "fmt"
   "html/template"
   "net/http"
   "os"
@@ -222,8 +221,10 @@ func wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.Hand
 }
 
 // Matches HTML, JavaScript, and CSS files for the default handler.
-var servableFiles = regexp.MustCompile(
-    fmt.Sprintf("/([a-zA-Z0-9_.-]+\\.(html|js|css)|media/.*\\.(mp[34]|ogg|ogv))"))
+var staticFiles = regexp.MustCompile(`/([a-zA-Z0-9_.-]+\.(html|js|css))`)
+
+// Matches all media files.
+var mediaFiles = regexp.MustCompile(`/(.*\.(mp[34]|ogg|ogv))`)
 
 // Handles all default requests.
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -235,17 +236,28 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
   lg.Trc(`rootHandler got request at path "%s"`, r.URL.Path)
 
-  m := servableFiles.FindStringSubmatch(r.URL.Path)
-  if m == nil {
-    lg.Ifo(`Unrecognized endpoint: "%s".\n`, r.URL.Path)
-    http.NotFound(w, r)
+  m := staticFiles.FindStringSubmatch(r.URL.Path)
+  if m != nil {
+    serveFile(w, r, "static" + r.URL.Path)
     return
   }
 
-  if fname := "static" + m[0] ; util.IsFile(fname) {
-    http.ServeFile(w, r, fname)
+  m = mediaFiles.FindStringSubmatch(r.URL.Path)
+  if m != nil {
+    serveFile(w, r, mediaDir + r.URL.Path)
+    return
+  }
+  lg.Ifo(`Unrecognized endpoint: "%s".`, r.URL.Path)
+  http.NotFound(w, r)
+}
+
+// Serves a file, or a "404 Not Found".
+func serveFile(w http.ResponseWriter, r *http.Request, path string) {
+  lg.Trc(`serveFile(w, r, "%s")`, path)
+  if util.IsFile(path) {
+    http.ServeFile(w, r, path)
   } else {
-    lg.Dbg("%s not found.", fname)
+    lg.Dbg(`404 Not Found`, path)
     http.NotFound(w, r)
   }
 }
@@ -258,19 +270,25 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 // These variables together are the GOPF context.
 var (
-  mediaDir string         // Directory where data is stored.
-  port string             // Port to open HTTP(S) server on.
-  wd string               // Working directory.
-  shouldScanUpdateDb bool // Whether to run dblayer.ScanUpdateDB
+  mediaDir string   // Directory where data is stored.
+  port string       // Port to open HTTP(S) server on.
+  wd string         // Working directory.
+  pScan string      // Where to run dblayer.ScanUpdateDB for playlists.
+  tScan string      // Where to run dblayer.ScanUpdateDB for tags.
 )
 
 // Set default, parse, and validate args.
 func parseArgs() {
   flag.StringVar(&mediaDir, "media", "media", "Data directory.")
   flag.StringVar(&port, "port", "8080", "Port to server on.")
-  flag.BoolVar(&shouldScanUpdateDb, "scan", false,
-               "Scans the media directory and populates the DB with playlists" +
-               " based on directory structure.")
+  flag.StringVar(
+    &pScan, "p-scan", "",
+    `Scans the directory and populates the DB with playlists based on its
+        structure.`)
+  flag.StringVar(
+    &tScan, "t-scan", "",
+    `Scans the directory and populates the DB with tags based on its
+        structure.`)
   flag.Parse()
 
   // Some minor validation.
@@ -281,8 +299,14 @@ func main() {
   parseArgs()
 
   // Update the DB if it was requested to do so.
-  if shouldScanUpdateDb {
-    dblayer.ScanUpdateDB(mediaDir)
+  if pScan != "" {
+    dblayer.ScanUpdate(pScan, `playlists`)
+  }
+  if tScan != "" {
+    dblayer.ScanUpdate(tScan, `tags`)
+  }
+  if pScan != "" || tScan != "" {
+    // Exit if we did a pScan or tScan
     return
   }
 
@@ -290,8 +314,8 @@ func main() {
   var err error
   wd, err = os.Getwd()
   if err != nil {
-    lg.Wrn("can't determine working directory.")
-    wd = "."
+    lg.Wrn(`Can't determine working directory.`)
+    wd = `.`
   }
   lg.Vrb("Running server on %s at %s", port, wd)
 

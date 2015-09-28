@@ -227,6 +227,14 @@ func TagFile(tag, file string) error {
                       where files.path=? and tags.name=?`, file, tag)
 }
 
+func TagFiles(tag string, files ...string) error {
+  lg.Trc(`TagFiles(%s, %d files)`, tag, len(files))
+  for _, file := range files {
+    TagFile(tag, file)
+  }
+  return nil
+}
+
 func AddToPlaylist(playlist, file string) error {
   lg.Trc("AddToPlaylist(%s, %s)", playlist, file)
   return SqlExec(`insert into playlist_files(file_id,playlist_id)
@@ -259,6 +267,7 @@ func CreatePlaylist(playlist string, fPaths ...string) (err error) {
   lg.Trc("Done creating playlist %s", playlist)
   return nil
 }
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -324,25 +333,26 @@ func (sc *SeedCtx) Run() error {
 
 // This function runs a search on the media directory and populates the DB with
 // any missing entries.
-func ScanUpdateDB(mediaDir string) error {
-  lg.Trc("ScanUpdateDB(%s)", mediaDir)
-  _, err := handleDir(mediaDir)
+func ScanUpdate(mediaDir, table string) error {
+  lg.Trc("ScanUpdate(%s, %s)", mediaDir, table)
+  _, err := handleDir(mediaDir, table)
   if err != nil {
-    lg.Trc("exiting ScanUpdateDB(%s) err: %s", mediaDir, err.Error())
+    lg.Trc("exiting ScanUpdate(%s, %s) err: %s", mediaDir, table, err.Error())
   } else {
-    lg.Trc("exiting ScanUpdateDB(%s) complete.", mediaDir)
+    lg.Trc("exiting ScanUpdate(%s, %s) complete.", mediaDir, table)
   }
   return err
 }
 
-func handleDir(dirPath string) ([]os.FileInfo, error) {
+// Handles the directory.
+func handleDir(dirPath, table string) ([]os.FileInfo, error) {
   lg.Trc("Checking out dir: %s", dirPath)
 
   // Get entries.
   fis, err := ioutil.ReadDir(dirPath)
   if err != nil {
     lg.Trc("Error from ioutil.ReadDir: %s", err.Error())
-    return []os.FileInfo{}, err
+    return nil, err
   }
 
   // Split all entries into files and directories.
@@ -358,9 +368,9 @@ func handleDir(dirPath string) ([]os.FileInfo, error) {
 
   // Dive into directories, adding their files to the files in this.
   for _, dPath := range dFIs {
-    fis, err := handleDir(dPath.Name())
+    fis, err := handleDir(dPath.Name(), table)
     if err != nil {
-      return []os.FileInfo{}, err
+      return nil, err
     }
     fFIs = append(fFIs, fis...)
   }
@@ -371,5 +381,11 @@ func handleDir(dirPath string) ([]os.FileInfo, error) {
   for i, fFI := range fFIs {
     fPaths[i] = fFI.Name()
   }
-  return fFIs, CreatePlaylist(filepath.Base(dirPath), fPaths...)
+  switch table {
+  case "playlists":
+    return fFIs, CreatePlaylist(filepath.Base(dirPath), fPaths...)
+  case "tags":
+    return fFIs, TagFiles(filepath.Base(dirPath), fPaths...)
+  }
+  return nil, errors.New(fmt.Sprintf(`No such table: %s`, table))
 }
