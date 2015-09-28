@@ -5,6 +5,9 @@ import (
   "errors"
   "flag"
   "fmt"
+  "io/ioutil"
+  "os"
+  "path/filepath"
 )
 
 // Internal libraries.
@@ -192,8 +195,11 @@ func QueryMedia(playlist string) ([]string, error) {
 
 // Tags the file with the tag.
 func TagFile(tag, file string) error {
-  err := SqlExec("insert or ignore into tags('name') values(?)", tag)
+  lg.Trc("Tagging file %s with %s", file, tag)
+
+  err := SqlExec("insert or ignore into tags(name) values(?)", tag)
   if err != nil {
+    lg.Trc("Error: %s", err.Error())
     return err
   }
 
@@ -201,4 +207,151 @@ func TagFile(tag, file string) error {
                  "  select files.id, tags.id" +
                  "    from files, tags" +
                  "    where files.path=? and tags.name=?", file, tag)
+}
+
+func AddToPlaylist(playlist, file string) error {
+  lg.Trc("AddToPlaylist(%s, %s)", playlist, file)
+  return SqlExec("insert into playlist_files(file_id,playlist_id)" +
+                 "  select files.id, playlists.id" +
+                 "    from files, playlists" +
+                 "    where files.path=? and playlists.name=?", file, playlist)
+}
+
+func CreatePlaylist(playlist string, fPaths ...string) (err error) {
+  lg.Trc("Creating playlist %s with %d entries.", playlist, len(fPaths))
+
+  err = SqlExec("insert or fail into playlists(name) values(?)", playlist)
+  if err != nil {
+    return err
+  }
+
+  for _, fPath := range fPaths {
+    err = SqlExec("insert or ignore into files(path) values(?)", fPath)
+    if err != nil {
+      lg.Trc("Error inserting %s: %s", fPath, err.Error())
+      return err
+    }
+    err = AddToPlaylist(playlist, fPath)
+    if err != nil {
+      lg.Trc("Error adding %s to %s: %s", fPath, playlist, err.Error())
+      return err
+    }
+  }
+
+  lg.Trc("Done creating playlist %s", playlist)
+  return nil
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                            Management Functions                            //
+////////////////////////////////////////////////////////////////////////////////
+
+// Context for seeding a DB.
+type SeedCtx struct {
+  dbPath string       // Path to Database file.
+  mediaDir string     // Path to media.  If empty, does not populate the DB,
+                      // merely creates it and sets up the schema.
+  schemaPath string   // Path to schema file.
+  overwrite bool      // Whether to overwrite the DB if it already exists.  If
+                      // the DB exists and this is false (default), then Run()
+                      // returns an error.
+}
+
+// Run a seed process.  **Must not be asynchronous.**
+func (sc *SeedCtx) Run() error {
+  lg.Trc("SeedCtx.Run(): %s", sc)
+
+  // Default DB path.
+  if sc.dbPath == "" {
+    sc.dbPath = "gopf.db"
+    lg.Dbg("Setting default dbPath: %s", sc.dbPath)
+  }
+
+  // Default media dir.
+  if sc.mediaDir == "" {
+    sc.mediaDir = "media"
+    lg.Dbg("Setting default mediaDir: %s", sc.mediaDir)
+  }
+
+  // Default schema path.
+  if sc.schemaPath == "" {
+    sc.mediaDir = "schema.sql"
+    lg.Dbg("Setting default schemaPath: %s", sc.schemaPath)
+  }
+
+  // Verify that the database path is valid.  This consists of verifying either:
+  //  1) It does not exist, should be created, and its directory exists.
+  //  2) It exists and should be overwritten.
+  if dir := filepath.Dir(sc.dbPath) ; !util.IsDir(sc.dbPath) {
+    msg := fmt.Sprintf("No such directory: %s", dir)
+    lg.Ifo(msg)
+    return errors.New(msg)
+  } else if !sc.overwrite && util.IsFile(sc.dbPath) {
+    msg := "File exists, and set not to overwrite."
+    lg.Ifo(msg)
+    return errors.New(msg)
+  }
+
+  if sc.dbPath != "" {
+    // Temporarily swap out current path so that we can use all the nice
+    // convenience functions, e.g., SqlCtx.
+    var oldName string
+    oldName, dv.path = dv.path, sc.dbPath
+    defer func() { dv.path = oldName }()
+  }
+
+  return nil
+}
+
+// This function runs a search on the media directory and populates the DB with
+// any missing entries.
+func ScanUpdateDB(mediaDir string) error {
+  lg.Trc("ScanUpdateDB(%s)", mediaDir)
+  _, err := handleDir(mediaDir)
+  if err != nil {
+    lg.Trc("exiting ScanUpdateDB(%s) err: %s", mediaDir, err.Error())
+  } else {
+    lg.Trc("exiting ScanUpdateDB(%s) complete.", mediaDir)
+  }
+  return err
+}
+
+func handleDir(dirPath string) ([]os.FileInfo, error) {
+  lg.Trc("Checking out dir: %s", dirPath)
+
+  // Get entries.
+  fis, err := ioutil.ReadDir(dirPath)
+  if err != nil {
+    lg.Trc("Error from ioutil.ReadDir: %s", err.Error())
+    return []os.FileInfo{}, err
+  }
+
+  // Split all entries into files and directories.
+  dFIs, fFIs := make([]os.FileInfo, 0, 100), make([]os.FileInfo, 0, 100)
+  for _, fi := range fis {
+    if fi.IsDir() {
+      dFIs = append(dFIs, fi)
+    } else {
+      fFIs = append(fFIs, fi)
+    }
+  }
+  lg.Dbg("%d dirs, %d files", len(dFIs), len(fFIs))
+
+  // Dive into directories, adding their files to the files in this.
+  for _, dPath := range dFIs {
+    fis, err := handleDir(dPath.Name())
+    if err != nil {
+      return []os.FileInfo{}, err
+    }
+    fFIs = append(fFIs, fis...)
+  }
+  lg.Dbg("Now have %d files.", len(fFIs))
+
+  // Add all the files into a playlist for this directory.
+  fPaths := make([]string, len(fFIs))
+  for i, fFI := range fFIs {
+    fPaths[i] = fFI.Name()
+  }
+  return fFIs, CreatePlaylist(filepath.Base(dirPath), fPaths...)
 }

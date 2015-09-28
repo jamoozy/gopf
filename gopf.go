@@ -233,12 +233,14 @@ var (
   mediaDir string         // Directory where data is stored.
   port string             // Port to open HTTP(S) server on.
   wd string               // Working directory.
+  shouldScanUpdateDb bool // Whether to run dblayer.ScanUpdateDB
 )
 
 // Set default, parse, and validate args.
 func parseArgs() {
   flag.StringVar(&mediaDir, "data", "data", "Data directory.")
   flag.StringVar(&port, "port", "8080", "Port to server on.")
+  flag.BoolVar(&shouldScanUpdateDb, "scan", false, "Port to server on.")
   flag.Parse()
 
   // Some minor validation.
@@ -248,15 +250,13 @@ func parseArgs() {
 func main() {
   parseArgs()
 
-  get := map[string]bool{"GET": true}
-  put := map[string]bool{"PUT": true}
+  // Update the DB if it was requested to do so.
+  if shouldScanUpdateDb {
+    dblayer.ScanUpdateDB(mediaDir)
+    return
+  }
 
-  http.HandleFunc("/settag/", wrapHandler(settag, put, 2))
-  http.HandleFunc("/gettag/", wrapHandler(gettag, get, 1))
-  http.HandleFunc("/gettags/", wrapHandler(gettags, get, 0))
-  http.HandleFunc("/index.html", serveIndex)
-  http.HandleFunc("/", rootHandler)
-
+  // Establish working directory.
   var err error
   wd, err = os.Getwd()
   if err != nil {
@@ -265,6 +265,18 @@ func main() {
   }
   lg.Vrb("Running server on %s at %s", port, wd)
 
+  // Convenience sets.
+  get := map[string]bool{"GET": true}
+  put := map[string]bool{"PUT": true}
+
+  // All the endpoints.
+  http.HandleFunc("/settag/", wrapHandler(settag, put, 2))
+  http.HandleFunc("/gettag/", wrapHandler(gettag, get, 1))
+  http.HandleFunc("/gettags/", wrapHandler(gettags, get, 0))
+  http.HandleFunc("/index.html", serveIndex)
+  http.HandleFunc("/", rootHandler)
+
+  // Run and report any shutdown errors.
   err = http.ListenAndServe(":" + port, nil)
   if err != nil {
     lg.Ftl(err.Error())
