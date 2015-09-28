@@ -97,8 +97,11 @@ func gettags(w http.ResponseWriter, r *http.Request, args ...string) error {
 
 // Simply serves the main page, index.hml
 func serveIndex(w http.ResponseWriter, r *http.Request) {
+  lg.Trc("serveIndex(w, r)")
+
+  // Convenience.
   logErr := func(err error) {
-    lg.Ifo("Got error: %s", err)
+    lg.Wrn("Got error: %s", err)
     http.Error(w, err.Error(), http.StatusInternalServerError)
   }
 
@@ -238,9 +241,11 @@ var (
 
 // Set default, parse, and validate args.
 func parseArgs() {
-  flag.StringVar(&mediaDir, "data", "data", "Data directory.")
+  flag.StringVar(&mediaDir, "media", "media", "Data directory.")
   flag.StringVar(&port, "port", "8080", "Port to server on.")
-  flag.BoolVar(&shouldScanUpdateDb, "scan", false, "Port to server on.")
+  flag.BoolVar(&shouldScanUpdateDb, "scan", false,
+               "Scans the media directory and populates the DB with playlists" +
+               " based on directory structure.")
   flag.Parse()
 
   // Some minor validation.
