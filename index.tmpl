@@ -40,9 +40,9 @@
         <div class="title" style="font-family:'Poiret One'">(nothing loaded)</div>
       </div>
       <div id="notification"> </div>
-      <audio id="player" src="" seek="true" controls>
+      <{{.MediaTag}} id="player" src="" seek="true" controls>
         Hey, man, get an HTML5-compatible browser, okay?
-      </audio>
+      </{{.MediaTag}}>
       <div id="controls" class="controls-container">
         <span id="prev" class="controls">&lt;&lt;</span>
         <input id="loop" type="checkbox">

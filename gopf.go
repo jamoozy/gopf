@@ -26,6 +26,7 @@ import (
   "html/template"
   "net/http"
   "os"
+  "path/filepath"
   "regexp"
   "strings"
   "time"
@@ -142,12 +143,14 @@ func serveIndex(w http.ResponseWriter, r *http.Request) {
     Selected string
     Media []string
     Playing string
+    MediaTag string
   }{
     "GOPF",
     []string{},
     r.Form.Get("p"),
     []string{},
     r.Form.Get("m"),
+    mediaTag,
   }
 
   data.Playlists, err = dblayer.QueryPlaylists()
@@ -275,6 +278,7 @@ var (
   wd       string   // Working directory.
   pScan    string   // Where to run dblayer.ScanUpdateDB for playlists.
   tScan    string   // Where to run dblayer.ScanUpdateDB for tags.
+  mediaTag string   // Type of HTML tag for media player.
 )
 
 func main() {
@@ -298,6 +302,50 @@ func main() {
     os.Exit(-1)
   }
 
+  // Determine what kind of tag is most appropriate -- video or audio.
+  var (
+    audio = 0
+    video = 0
+
+    // TODO think of more file types
+    audioRegexp = regexp.MustCompile(`.*\.(mp3|wav|ogg)$`)
+    videoRegexp = regexp.MustCompile(`.*\.(mp4|ogv|wmv)$`)
+  )
+  traverse := func(path string, info os.FileInfo, err error) error {
+    name := info.Name()
+    // Directory -- not relevant for determining file type.
+    if info.IsDir() {
+      // This is a symlink.  We can't handle these because `os.Walk()` doesn't
+      // follow symlinks (see https://golang.org/pkg/path/filepath/#Walk).
+      // Report that there's an issue.
+      if (info.Mode() & os.ModeSymlink) != 0 {
+        lg.Wrn(`Can't traverse symlink: "%s"`, name)
+      }
+      return nil
+    }
+
+    // Check which regular expression matches, but favor audio over video.
+    if audioRegexp.FindStringSubmatch(name) != nil {
+      lg.Dbg(`Found audio file: "%s"`, name)
+      audio += 1
+    } else if videoRegexp.FindStringSubmatch(name) != nil {
+      lg.Dbg(`Found video file: "%s"`, name)
+      video += 1
+    } else {
+      lg.Wrn(`Unrecognized file type: "%s"`, name)
+    }
+
+    return nil
+  }
+
+  // Do the traversal, find the most common type of file, and set the media tag
+  // based on majority count.  (note that the default value is "audio")
+  err := filepath.Walk(mediaDir, traverse)
+  if video > audio {
+    mediaTag = "video"
+  }
+  lg.Dbg(`Decided to use <%s>`, mediaTag)
+
   // Update the DB if it was requested to do so.
   if pScan != "" {
     dblayer.ScanUpdate(pScan, `playlists`)
@@ -311,7 +359,6 @@ func main() {
   }
 
   // Establish working directory.
-  var err error
   wd, err = os.Getwd()
   if err != nil {
     lg.Wrn(`Can't determine working directory.`)
