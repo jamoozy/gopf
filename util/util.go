@@ -8,6 +8,15 @@ import (
   "github.com/jamoozy/util/lg"
 )
 
+// Determines if the file named by the string exists.
+func IsExists(name string) bool {
+  _, err := os.Stat(name)
+  if err != nil {
+    return !os.IsNotExist(err)
+  }
+  return true
+}
+
 // Utility function that returns true iff `name` exists and is a directory.
 func IsDir(name string) bool {
   fileInfo, err := os.Stat(name)
