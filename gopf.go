@@ -35,7 +35,7 @@ import (
 import (
   "github.com/jamoozy/gopf/dblayer"
   "github.com/jamoozy/gopf/util"
-  "github.com/jamoozy/gopf/lg"
+  "github.com/jamoozy/util/lg"
 )
 
 
@@ -271,14 +271,14 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 // These variables together are the GOPF context.
 var (
   mediaDir string   // Directory where data is stored.
-  port string       // Port to open HTTP(S) server on.
-  wd string         // Working directory.
-  pScan string      // Where to run dblayer.ScanUpdateDB for playlists.
-  tScan string      // Where to run dblayer.ScanUpdateDB for tags.
+  port     string   // Port to open HTTP(S) server on.
+  wd       string   // Working directory.
+  pScan    string   // Where to run dblayer.ScanUpdateDB for playlists.
+  tScan    string   // Where to run dblayer.ScanUpdateDB for tags.
 )
 
-// Set default, parse, and validate args.
-func parseArgs() {
+func main() {
+  // Parse command-line arguments.
   flag.StringVar(&mediaDir, "media", "media", "Data directory.")
   flag.StringVar(&port, "port", "8080", "Port to server on.")
   flag.StringVar(
@@ -292,11 +292,11 @@ func parseArgs() {
   flag.Parse()
 
   // Some minor validation.
-  util.IsFile(mediaDir)
-}
-
-func main() {
-  parseArgs()
+  if !util.IsDir(mediaDir) {
+    lg.Err(`Media directory: "%s" is not a directory`, mediaDir)
+    lg.Err(`  To set it, run with -media=[file]`)
+    os.Exit(-1)
+  }
 
   // Update the DB if it was requested to do so.
   if pScan != "" {
@@ -306,7 +306,7 @@ func main() {
     dblayer.ScanUpdate(tScan, `tags`)
   }
   if pScan != "" || tScan != "" {
-    // Exit if we did a pScan or tScan
+    // Exit if we did a pScan and/or tScan
     return
   }
 

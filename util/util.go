@@ -5,7 +5,7 @@ import (
 )
 
 import (
-  "github.com/jamoozy/gopf/lg"
+  "github.com/jamoozy/util/lg"
 )
 
 // Utility function that returns true iff `name` exists and is a directory.

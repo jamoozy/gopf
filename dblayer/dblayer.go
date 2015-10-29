@@ -12,8 +12,8 @@ import (
 
 // Internal libraries.
 import (
-  "github.com/jamoozy/gopf/lg"
   "github.com/jamoozy/gopf/util"
+  "github.com/jamoozy/util/lg"
 )
 
 // 3rd party libraries.
@@ -38,6 +38,9 @@ func (dv *dbVar) String() string {
 
 // Set the dbVar path.
 func (dv *dbVar) Set(path string) error {
+  lg.Enter(`Set("%s")`, path)
+  defer lg.Exit(`Set("%s")`, path)
+
   if !util.IsFile(path) {
     return errors.New(fmt.Sprintf("File: %s D.N.E.", path))
   }
