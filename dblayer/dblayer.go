@@ -53,6 +53,17 @@ func init() {
   flag.Var(&dv, "db", "Name of the DB file.")
 }
 
+// Verifies that the database exists, is a file, and is actually a sqlite3 DB.
+func VerifyDb() error {
+  if !util.IsExists(dv.path) {
+    return errors.New(fmt.Sprintf(`Database does not exist: "%s"`, dv.path))
+  } else if !util.IsFile(dv.path) {
+    return errors.New(fmt.Sprintf(`Database is not a file: "%s"`, dv.path))
+  }
+
+  return nil
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
