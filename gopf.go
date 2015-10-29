@@ -21,6 +21,7 @@ package main
 // System libraries
 import (
   "bytes"
+  "fmt"
   "encoding/json"
   "flag"
   "html/template"
@@ -49,7 +50,8 @@ type handlerFunc func(http.ResponseWriter, *http.Request, ...string) error
 
 // Gets the contents of a playlist.
 func playlist(w http.ResponseWriter, r *http.Request, args ...string) error {
-  lg.Trc("playlist(w, r, %s)\n", args)
+  lg.Enter("playlist(w, r, %s)\n", args)
+  defer lg.Exit("playlist(w, r, %s)\n", args)
 
   files, err := dblayer.GetPlaylist(args[0])
   if err != nil {
@@ -74,7 +76,8 @@ func playlist(w http.ResponseWriter, r *http.Request, args ...string) error {
 
 // Sets a tag on a file.
 func settag(w http.ResponseWriter, r *http.Request, args ...string) error {
-  lg.Trc("settag(w, r, %s)\n", args)
+  lg.Enter("settag(w, r, %s)\n", args)
+  defer lg.Exit("settag(w, r, %s)\n", args)
 
   err := dblayer.TagFile(args[0], args[1])
   if err != nil {
@@ -87,7 +90,8 @@ func settag(w http.ResponseWriter, r *http.Request, args ...string) error {
 
 // Gets all files tagged with the specified tag.
 func gettag(w http.ResponseWriter, r *http.Request, args ...string) error {
-  lg.Trc("gettag(w, r, %s)\n", args)
+  lg.Enter("gettag(w, r, %s)\n", args)
+  defer lg.Exit("gettag(w, r, %s)\n", args)
 
   rtn, err := dblayer.QueryFiles(args[0])
   if err != nil {
@@ -105,7 +109,9 @@ func gettag(w http.ResponseWriter, r *http.Request, args ...string) error {
 
 // Gets a list of all the tags in existence.
 func gettags(w http.ResponseWriter, r *http.Request, args ...string) error {
-  lg.Trc("gettags(w, r, %s)\n", args)
+  lg.Enter("gettags(w, r, %s)\n", args)
+  defer lg.Exit("gettags(w, r, %s)\n", args)
+
   rtn, err := dblayer.QueryTags()
   if err != nil {
     return err
@@ -122,7 +128,8 @@ func gettags(w http.ResponseWriter, r *http.Request, args ...string) error {
 
 // Simply serves the main page, index.hml
 func serveIndex(w http.ResponseWriter, r *http.Request) {
-  lg.Trc("serveIndex(w, r)")
+  lg.Enter("serveIndex(w, r)")
+  defer lg.Exit("serveIndex(w, r)")
 
   // Convenience.
   logErr := func(err error) {
@@ -143,14 +150,14 @@ func serveIndex(w http.ResponseWriter, r *http.Request) {
     Selected string
     Media []string
     Playing string
-    MediaTag string
+    MediaTag template.HTML
   }{
     "GOPF",
     []string{},
     r.Form.Get("p"),
     []string{},
     r.Form.Get("m"),
-    mediaTag,
+    template.HTML(fmt.Sprintf(`<%s id="player" src="" seek="true" controls>Hey, man, get an HTML5-compatible browser, okay?</%s>`, mediaTag, mediaTag)),
   }
 
   data.Playlists, err = dblayer.QueryPlaylists()
@@ -189,7 +196,13 @@ var validMethods = regexp.MustCompile(
 // **Under no circumstances shall `fn` not be passed exactly `numArgs`
 // additional arguments.**
 func wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.HandlerFunc {
+  lg.Enter(`wrapHandler(fn, %v, %d)`, methods, numArgs)
+  defer lg.Exit(`wrapHandler(fn, %v, %d)`, methods, numArgs)
+
   return func(w http.ResponseWriter, r *http.Request) {
+    lg.Enter(`wrapHandler(fn, %v, %d).<return>(w, r)`, methods, numArgs)
+    defer lg.Exit(`wrapHandler(fn, %v, %d).<return>(w, r)`, methods, numArgs)
+
     // Ensure this is a valid method for this function.
     if !methods[r.Method] {
       lg.Ifo("Method not allowed: %s %s\n", r.Method, r.URL.Path)
@@ -231,6 +244,9 @@ var mediaFiles = regexp.MustCompile(`/(.*\.(mp[34]|ogg|ogv))`)
 
 // Handles all default requests.
 func rootHandler(w http.ResponseWriter, r *http.Request) {
+  lg.Enter("rootHandler(w, r)")
+  defer lg.Exit("rootHandler(w, r)")
+
   if r.URL.Path == "" || r.URL.Path == "/" {
     lg.Ifo("Satisfied request for index.html")
     http.Redirect(w, r, "/index.html", http.StatusMovedPermanently)
@@ -281,6 +297,12 @@ var (
   mediaTag string   // Type of HTML tag for media player.
 )
 
+// Exit error codes.
+const (
+  DbDne       = -iota
+  MediaDirDne = -iota
+)
+
 func main() {
   // Parse command-line arguments.
   flag.StringVar(&mediaDir, "media", "media", "Data directory.")
@@ -295,11 +317,17 @@ func main() {
         structure.`)
   flag.Parse()
 
+  if err := dblayer.VerifyDb(); err != nil {
+    lg.Ftl(err.Error())
+    lg.Ftl("  Set db with -db [name]")
+    os.Exit(DbDne)
+  }
+
   // Some minor validation.
   if !util.IsDir(mediaDir) {
     lg.Err(`Media directory: "%s" is not a directory`, mediaDir)
     lg.Err(`  To set it, run with -media=[file]`)
-    os.Exit(-1)
+    os.Exit(MediaDirDne)
   }
 
   // Determine what kind of tag is most appropriate -- video or audio.
@@ -311,6 +339,9 @@ func main() {
     audioRegexp = regexp.MustCompile(`.*\.(mp3|wav|ogg)$`)
     videoRegexp = regexp.MustCompile(`.*\.(mp4|ogv|wmv)$`)
   )
+
+  // The traversal function -- just updates `audio` and `video` to reflect the
+  // number of files we've seen.
   traverse := func(path string, info os.FileInfo, err error) error {
     name := info.Name()
     // Directory -- not relevant for determining file type.
@@ -326,10 +357,8 @@ func main() {
 
     // Check which regular expression matches, but favor audio over video.
     if audioRegexp.FindStringSubmatch(name) != nil {
-      lg.Dbg(`Found audio file: "%s"`, name)
       audio += 1
     } else if videoRegexp.FindStringSubmatch(name) != nil {
-      lg.Dbg(`Found video file: "%s"`, name)
       video += 1
     } else {
       lg.Wrn(`Unrecognized file type: "%s"`, name)
@@ -341,10 +370,11 @@ func main() {
   // Do the traversal, find the most common type of file, and set the media tag
   // based on majority count.  (note that the default value is "audio")
   err := filepath.Walk(mediaDir, traverse)
+  lg.Dbg("Got %d audio vs. %d video.", audio, video)
   if video > audio {
     mediaTag = "video"
   }
-  lg.Dbg(`Decided to use <%s>`, mediaTag)
+  lg.Dbg(`Decided to use media tag: <%s>`, mediaTag)
 
   // Update the DB if it was requested to do so.
   if pScan != "" {
@@ -355,7 +385,7 @@ func main() {
   }
   if pScan != "" || tScan != "" {
     // Exit if we did a pScan and/or tScan
-    return
+    os.Exit(0)
   }
 
   // Establish working directory.
