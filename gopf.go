@@ -299,37 +299,14 @@ var (
 
 // Exit error codes.
 const (
-  DbDne       = -iota
-  MediaDirDne = -iota
+  DbDne        = -iota
+  MediaDirDne  = -iota
+  BadMediaType = -iota
 )
 
-func main() {
-  // Parse command-line arguments.
-  flag.StringVar(&mediaDir, "media", "media", "Data directory.")
-  flag.StringVar(&port, "port", "8080", "Port to server on.")
-  flag.StringVar(
-    &pScan, "p-scan", "",
-    `Scans the directory and populates the DB with playlists based on its
-        structure.`)
-  flag.StringVar(
-    &tScan, "t-scan", "",
-    `Scans the directory and populates the DB with tags based on its
-        structure.`)
-  flag.Parse()
-
-  if err := dblayer.VerifyDb(); err != nil {
-    lg.Ftl(err.Error())
-    lg.Ftl("  Set db with -db [name]")
-    os.Exit(DbDne)
-  }
-
-  // Some minor validation.
-  if !util.IsDir(mediaDir) {
-    lg.Err(`Media directory: "%s" is not a directory`, mediaDir)
-    lg.Err(`  To set it, run with -media=[file]`)
-    os.Exit(MediaDirDne)
-  }
-
+// Determines what the media tag should be (audio or video) based on the file
+// types.
+func determineMediaTag() {
   // Determine what kind of tag is most appropriate -- video or audio.
   var (
     audio = 0
@@ -370,11 +347,52 @@ func main() {
   // Do the traversal, find the most common type of file, and set the media tag
   // based on majority count.  (note that the default value is "audio")
   err := filepath.Walk(mediaDir, traverse)
+  if err != nil {
+    lg.Wrn(err.Error())
+  }
   lg.Dbg("Got %d audio vs. %d video.", audio, video)
   if video > audio {
     mediaTag = "video"
   }
   lg.Dbg(`Decided to use media tag: <%s>`, mediaTag)
+}
+
+func main() {
+  // Parse command-line arguments.
+  flag.StringVar(&mediaDir, "media", "media", "Data directory.")
+  flag.StringVar(&port, "port", "8080", "Port to server on.")
+  flag.StringVar(
+    &pScan, "p-scan", "",
+    `Scans the directory and populates the DB with playlists based on its
+        structure.`)
+  flag.StringVar(
+    &tScan, "t-scan", "",
+    `Scans the directory and populates the DB with tags based on its
+        structure.`)
+  flag.StringVar(&mediaTag, "type", "", "Set media type: audio or video.")
+  flag.Parse()
+
+  if err := dblayer.VerifyDb(); err != nil {
+    lg.Ftl(err.Error())
+    lg.Ftl("  Set db with -db [name]")
+    os.Exit(DbDne)
+  }
+
+  // Some minor validation.
+  if !util.IsDir(mediaDir) {
+    lg.Err(`Media directory: "%s" is not a directory`, mediaDir)
+    lg.Err(`  To set it, run with -media=[file]`)
+    os.Exit(MediaDirDne)
+  }
+
+  // TODO implement "-type" flag.
+  if mediaTag == "" {
+    determineMediaTag()
+  } else if mediaTag != "audio" && mediaTag != "video" {
+    lg.Ftl(`Invalid media tag type: "%s"`, mediaTag)
+    lg.Ftl(`  expected "audio" or "video".`)
+    os.Exit(BadMediaType)
+  }
 
   // Update the DB if it was requested to do so.
   if pScan != "" {
@@ -389,6 +407,7 @@ func main() {
   }
 
   // Establish working directory.
+  var err error
   wd, err = os.Getwd()
   if err != nil {
     lg.Wrn(`Can't determine working directory.`)
