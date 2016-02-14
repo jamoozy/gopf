@@ -2,7 +2,6 @@ package dblayer
 
 import (
   "database/sql"
-  "errors"
   "flag"
   "fmt"
   "io/ioutil"
@@ -42,7 +41,7 @@ func (dv *dbVar) Set(path string) error {
   defer lg.Exit(`Set("%s")`, path)
 
   if !util.IsFile(path) {
-    return errors.New(fmt.Sprintf("File: %s D.N.E.", path))
+    return fmt.Errorf("File: %s D.N.E.", path)
   }
   dv.path = path
   return nil
@@ -56,9 +55,9 @@ func init() {
 // Verifies that the database exists, is a file, and is actually a sqlite3 DB.
 func VerifyDb() error {
   if !util.IsExists(dv.path) {
-    return errors.New(fmt.Sprintf(`Database does not exist: "%s"`, dv.path))
+    return fmt.Errorf(`Database does not exist: "%s"`, dv.path)
   } else if !util.IsFile(dv.path) {
-    return errors.New(fmt.Sprintf(`Database is not a file: "%s"`, dv.path))
+    return fmt.Errorf(`Database is not a file: "%s"`, dv.path)
   }
 
   return nil
@@ -142,7 +141,7 @@ func SqlExec(stmt string, args ...interface{}) (error) {
     } else if num > 0 {
       return nil
     } else {
-      return errors.New("No rows affected.")
+      return fmt.Errorf("No rows affected.")
     }
   })
 }
@@ -327,11 +326,11 @@ func (sc *SeedCtx) Run() error {
   if dir := filepath.Dir(sc.dbPath) ; !util.IsDir(sc.dbPath) {
     msg := fmt.Sprintf("No such directory: %s", dir)
     lg.Ifo(msg)
-    return errors.New(msg)
+    return fmt.Errorf(msg)
   } else if !sc.overwrite && util.IsFile(sc.dbPath) {
     msg := "File exists, and set not to overwrite."
     lg.Ifo(msg)
-    return errors.New(msg)
+    return fmt.Errorf(msg)
   }
 
   if sc.dbPath != "" {
@@ -401,5 +400,5 @@ func handleDir(dirPath, table string) ([]os.FileInfo, error) {
   case "tags":
     return fFIs, TagFiles(filepath.Base(dirPath), fPaths...)
   }
-  return nil, errors.New(fmt.Sprintf(`No such table: %s`, table))
+  return nil, fmt.Errorf(`No such table: %s`, table)
 }

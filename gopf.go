@@ -31,14 +31,13 @@ import (
   "regexp"
   "strings"
   "time"
-)
 
-// Internal libraries.
-import (
+  // Internal libraries.
   "github.com/jamoozy/gopf/dblayer"
   "github.com/jamoozy/gopf/util"
   "github.com/jamoozy/util/lg"
 )
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,12 +45,36 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 
 // Type that all of my handler functions are.
-type handlerFunc func(http.ResponseWriter, *http.Request, ...string) error
+type handlerFunc func(*GopfCall, ...string) error
+
+// These variables together are the GOPF context.
+type Gopf struct {
+  mediaDir string   // Directory where data is stored.
+  port     string   // Port to open HTTP(S) server on.
+  wd       string   // Working directory.
+  pScan    string   // Where to run dblayer.ScanUpdateDB for playlists.
+  tScan    string   // Where to run dblayer.ScanUpdateDB for tags.
+  mediaTag string   // Type of HTML tag for media player.
+}
+
+type GopfCall struct {
+  *Gopf   // Pointer to the GOPF context (read only).
+
+  // The sent response writer.
+  w http.ResponseWriter
+
+  // The request.
+  r *http.Request
+}
+
+func (gopf *Gopf) MakeCall(w http.ResponseWriter, r *http.Request) *GopfCall {
+  return &GopfCall{gopf, w, r}
+}
 
 // Gets the contents of a playlist.
-func playlist(w http.ResponseWriter, r *http.Request, args ...string) error {
-  lg.Enter("playlist(w, r, %s)\n", args)
-  defer lg.Exit("playlist(w, r, %s)\n", args)
+func (g *GopfCall) playlist(args ...string) error {
+  lg.Enter("playlist(%s)\n", args)
+  defer lg.Exit("playlist(%s)\n", args)
 
   files, err := dblayer.GetPlaylist(args[0])
   if err != nil {
@@ -59,10 +82,10 @@ func playlist(w http.ResponseWriter, r *http.Request, args ...string) error {
   }
 
   lg.Vrb("Sending %d files.", len(files))
-  rtn := struct {
+  rtn := struct{
     Files []string
   }{
-    Files: files,
+    files,
   }
 
   j, err := json.Marshal(rtn)
@@ -70,12 +93,16 @@ func playlist(w http.ResponseWriter, r *http.Request, args ...string) error {
     return err
   }
 
-  http.ServeContent(w, r, "", time.Now(), bytes.NewReader(j))
+  g.ServeContentNow(j)
   return nil
 }
 
+func (g *GopfCall) ServeContentNow(content []byte) {
+  http.ServeContent(g.w, g.r, "", time.Now().UTC(), bytes.NewReader(content))
+}
+
 // Sets a tag on a file.
-func settag(w http.ResponseWriter, r *http.Request, args ...string) error {
+func (g *GopfCall) settag(args ...string) error {
   lg.Enter("settag(w, r, %s)\n", args)
   defer lg.Exit("settag(w, r, %s)\n", args)
 
@@ -89,7 +116,7 @@ func settag(w http.ResponseWriter, r *http.Request, args ...string) error {
 }
 
 // Gets all files tagged with the specified tag.
-func gettag(w http.ResponseWriter, r *http.Request, args ...string) error {
+func (g *GopfCall) gettag(args ...string) error {
   lg.Enter("gettag(w, r, %s)\n", args)
   defer lg.Exit("gettag(w, r, %s)\n", args)
 
@@ -103,12 +130,12 @@ func gettag(w http.ResponseWriter, r *http.Request, args ...string) error {
     return err
   }
 
-  http.ServeContent(w, r, "", time.Now(), bytes.NewReader(j))
+  http.ServeContent(g.w, g.r, "", time.Now().UTC(), bytes.NewReader(j))
   return nil
 }
 
 // Gets a list of all the tags in existence.
-func gettags(w http.ResponseWriter, r *http.Request, args ...string) error {
+func (g *GopfCall) gettags(args ...string) error {
   lg.Enter("gettags(w, r, %s)\n", args)
   defer lg.Exit("gettags(w, r, %s)\n", args)
 
@@ -122,19 +149,19 @@ func gettags(w http.ResponseWriter, r *http.Request, args ...string) error {
     return err
   }
 
-  http.ServeContent(w, r, "", time.Now(), bytes.NewReader(j))
+  http.ServeContent(g.w, g.r, "", time.Now(), bytes.NewReader(j))
   return nil
 }
 
 // Simply serves the main page, index.hml
-func serveIndex(w http.ResponseWriter, r *http.Request) {
+func (g *GopfCall) serveIndex() {
   lg.Enter("serveIndex(w, r)")
   defer lg.Exit("serveIndex(w, r)")
 
   // Convenience.
   logErr := func(err error) {
     lg.Wrn("Got error: %s", err)
-    http.Error(w, err.Error(), http.StatusInternalServerError)
+    http.Error(g.w, err.Error(), http.StatusInternalServerError)
   }
 
   t, err := template.New("index.tmpl").ParseFiles("index.tmpl")
@@ -143,36 +170,38 @@ func serveIndex(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  // Build data for the template.
-  data := struct {
+  type PageTmpl struct {
     Title string
     Playlists []string
     Selected string
     Media []string
     Playing string
     MediaTag template.HTML
-  }{
-    "GOPF",
-    []string{},
-    r.Form.Get("p"),
-    []string{},
-    r.Form.Get("m"),
-    template.HTML(fmt.Sprintf(`<%s id="player" src="" seek="true" controls>Hey, man, get an HTML5-compatible browser, okay?</%s>`, mediaTag, mediaTag)),
   }
 
-  data.Playlists, err = dblayer.QueryPlaylists()
+  // Build data for the template.
+  pt := PageTmpl{
+    "GOPF",
+    []string{},
+    g.r.Form.Get("p"),
+    []string{},
+    g.r.Form.Get("m"),
+    template.HTML(fmt.Sprintf(`<%s id="player" src="" seek="true" controls>Hey, man, get an HTML5-compatible browser, okay?</%s>`, g.mediaTag, g.mediaTag)),
+  }
+
+  pt.Playlists, err = dblayer.QueryPlaylists()
   if err != nil {
     logErr(err)
     return
   }
-  if data.Selected != "" {
-    data.Media, err = dblayer.QueryMedia(data.Selected)
+  if pt.Selected != "" {
+    pt.Media, err = dblayer.QueryMedia(pt.Selected)
     if err != nil {
       logErr(err)
       return
     }
   }
-  err = t.Execute(w, data)
+  err = t.Execute(g.w, pt)
   if err != nil {
     logErr(err)
     return
@@ -182,7 +211,7 @@ func serveIndex(w http.ResponseWriter, r *http.Request) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//                          Interface to http Module                          //
+//                         Interface to `http` Module                         //
 ////////////////////////////////////////////////////////////////////////////////
 
 // Regular expression defining valid URLs.  This variable simplifies the
@@ -195,13 +224,13 @@ var validMethods = regexp.MustCompile(
 //
 // **Under no circumstances shall `fn` not be passed exactly `numArgs`
 // additional arguments.**
-func wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.HandlerFunc {
+func (gopf *Gopf) wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.HandlerFunc {
   lg.Enter(`wrapHandler(fn, %v, %d)`, methods, numArgs)
   defer lg.Exit(`wrapHandler(fn, %v, %d)`, methods, numArgs)
 
   return func(w http.ResponseWriter, r *http.Request) {
-    lg.Enter(`wrapHandler(fn, %v, %d).<return>(w, r)`, methods, numArgs)
-    defer lg.Exit(`wrapHandler(fn, %v, %d).<return>(w, r)`, methods, numArgs)
+    lg.Enter(`wrapHandler_internal(fn, %v, %d).<return>(w, r)`, methods, numArgs)
+    defer lg.Exit(`wrapHandler_internal(fn, %v, %d).<return>(w, r)`, methods, numArgs)
 
     // Ensure this is a valid method for this function.
     if !methods[r.Method] {
@@ -228,7 +257,7 @@ func wrapHandler(fn handlerFunc, methods map[string]bool, numArgs int) http.Hand
     }
 
     // Call the function and wrap any errors.
-    err := fn(w, r, args...)
+    err := fn(gopf.MakeCall(w, r), args...)
     if err != nil {
       lg.Ifo(err.Error())
       http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -243,41 +272,41 @@ var staticFiles = regexp.MustCompile(`/([a-zA-Z0-9_.-]+\.(html|js|css))`)
 var mediaFiles = regexp.MustCompile(`/(.*\.(mp[34]|ogg|ogv))`)
 
 // Handles all default requests.
-func rootHandler(w http.ResponseWriter, r *http.Request) {
+func (g *GopfCall) rootHandler() {
   lg.Enter("rootHandler(w, r)")
   defer lg.Exit("rootHandler(w, r)")
 
-  if r.URL.Path == "" || r.URL.Path == "/" {
+  if g.r.URL.Path == "" || g.r.URL.Path == "/" {
     lg.Ifo("Satisfied request for index.html")
-    http.Redirect(w, r, "/index.html", http.StatusMovedPermanently)
+    http.Redirect(g.w, g.r, "/index.html", http.StatusMovedPermanently)
     return
   }
 
-  lg.Trc(`rootHandler got request at path "%s"`, r.URL.Path)
+  lg.Trc(`rootHandler got request at path "%s"`, g.r.URL.Path)
 
-  m := staticFiles.FindStringSubmatch(r.URL.Path)
+  m := staticFiles.FindStringSubmatch(g.r.URL.Path)
   if m != nil {
-    serveFile(w, r, "static" + r.URL.Path)
+    g.serveFile("static" + g.r.URL.Path)
     return
   }
 
-  m = mediaFiles.FindStringSubmatch(r.URL.Path)
+  m = mediaFiles.FindStringSubmatch(g.r.URL.Path)
   if m != nil {
-    serveFile(w, r, mediaDir + r.URL.Path)
+    g.serveFile(g.mediaDir + g.r.URL.Path)
     return
   }
-  lg.Ifo(`Unrecognized endpoint: "%s".`, r.URL.Path)
-  http.NotFound(w, r)
+  lg.Ifo(`Unrecognized endpoint: "%s".`, g.r.URL.Path)
+  http.NotFound(g.w, g.r)
 }
 
 // Serves a file, or a "404 Not Found".
-func serveFile(w http.ResponseWriter, r *http.Request, path string) {
+func (g *GopfCall) serveFile(path string) {
   lg.Trc(`serveFile(w, r, "%s")`, path)
   if util.IsFile(path) {
-    http.ServeFile(w, r, path)
+    http.ServeFile(g.w, g.r, path)
   } else {
     lg.Dbg(`404 Not Found`, path)
-    http.NotFound(w, r)
+    http.NotFound(g.w, g.r)
   }
 }
 
@@ -286,16 +315,6 @@ func serveFile(w http.ResponseWriter, r *http.Request, path string) {
 ////////////////////////////////////////////////////////////////////////////////
 //                                    Main                                    //
 ////////////////////////////////////////////////////////////////////////////////
-
-// These variables together are the GOPF context.
-var (
-  mediaDir string   // Directory where data is stored.
-  port     string   // Port to open HTTP(S) server on.
-  wd       string   // Working directory.
-  pScan    string   // Where to run dblayer.ScanUpdateDB for playlists.
-  tScan    string   // Where to run dblayer.ScanUpdateDB for tags.
-  mediaTag string   // Type of HTML tag for media player.
-)
 
 // Exit error codes.
 const (
@@ -306,13 +325,14 @@ const (
 
 // Determines what the media tag should be (audio or video) based on the file
 // types.
-func determineMediaTag() {
+func (g *Gopf) determineMediaTag() {
   // Determine what kind of tag is most appropriate -- video or audio.
   var (
     audio = 0
     video = 0
 
-    // TODO think of more file types
+    // TODO think of more file types or find a library that has some kind of
+    //      recognition capabilities ...
     audioRegexp = regexp.MustCompile(`.*\.(mp3|wav|ogg)$`)
     videoRegexp = regexp.MustCompile(`.*\.(mp4|ogv|wmv)$`)
   )
@@ -346,30 +366,32 @@ func determineMediaTag() {
 
   // Do the traversal, find the most common type of file, and set the media tag
   // based on majority count.  (note that the default value is "audio")
-  err := filepath.Walk(mediaDir, traverse)
+  err := filepath.Walk(g.mediaDir, traverse)
   if err != nil {
     lg.Wrn(err.Error())
   }
   lg.Dbg("Got %d audio vs. %d video.", audio, video)
   if video > audio {
-    mediaTag = "video"
+    g.mediaTag = "video"
   }
-  lg.Dbg(`Decided to use media tag: <%s>`, mediaTag)
+  lg.Dbg(`Decided to use media tag: <%s>`, g.mediaTag)
 }
 
 func main() {
+  gopf := &Gopf{}
+
   // Parse command-line arguments.
-  flag.StringVar(&mediaDir, "media", "media", "Data directory.")
-  flag.StringVar(&port, "port", "8080", "Port to server on.")
+  flag.StringVar(&gopf.mediaDir, "media", "media", "Data directory.")
+  flag.StringVar(&gopf.port, "port", "8080", "Port to server on.")
   flag.StringVar(
-    &pScan, "p-scan", "",
+    &gopf.pScan, "p-scan", "",
     `Scans the directory and populates the DB with playlists based on its
-        structure.`)
+     structure.`)
   flag.StringVar(
-    &tScan, "t-scan", "",
+    &gopf.tScan, "t-scan", "",
     `Scans the directory and populates the DB with tags based on its
-        structure.`)
-  flag.StringVar(&mediaTag, "type", "", "Set media type: audio or video.")
+     structure.`)
+  flag.StringVar(&gopf.mediaTag, "type", "", "Set media type: audio or video.")
   flag.Parse()
 
   if err := dblayer.VerifyDb(); err != nil {
@@ -379,56 +401,68 @@ func main() {
   }
 
   // Some minor validation.
-  if !util.IsDir(mediaDir) {
-    lg.Err(`Media directory: "%s" is not a directory`, mediaDir)
+  if !util.IsDir(gopf.mediaDir) {
+    lg.Err(`Media directory: "%s" is not a directory`, gopf.mediaDir)
     lg.Err(`  To set it, run with -media=[file]`)
     os.Exit(MediaDirDne)
   }
 
   // TODO implement "-type" flag.
-  if mediaTag == "" {
-    determineMediaTag()
-  } else if mediaTag != "audio" && mediaTag != "video" {
-    lg.Ftl(`Invalid media tag type: "%s"`, mediaTag)
+  if gopf.mediaTag == "" {
+    gopf.determineMediaTag()
+  } else if gopf.mediaTag != "audio" && gopf.mediaTag != "video" {
+    lg.Ftl(`Invalid media tag type: "%s"`, gopf.mediaTag)
     lg.Ftl(`  expected "audio" or "video".`)
     os.Exit(BadMediaType)
   }
 
   // Update the DB if it was requested to do so.
-  if pScan != "" {
-    dblayer.ScanUpdate(pScan, `playlists`)
+  if gopf.pScan != "" {
+    dblayer.ScanUpdate(gopf.pScan, `playlists`)
   }
-  if tScan != "" {
-    dblayer.ScanUpdate(tScan, `tags`)
+  if gopf.tScan != "" {
+    dblayer.ScanUpdate(gopf.tScan, `tags`)
   }
-  if pScan != "" || tScan != "" {
+  if gopf.pScan != "" || gopf.tScan != "" {
     // Exit if we did a pScan and/or tScan
     os.Exit(0)
   }
 
   // Establish working directory.
   var err error
-  wd, err = os.Getwd()
+  gopf.wd, err = os.Getwd()
   if err != nil {
     lg.Wrn(`Can't determine working directory.`)
-    wd = `.`
+    gopf.wd = `.`
   }
-  lg.Vrb("Running server on %s at %s", port, wd)
+  lg.Vrb("Running server on %s at %s", gopf.port, gopf.wd)
 
   // Convenience sets.
   get := map[string]bool{"GET": true}
   put := map[string]bool{"PUT": true}
 
   // All the endpoints.
-  http.HandleFunc("/playlist/", wrapHandler(playlist, get, 1))
-  http.HandleFunc("/settag/", wrapHandler(settag, put, 2))
-  http.HandleFunc("/gettag/", wrapHandler(gettag, get, 1))
-  http.HandleFunc("/gettags/", wrapHandler(gettags, get, 0))
-  http.HandleFunc("/index.html", serveIndex)
-  http.HandleFunc("/", rootHandler)
+  http.HandleFunc("/playlist/", gopf.wrapHandler(func(g *GopfCall, args ...string) error {
+    return g.playlist(args...)
+  }, get, 1))
+  http.HandleFunc("/settag/", gopf.wrapHandler(func(g *GopfCall, args ...string) error {
+    return g.settag(args...)
+  }, put, 2))
+  http.HandleFunc("/gettag/", gopf.wrapHandler(func(g *GopfCall, args ...string) error {
+    return g.gettag(args...)
+  }, get, 1))
+  http.HandleFunc("/gettags/", gopf.wrapHandler(func(g *GopfCall, args ...string) error {
+    return g.gettags(args...)
+  }, get, 0))
+  http.HandleFunc("/index.html", func(w http.ResponseWriter, r *http.Request) {
+    gopf.MakeCall(w, r).serveIndex()
+  })
+  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    gopf.MakeCall(w, r).rootHandler()
+  })
 
   // Run and report any shutdown errors.
-  err = http.ListenAndServe(":" + port, nil)
+  err = http.ListenAndServe(":" + gopf.port, nil)
   if err != nil {
     lg.Ftl(err.Error())
   }
