@@ -33,7 +33,6 @@ import (
   "time"
 
   // Internal libraries.
-  "github.com/jamoozy/gopf/dblayer"
   "github.com/jamoozy/gopf/util"
   "github.com/jamoozy/util/lg"
 )
@@ -52,8 +51,8 @@ type Gopf struct {
   mediaDir string   // Directory where data is stored.
   port     string   // Port to open HTTP(S) server on.
   wd       string   // Working directory.
-  pScan    string   // Where to run dblayer.ScanUpdateDB for playlists.
-  tScan    string   // Where to run dblayer.ScanUpdateDB for tags.
+  pScan    string   // Where to run ScanUpdateDB for playlists.
+  tScan    string   // Where to run ScanUpdateDB for tags.
   mediaTag string   // Type of HTML tag for media player.
 }
 
@@ -76,7 +75,7 @@ func (g *GopfCall) playlist(args ...string) error {
   lg.Enter("playlist(%s)\n", args)
   defer lg.Exit("playlist(%s)\n", args)
 
-  files, err := dblayer.GetPlaylist(args[0])
+  files, err := GetPlaylist(args[0])
   if err != nil {
     return err
   }
@@ -106,7 +105,7 @@ func (g *GopfCall) settag(args ...string) error {
   lg.Enter("settag(w, r, %s)\n", args)
   defer lg.Exit("settag(w, r, %s)\n", args)
 
-  err := dblayer.TagFile(args[0], args[1])
+  err := TagFile(args[0], args[1])
   if err != nil {
     return err
   }
@@ -120,7 +119,7 @@ func (g *GopfCall) gettag(args ...string) error {
   lg.Enter("gettag(w, r, %s)\n", args)
   defer lg.Exit("gettag(w, r, %s)\n", args)
 
-  rtn, err := dblayer.QueryFiles(args[0])
+  rtn, err := QueryFiles(args[0])
   if err != nil {
     return err
   }
@@ -139,7 +138,7 @@ func (g *GopfCall) gettags(args ...string) error {
   lg.Enter("gettags(w, r, %s)\n", args)
   defer lg.Exit("gettags(w, r, %s)\n", args)
 
-  rtn, err := dblayer.QueryTags()
+  rtn, err := QueryTags()
   if err != nil {
     return err
   }
@@ -189,13 +188,13 @@ func (g *GopfCall) serveIndex() {
     template.HTML(fmt.Sprintf(`<%s id="player" src="" seek="true" controls>Hey, man, get an HTML5-compatible browser, okay?</%s>`, g.mediaTag, g.mediaTag)),
   }
 
-  pt.Playlists, err = dblayer.QueryPlaylists()
+  pt.Playlists, err = QueryPlaylists()
   if err != nil {
     logErr(err)
     return
   }
   if pt.Selected != "" {
-    pt.Media, err = dblayer.QueryMedia(pt.Selected)
+    pt.Media, err = QueryMedia(pt.Selected)
     if err != nil {
       logErr(err)
       return
@@ -395,7 +394,7 @@ func main() {
   flag.StringVar(&gopf.mediaTag, "type", "", "Set media type: audio or video.")
   flag.Parse()
 
-  if err := dblayer.VerifyDb(); err != nil {
+  if err := VerifyDb(); err != nil {
     lg.Ftl(err.Error())
     lg.Ftl("  Set db with -db [name]")
     os.Exit(DbDne)
@@ -419,10 +418,10 @@ func main() {
 
   // Update the DB if it was requested to do so.
   if gopf.pScan != "" {
-    dblayer.ScanUpdate(gopf.pScan, `playlists`)
+    ScanUpdate(gopf.pScan, `playlists`)
   }
   if gopf.tScan != "" {
-    dblayer.ScanUpdate(gopf.tScan, `tags`)
+    ScanUpdate(gopf.tScan, `tags`)
   }
   if gopf.pScan != "" || gopf.tScan != "" {
     // Exit if we did a pScan and/or tScan

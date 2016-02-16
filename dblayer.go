@@ -1,4 +1,4 @@
-package dblayer
+package main
 
 import (
   "database/sql"
@@ -7,18 +7,13 @@ import (
   "io/ioutil"
   "os"
   "path/filepath"
-)
 
-// Internal libraries.
-import (
+  // 3rd party libraries.
+  _ "github.com/mattn/go-sqlite3"
+
+  // Internal libraries.
   "github.com/jamoozy/gopf/util"
   "github.com/jamoozy/util/lg"
-)
-
-// 3rd party libraries.
-import (
-  // Sqlite3 driver (needed by "sql").
-  _ "github.com/mattn/go-sqlite3"
 )
 
 
@@ -59,7 +54,6 @@ func VerifyDb() error {
   } else if !util.IsFile(dv.path) {
     return fmt.Errorf(`Database is not a file: "%s"`, dv.path)
   }
-
   return nil
 }
 
