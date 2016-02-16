@@ -8,6 +8,4 @@ data
 sqlite-service
 index.html
 
-# Go-specific ignores.
-/bin/
-/pkg/
+/gopf
