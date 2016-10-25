@@ -5,3 +5,7 @@ Options +ExecCGI
 AddHandler cgi-script .rb
 
 DirectoryIndex index.rb
+
+SetEnv LANG en_US.UTF-8
+SetEnv LANGUAGE en_US.UTF-8
+SetEnv LC_ALL en_US.UTF-8

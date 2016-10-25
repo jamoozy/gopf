@@ -16,15 +16,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with GOPF. If not, see http://www.gnu.org/licenses/.
 
-require 'list'
+require './list'
 
 # Parse simple URL params to determine how to generate this page.
 playlist = false;
 media = false;
 if $cgi.params.has_key?('p')
-  playlist = urldecode($cgi.params['p'])
+  playlist = CGI.unescape($cgi.params['p'][0])
   if $cgi.params.has_key?('m')
-    media = urldecode($cgi.params['m'])
+    media = CGI.unescape($cgi.params['m'][0])
 
     # TODO implement t=??? param.
   end

@@ -21,8 +21,8 @@
 require 'cgi'
 
 
-$data_dir = "data"
-$playlist_dir = "#$data_dir/playlists/";
+$data_dir = 'data'
+$playlist_dir = "#$data_dir/playlists";
 
 
 # Generates playlist from playlist files.  Playlist files are simple text
@@ -42,7 +42,7 @@ def generate_playlists(playlist=false)
 
   # If we have a playlist, be sure to "select" the given playlist.
   return fnames.inject("") do |prev,fname|
-    if playlist == fname
+    if playlist != fname
       prev + "<li class=\"unselected\">#{fname}</li>"
     else
       prev + "<li class=\"unselected#{playlist == fname ? ' selected' : ''}\" id=\"selected\">#{fname}</li>"
@@ -67,11 +67,14 @@ def generate_media(playlist, media=false)
   paths = File.readlines("#$playlist_dir/#{playlist}")
 
   paths.inject('') do |prev, path|
-    if path.strip.len <= 0
-      prev
-    else
+    path.strip!
+    if path.size > 0
       name = path[path.rindex('/')+1..-1];
-      prev + "<li class=\"media#{name == media ? ' playing' : ''}\" path=\"#{path.sub(/\.\./, $data_dir)}\" onclick=\"media.onclick(this)\">#{name}</li>\n";
+      web_path = path.sub(/\.\./, $data_dir)
+      classes = "media#{name == media ? ' playing' : ''}"
+      prev + "<li class=\"#{classes}\" path=\"#{web_path}\" onclick=\"media.onclick(this)\">#{name}</li>\n";
+    else
+      prev
     end
   end
 end
@@ -85,18 +88,20 @@ if __FILE__ == $0
 
   # Contents of return page are just text.  Playlist must be in utf-8.
   if cgi.params.has_key?('op')
-    case cgi.params['op']
+    case cgi.params['op'][0]
     when  'ls'
       if cgi.params.has_key?('dir')
-        cgi.out('text/plain') { Dir[cgi.params['dir']] }
+        cgi.out('text/plain') { Dir[cgi.params['dir'][0]] }
       else
         cgi.out("text/json") { '{error:"Expected \"dir\" key."}' }
       end
     when 'playlist'
-      cgi.out("text/html") { generate_playlists(cgi.params.has_key?('playlist') ? cgi.params['playlist'] : false) }
+      cgi.out("text/html") do
+        generate_playlists(cgi.params.has_key?('playlist') ? cgi.params['playlist'][0] : false)
+      end
     end
   elsif cgi.params.has_key?('playlist')
-    playlist = File.join($playlist_dir, cgi.params['playlist'])
+    playlist = File.join($playlist_dir, cgi.params['playlist'][0])
     if File.exists?("#{playlist}.json")
       cgi.out("text/json") { File.readlines("#{playlist}.json").join }
     elsif File.exists?(playlist)
