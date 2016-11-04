@@ -101,8 +101,8 @@ var input = (function() {
             } else {
               $(playlist).trigger('click', sel, true);
             }
+            return true;
           }
-          return true;
         }
       },
 
@@ -144,8 +144,7 @@ var input = (function() {
         use: 'Toogle (windowed) fullscreen mode',
         fun: function(e) {
           toggleFullscreen();
-          // Needed?
-          //e.stopPropagation();
+          return true;
         }
       },
       80: {
@@ -176,7 +175,7 @@ var input = (function() {
         key: 'L',
         use: 'Toggle Loop',
         func: function(e) {
-          if (!e.ctrlKey) {
+          if (!e.ctrlKey && !e.metaKey) {
             $("#loop").trigger('click');
             return true;
           }
@@ -232,6 +231,9 @@ var input = (function() {
         key: '0',
         use: 'Set video width to max',
         func: function(e) {
+          if (e.ctrlKey || e.metaKey) {
+            return false;
+          }
           player.removeAttr("width");
           adjustSize();
           return true;
@@ -241,6 +243,9 @@ var input = (function() {
         key: '1',
         use: 'Set video width to 200px',
         func: function(e) {
+          if (e.ctrlKey || e.metaKey) {
+            return false;
+          }
           player.attr('width', 200);
           adjustSize();
           return true;
@@ -250,6 +255,9 @@ var input = (function() {
         key: '2',
         use: 'Set video width to 400px',
         func: function(e) {
+          if (e.ctrlKey || e.metaKey) {
+            return false;
+          }
           player.attr('width', 400);
           adjustSize();
           return true;
@@ -259,6 +267,9 @@ var input = (function() {
         key: '3',
         use: 'Set video width to 600px',
         func: function(e) {
+          if (e.ctrlKey || e.metaKey) {
+            return false;
+          }
           player.attr('width', 600);
           adjustSize();
           return true;
@@ -268,6 +279,9 @@ var input = (function() {
         key: '4',
         use: 'Set video width to 800px',
         func: function(e) {
+          if (e.ctrlKey || e.metaKey) {
+            return false;
+          }
           player.attr('width', 800);
           adjustSize();
           return true;
@@ -277,6 +291,9 @@ var input = (function() {
         key: '5',
         use: 'Set video width to 1000px',
         func: function(e) {
+          if (e.ctrlKey || e.metaKey) {
+            return false;
+          }
           player.attr('width', 1000);
           adjustSize();
           return true;
@@ -390,10 +407,8 @@ var input = (function() {
   // Key handler.
   function onkey(e) {
     var b = bindings()
-    if (e.keyCode in b) {
-      if (b[e.keyCode].func(e)) {
-        e.preventDefault();
-      }
+    if (e.keyCode in b && b[e.keyCode].func(e)) {
+      e.preventDefault();
     }
   }
 
