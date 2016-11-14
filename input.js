@@ -450,10 +450,7 @@ var input = (function() {
 
     // Set max dims of the video element.
     var margin = 10; // px
-    $(player).css("max-width", playerCont.outerWidth(true) - 2 * margin + "px");
-    var topSp = player.offset().top;
-    var bottomSp = mediaHead.outerHeight(true) + controls.outerHeight(true) + 3 * anElem.height();
-    $(player).css("max-height", footer.offset().top - topSp - bottomSp + "px");
+    player.css("width", playerCont.outerWidth(true) - 2 * margin + "px");
   }
 
   return {
@@ -461,6 +458,7 @@ var input = (function() {
     init : function() {
       var sel = $("#selected")[0];
       if (!sel) {
+        // Default selected element is first playlist.
         $("#playlists").children().first().attr("id", "selected");
       }
 
