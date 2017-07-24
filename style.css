@@ -16,6 +16,8 @@
  * along with GOPF. If not, see http://www.gnu.org/licenses/.
  */
 
+@import "font-size.css";
+
 html {
   height:100%;
   background:#333;
@@ -24,9 +26,7 @@ html {
 
 body {
   font-family:Tinos;
-  font-size:12pt;
 }
-
 
 .help-dialog {
   padding:1em;
@@ -107,7 +107,6 @@ body {
 
 .url-link {
   cursor:pointer;
-  font-size:200%;
   text-decoration:none;
   font-family:sans-serif;
   color:#8db6cd;
@@ -167,7 +166,6 @@ li.selected, li.unselected, li.media, li.playing {
   color:#e0ffff;
   font-family:'Headland One';
   padding:5px 0 5px 0;
-  font-size:10pt;
 }
 
 li.media, li.unselected {
@@ -202,7 +200,6 @@ li.selected, li.playing {
 
 
 .download {
-  font-size:8pt;
   padding-bottom:1em;
   color:rgb(92,132,218);
 }
@@ -296,10 +293,11 @@ footer {
 
 footer .name {
   text-align:right;
-  font-size:8pt;
   font-family:Times;
 }
 
 footer .name, .name a:visited, .name a:link {
   color:#aaa;
 }
+
+

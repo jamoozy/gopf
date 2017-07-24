@@ -1,0 +1,33 @@
+/* Copyright (C) 2011-2017 Andrew "Jamoozy" Sabisch
+ *
+ * This file is part of GOPF.
+ *
+ * GOPF is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Affero General Public as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * Foobar is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with GOPF. If not, see http://www.gnu.org/licenses/.
+ */
+
+@media (orientation: landscape) {
+  body{font-size:12pt;}
+  .url-link{font-size:200%;}
+  .title{font-size:10pt;}
+  .download{font-size:8pt;}
+  footer .name{font-size:8pt;}
+}
+
+@media (orientation: portrait) {
+  body{font-size:24pt;}
+  .url-link{font-size:400%;}
+  .title{font-size:20pt;}
+  .download{font-size:16pt;}
+  footer .name{font-size:16pt;}
+}
