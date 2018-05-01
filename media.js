@@ -39,19 +39,19 @@ var media = (function() {
     }
   }
 
-  function play(elem) {
+  function play(m) {
     var playing = $(".playing");
     if (playing.length > 0) {
       playing.first().attr("class", "media");
     }
 
-    elem = $(elem);
-    var path = elem.attr("path");
-    var player = $("#player");
+    var media = $(m),
+        path = media.attr("path"),
+        player = $("#player");
 
-    $("#page-title").html(elem.html());
+    $("#page-title").html(media.html());
     $("#title-header").html('<h1 class="header">Now Playing:</h1>\n' +
-        '<div class="title"><span id="url-link" class="url-link" href="#">☃</span> ' + elem.html() + "</div>");
+        '<div class="title"><span id="url-link" class="url-link" href="#">☃</span> ' + media.html() + "</div>");
     $("#url-link").click(function(e) {
       window.console.log("toggling " + $("#url"));
       $("#url").html(document.location.origin + document.location.pathname +
@@ -61,8 +61,16 @@ var media = (function() {
       $("#url").toggle();
     });
 
-    elem.attr("class", "media playing");
+    media.attr("class", "media playing");
     player.attr("src", path);
+    if (!shouldShuffle()) {
+      var i = nextID();
+      if (i >= 0) {
+        player.attr("preload", $($("#media").children()[i]).attr("path"));
+      } else {
+        window.console.log("i was " + i)
+      }
+    }
     player[0].play();
   }
 
@@ -81,6 +89,18 @@ var media = (function() {
 
   function shouldShuffle() {
     return $("#shuf").prop('checked');
+  }
+
+  function nextID() {
+    var meds = $("#media").children(),
+        i = media.i + 1;
+    window.console.log("i: " + media.i + "  meds.length: " + meds.length);
+    if (meds.length > i) {
+      return i;
+    } else if (shouldLoop()) {
+      return 0;
+    }
+    return -1;
   }
 
   return {
@@ -163,14 +183,10 @@ var media = (function() {
         if (shouldShuffle()) {
           playRandomSong(meds);
         } else {
-          media.i += 1;
-          if (meds.length > media.i) {
-            play(meds[media.i]);
-          } else if (shouldLoop()) {
-            media.i = 0;
-            play(meds[0]);
-          } else {
-            media.i -= 1;
+          var i = nextID();
+          if (i != -1) {
+            media.i = i
+            play(meds[i])
           }
         }
       }
