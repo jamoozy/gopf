@@ -62,13 +62,16 @@ var media = (function() {
     });
 
     media.attr("class", "media playing");
-    player.attr("src", path);
+    player.prop("src", path);
     if (!shouldShuffle()) {
       var i = nextID();
       if (i >= 0) {
-        player.attr("preload", $($("#media").children()[i]).attr("path"));
+        var path = $($("#media").children()[i]).attr("path");
+        window.console.log("Trying path: " + path);
+        window.console.log("... which is media #i: " + i);
+        $("#preload").prop("href", path);
       } else {
-        window.console.log("i was " + i)
+        window.console.log("i was " + i);
       }
     }
     player[0].play();
@@ -148,12 +151,14 @@ var media = (function() {
 
     onclick : function(med) {
       var meds = $("#media").children();
+
       // Find media's place in the playlist
       for (media.i = 0; media.i < meds.size(); media.i++) {
         if (meds[media.i] === med) {
           break;
         }
       }
+
       // Set media to #selected?
       $("#selected").removeAttr('id');
       $(med).attr('id', 'selected');
