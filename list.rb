@@ -34,7 +34,7 @@ $playlist_dir = "#$data_dir/playlists";
 # Returns the HTML for the playlist list.
 def generate_playlists(playlist=false)
   fnames = Dir["#$playlist_dir/*"].reject do |fname|
-    raise "#{fname} DNE?" unless File.exists?(fname) # sanity check
+    raise "#{fname} DNE?" unless File.exist?(fname) # sanity check
     fname.start_with?('.') or File.executable?(fname) or fname[-1..-1] == "~"
   end.map do |fname|
     File.basename(fname)
@@ -102,9 +102,9 @@ if __FILE__ == $0
     end
   elsif cgi.params.has_key?('playlist')
     playlist = File.join($playlist_dir, cgi.params['playlist'][0])
-    if File.exists?("#{playlist}.json")
+    if File.exist?("#{playlist}.json")
       cgi.out("text/json") { File.readlines("#{playlist}.json").join }
-    elsif File.exists?(playlist)
+    elsif File.exist?(playlist)
       cgi.out("text/plain") { File.readlines(playlist).join }
     else
       cgi.out("text/json") { "{error:'No such file: \"#{playlist}\"'" }
