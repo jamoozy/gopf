@@ -32,11 +32,7 @@ var media = (function() {
 
   function get_ith_media(i) {
     var meds = $("#media").children();
-    if (meds.length > i) {
-      return meds[i];
-    } else {
-      return null;
-    }
+    return meds.length > i ?  meds[i] : null;
   }
 
   function play(m) {
@@ -67,23 +63,21 @@ var media = (function() {
       var i = nextID();
       if (i >= 0) {
         var path = $($("#media").children()[i]).attr("path");
-        window.console.log("Trying path: " + path);
-        window.console.log("... which is media #i: " + i);
         $("#preload").prop("href", path);
-      } else {
-        window.console.log("i was " + i);
       }
     }
     player[0].play();
   }
 
   function playRandomSong(meds) {
-    if (!!meds && meds.length > 0) {
-      var j = media.i;
-      while ((j = Math.floor(Math.random() * meds.length)) == media.i);
-      media.i = j;
-      play(meds[media.i]);
+    if (!meds || meds.length <= 0) {
+      return;
     }
+
+    var j = media.i;
+    while ((j = Math.floor(Math.random() * meds.length)) == media.i);
+    media.i = j;
+    play(meds[media.i]);
   }
 
   function shouldLoop() {
@@ -97,13 +91,10 @@ var media = (function() {
   function nextID() {
     var meds = $("#media").children(),
         i = media.i + 1;
-    window.console.log("i: " + media.i + "  meds.length: " + meds.length);
     if (meds.length > i) {
       return i;
-    } else if (shouldLoop()) {
-      return 0;
     }
-    return -1;
+    return shouldLoop() ? 0 : -1;
   }
 
   return {
@@ -115,7 +106,6 @@ var media = (function() {
         media.onplay(player);
       });
       player.on("ended", media.onended);
-      player.on("timeupdate", media.onprogress);
 
       $("#prev").click(media.prev);
       $("#next").click(media.next);
@@ -132,21 +122,24 @@ var media = (function() {
 
       // Check for a get request that requests we play something right away.
       var playing = $('.playing');
-      if (playing.size() > 0) {
-        media.i = $(".media").index(playing) - 1;
-        play(playing[0]);
-
-        // TODO something with parsing t=\d+ from URL and setting seconds
-        var match = /\Wt=(\d+)/.exec(document.location.href);
-        if (match) {
-          var quickplay = function() {
-            this.currentTime = parseInt(match[1]);
-            $(this).off('playing', null, quickplay);
-            this.play();
-          }
-          $("#player").on('playing', quickplay);
-        }
+      if (playing.size() <= 0) {
+        return;
       }
+
+      media.i = $(".media").index(playing) - 1;
+      play(playing[0]);
+
+      var match = /\Wt=(\d+)/.exec(document.location.href);
+      if (!match) {
+        return;
+      }
+
+      var quickplay = function() {
+        this.currentTime = parseInt(match[1]);
+        $(this).off('playing', null, quickplay);
+        this.play();
+      }
+      $("#player").on('playing', quickplay);
     },
 
     onclick : function(med) {
@@ -177,23 +170,24 @@ var media = (function() {
     },
 
     load : function(med) {
-      // TODO make sure it's the right type of object.
-      var player = $("#player");
-      player.setAttribute("src", med.getAttribute("path"));
+      $("#player").setAttribute("src", med.getAttribute("path"));
     },
 
     next : function(e) {
       var meds = $("#media").children();
-      if (meds.length > 0) {
-        if (shouldShuffle()) {
-          playRandomSong(meds);
-        } else {
-          var i = nextID();
-          if (i != -1) {
-            media.i = i
-            play(meds[i])
-          }
-        }
+      if (meds.length <= 0) {
+        return;
+      }
+
+      if (shouldShuffle()) {
+        playRandomSong(meds);
+        return;
+      }
+
+      var i = nextID();
+      if (i != -1) {
+        media.i = i
+        play(meds[i])
       }
     },
 
@@ -201,18 +195,15 @@ var media = (function() {
       var meds = $("#media").children();
       if (shouldShuffle()) {
         playRandomSong(meds);
-      } else {
-        if (media.i > 0) {
-          media.i -= 1;
-        } else if (shouldLoop()) {
-          media.i = meds.length - 1;  // loop 'round
-        }
-        play(meds[media.i]);
+        return;
       }
-    },
 
-    onprogress : function(e) {
-                   //inspect(e);
+      if (media.i > 0) {
+        media.i -= 1;
+      } else if (shouldLoop()) {
+        media.i = meds.length - 1;  // loop 'round
+      }
+      play(meds[media.i]);
     },
 
     onplay : function(player) {
