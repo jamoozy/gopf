@@ -16,9 +16,9 @@
 // along with GOPF. If not, see http://www.gnu.org/licenses/.
 
 var playlist = (function() {
-  var dir = "data/";
-  var req = new XMLHttpRequest();
-  var callback = false;
+  var dir = "data/",
+      req = new XMLHttpRequest(),
+      callback = false;
 
   function notify(str) {
     $("#notification").html(str);
@@ -29,7 +29,7 @@ var playlist = (function() {
     window.console.log("reqPlaylist("+elem+")");
     var html = elem.html();
     html.replace(/^\s+|\s+$/g,"");
-    var url = document.location.pathname + "list.rb?playlist=" + html;
+    var url = document.location.pathname + "list?playlist=" + html;
     req.open("GET", url, true);
     req.send();
   }

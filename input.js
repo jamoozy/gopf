@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2015 Andrew "Jamoozy" Sabisch
+// Copyright (C) 2011-2019 Andrew "Jamoozy" C. Sabisch
 //
 // This file is part of GOPF.
 //
@@ -323,7 +323,7 @@ var input = (function() {
 
   function toggleHelpDialog() {
     var hd = $("#help-dialog");
-    if (hd.css("visibility") === "hidden") {
+    if (hd.css("display") === "none") {
       hd.show();
     } else {
       hd.hide();
@@ -348,7 +348,6 @@ var input = (function() {
 
   // Selects the given element.
   function select(idx) {
-    window.console.log("select("+idx+")");
     var sel = $("#selected").removeAttr("id");
     $(getElems().get(idx)).attr("id", "selected");
   }
@@ -383,10 +382,7 @@ var input = (function() {
 
   // Selects the next element in the list.
   function move(inc) {
-    window.console.log("move("+inc+")");
-
     if (inc === 0) {
-      window.console.log("Warning: inc'd 0");
       return;
     }
 
@@ -399,14 +395,13 @@ var input = (function() {
       val = 0;
     }
 
-    window.console.log("val:"+val);
     select(val);
     ensureSelectedVisible(val);
   }
 
   // Key handler.
   function onkey(e) {
-    var b = bindings()
+    var b = bindings();
     if (e.keyCode in b && b[e.keyCode].func(e)) {
       e.preventDefault();
     }

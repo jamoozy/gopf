@@ -1,43 +1,27 @@
-<%
-# Copyright (C) 2011-2017 Andrew "Jamoozy" Sabisch
-#
-# This file is part of GOPF.
-#
-# GOPF is free software: you can redistribute it and/or modify it under the
-# terms of the GNU Affero General Public as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
-#
-# GOPF is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with GOPF. If not, see http://www.gnu.org/licenses/.
+{{- /*
+Copyright (C) 2011-2019 Andrew "Jamoozy" C. Sabisch
 
-require './list'
+This file is part of GOPF.
 
-# Parse simple URL params to determine how to generate this page.
-playlist = false;
-media = false;
-if $cgi.params.has_key?('p')
-  playlist = CGI.unescape($cgi.params['p'][0])
-  if $cgi.params.has_key?('m')
-    media = CGI.unescape($cgi.params['m'][0])
+GOPF is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
 
-    # TODO implement t=??? param.
-  end
-end
-%>
+GOPF is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+details.
 
-<%$title='GOPF'%>
+You should have received a copy of the GNU Affero General Public License
+along with GOPF. If not, see http://www.gnu.org/licenses/.
+*/ -}}
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title id="page-title"><%=$title%></title>
+    <title id="page-title">{{ .Title }}</title>
     <script src="jquery-1.11.0.min.js" type="text/javascript"></script>
     <!--script src="loc.js" type="text/javascript"></script-->
     <script src="media.js" type="text/javascript"></script>
@@ -84,14 +68,14 @@ end
     <nav id="navigator">
       <div id="playlist-container" class="playlist-container">
         <ul id="playlists" class="playlists">
-          <%= generate_playlists(playlist) %>
+          {{ template "Playlists" .PlaylistItems }}
         </ul>
         <h1 id="playlist-header" class="header">Playlists</h1>
       </div>
 
       <div id="media-container" class="media-container">
         <ul id="media" class="media">
-          <%= generate_media(playlist, media) if playlist %>
+          {{ template "Media" .MediaItems }}
         </ul>
         <h1 id="media-header" class="header">Songs</h1>
       </div>
@@ -111,3 +95,21 @@ end
     </footer>
   </body>
 </html>
+
+{{- define "Playlists" }}
+  {{- $playlist := .Playlist -}}
+  {{- range $i, $fname := .Fnames -}}
+    <li class="unselected{{ if eq $playlist $fname }} selected" id="selected{{ end }}">{{$fname}}</li>
+  {{- end }}
+{{- end }}
+
+{{- define "Media" }}
+  {{- $media := .Media }}
+  {{- range .Entries -}}
+    <li
+      class="media{{ if eq .Name $media }} playing{{ end }}"
+      path="{{.WebPath}}"
+      onclick="media.onclick(this)"
+    >{{ .Name }}</li>
+  {{- end }}
+{{- end }}

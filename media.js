@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2015 Andrew "Jamoozy" Sabisch
+// Copyright (C) 2011-2019 Andrew "Jamoozy" C. Sabisch
 //
 // This file is part of GOPF.
 //
@@ -47,7 +47,7 @@ var media = (function() {
 
     $("#page-title").html(media.html());
     $("#title-header").html('<h1 class="header">Now Playing:</h1>\n' +
-        '<div class="title"><span id="url-link" class="url-link" href="#">☃</span> ' + media.html() + "</div>");
+      '<div class="title"><span id="url-link" class="url-link" href="#">☃</span> ' + media.html() + "</div>");
     $("#url-link").click(function(e) {
       window.console.log("toggling " + $("#url"));
       $("#url").html(document.location.origin + document.location.pathname +
