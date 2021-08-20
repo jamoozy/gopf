@@ -26,7 +26,7 @@ var playlist = (function() {
 
   // Requests the contents of the playlist from the server.
   function reqPlaylist(elem) {
-    window.console.log("reqPlaylist("+elem+")");
+    window.console.log("reqPlaylist(", elem, ")");
     var html = elem.html();
     html.replace(/^\s+|\s+$/g,"");
     var url = document.location.pathname + "list?playlist=" + html;
@@ -125,6 +125,11 @@ var playlist = (function() {
     //              swapped after it is loaded.
     //          cb: (optional) Callback after the list is loaded.
     onclick : function(elem, swapAfter, cb) {
+      console.dir('elem is:', elem);
+      if (!!elem.target) {
+        console.log('elem has a target');
+        elem = elem.target;
+      }
       elem = $(elem);
       if (elem.attr("class") === "selected") {
         return;

@@ -95,7 +95,7 @@ var input = (function() {
         use: 'Select highlighted playlist/media.',
         func: function(e) {
           var sel = $("#selected");
-          if (sel !== null && sel !== undefined) {
+          if (!!sel) {
             if (viewMedia) {
               $(media).trigger('click', sel);
             } else {

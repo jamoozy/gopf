@@ -2,16 +2,19 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
-	"html/template"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
+	"text/template"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,6 +45,19 @@ type IndexData struct {
 func main() {
 	log.SetFlags(log.Lshortfile)
 
+	var (
+		prefix = flag.String("uri-prefix", os.Getenv("GOPF_URI_PREFIX"), "Set absolute URI prefix.")
+		port   = flag.Int("port", 8000, "Port to listen on.")
+	)
+	flag.Parse()
+
+	makeURI := func(uri string) string {
+		if *prefix == "" {
+			return uri
+		}
+		return path.Join(*prefix, uri)
+	}
+
 	index, err := template.ParseFiles("index.tmpl.html")
 	if err != nil {
 		log.Fatalf("Parse index.tmpl.html: %v", err)
@@ -53,7 +69,7 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/", func(c *gin.Context) {
+	r.GET(makeURI("/"), func(c *gin.Context) {
 		var (
 			playlist = c.Query("p")
 			media    = c.Query("m")
@@ -79,7 +95,7 @@ func main() {
 		c.Data(http.StatusOK, "text/html", buf.Bytes())
 	})
 
-	r.GET("/list", func(c *gin.Context) {
+	r.GET(makeURI("list"), func(c *gin.Context) {
 		if op := c.Query("op"); op != "" {
 			switch op {
 			case "ls":
@@ -136,6 +152,7 @@ func main() {
 
 	r.NoRoute(func(c *gin.Context) {
 		fname := filepath.Join(".", c.Request.URL.Path)
+		log.Printf("Attempting read of %q", fname)
 		f, err := os.Open(fname)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -156,7 +173,7 @@ func main() {
 		c.DataFromReader(http.StatusOK, -1, ct, f, nil)
 	})
 
-	r.Run(":8000")
+	log.Println(r.Run(":" + strconv.Itoa(*port)))
 }
 
 // PlaylistData is used by the playlistItems template.
