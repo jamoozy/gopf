@@ -19,21 +19,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	dataDir     = "data"
-	playlistDir = "data/playlists"
-)
-
 var (
 	playlistItems *template.Template
 	mediaItems    *template.Template
 
+	dataDirs     []string
+	playlistDirs []string
+
 	webPathRE = regexp.MustCompile(`\.\.`)
 )
-
-func convertToWebPath(input string) (output string) {
-	return webPathRE.ReplaceAllString(input, dataDir)
-}
 
 // IndexData is the data that index.tmpl.html takes.
 type IndexData struct {
@@ -46,10 +40,17 @@ func main() {
 	log.SetFlags(log.Lshortfile)
 
 	var (
+		dirs   = flag.String("data-dirs", "audio,video", "Comma-separated set of data directories.")
 		prefix = flag.String("uri-prefix", os.Getenv("GOPF_URI_PREFIX"), "Set absolute URI prefix.")
 		port   = flag.Int("port", 8000, "Port to listen on.")
 	)
 	flag.Parse()
+
+	dataDirs = strings.Split(*dirs, ",")
+	for i, dd := range dataDirs {
+		dataDirs[i] = strings.TrimSpace(dd)
+		playlistDirs = append(playlistDirs, filepath.Join(dataDirs[i], "playlists"))
+	}
 
 	makeURI := func(uri string) string {
 		if *prefix == "" {
@@ -116,44 +117,56 @@ func main() {
 			default:
 				c.AbortWithError(http.StatusBadRequest, fmt.Errorf("op: %s", op))
 			}
-		} else if playlist := c.Query("playlist"); playlist != "" {
-			playlist = filepath.Join(playlistDir, playlist)
-			if f, err := os.Open(playlist + ".json"); err == nil {
-				defer f.Close()
+		}
 
-				c.Writer.Header().Add("Content-Type", "application/json")
-				if _, err = io.Copy(c.Writer, f); err != nil {
-					c.AbortWithError(http.StatusInternalServerError, err)
-				}
-			} else if err != nil && !os.IsNotExist(err) {
-				c.AbortWithError(http.StatusInternalServerError, err)
-			} else if f, err := os.Open(playlist); err != nil {
-				c.AbortWithError(http.StatusInternalServerError, err)
-				if os.IsNotExist(err) {
-					c.AbortWithError(http.StatusNotFound, fmt.Errorf("no such playlist: %v", playlist))
-				} else {
-					c.AbortWithError(http.StatusInternalServerError, err)
-				}
-				return
-			} else {
-				defer f.Close()
-
-				c.Writer.Header().Add("Content-Type", "text/plain")
-				if _, err := io.Copy(c.Writer, f); err != nil {
-					c.AbortWithError(http.StatusInternalServerError, err)
-				}
-			}
-		} else {
+		playlist := c.Query("playlist")
+		if playlist == "" {
 			c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"error": "Missing query param.",
 			})
+			return
+		}
+
+		var (
+			b  []byte
+			i  int
+			pd string
+		)
+		for i, pd = range playlistDirs {
+			if b, err = ioutil.ReadFile(filepath.Join(pd, playlist)); err != nil && !os.IsNotExist(err) {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			} else if err == nil {
+				break
+			}
+		}
+
+		if err != nil {
+			if os.IsNotExist(err) {
+				c.AbortWithStatus(http.StatusNotFound)
+			} else {
+				c.AbortWithError(http.StatusInternalServerError, err)
+			}
+			return
+		}
+
+		c.Writer.Header().Add("Content-Type", "application/json")
+
+		b = webPathRE.ReplaceAll(b, []byte(dataDirs[i]))
+
+		c.Writer.Header().Add("Content-Type", "text/plain")
+		if _, err := io.Copy(c.Writer, bytes.NewBuffer(b)); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
 		}
 	})
 
+	// Routes static files. (superfluous if behind properly configured reverse proxy)
 	r.NoRoute(func(c *gin.Context) {
-		fname := filepath.Join(".", c.Request.URL.Path)
-		log.Printf("Attempting read of %q", fname)
-		f, err := os.Open(fname)
+		// TODO finish validity check.
+		//path := c.Request.URL.Path
+		//if !strings.HasPrefix(path, "audio") && !strings.HasPrefix(path, "video") {}
+
+		f, err := os.Open(filepath.Join(".", c.Request.URL.Path))
 		if err != nil {
 			if os.IsNotExist(err) {
 				c.AbortWithError(http.StatusNotFound, err)
@@ -187,17 +200,20 @@ func buildPlaylistData(playlist string) (p *PlaylistData, err error) {
 		Playlist: playlist,
 		Fnames:   make([]string, 0, 20),
 	}
-	err = filepath.Walk(playlistDir, filepath.WalkFunc(func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		} else if info.Name()[0] == '.' || info.Mode()&0111 != 0 || info.Name()[len(info.Name())-1] == '~' {
-			return nil
-		}
+	for _, pd := range playlistDirs {
+		err = filepath.Walk(pd, filepath.WalkFunc(func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			} else if info.Name()[0] == '.' || info.Mode()&0o111 != 0 || info.Name()[len(info.Name())-1] == '~' {
+				return nil
+			}
 
-		p.Fnames = append(p.Fnames, filepath.Base(info.Name()))
-		return nil
-	}))
+			p.Fnames = append(p.Fnames, filepath.Base(info.Name()))
+			return nil
+		}))
+	}
 	return
+
 }
 
 // Generates playlist from playlist files.  Playlist files are simple text files with each line
@@ -237,7 +253,16 @@ func buildMediaData(playlist, media string) (m *MediaData, err error) {
 		Media: media,
 	}
 
-	b, err := ioutil.ReadFile(filepath.Join(playlistDir, playlist))
+	var (
+		b  []byte
+		i  int // only useful because playlistDirs and dataDirs are aligned.
+		pd string
+	)
+	for i, pd = range playlistDirs {
+		if b, err = ioutil.ReadFile(filepath.Join(pd, playlist)); err == nil {
+			break
+		}
+	}
 	if err != nil {
 		return m, fmt.Errorf("reading file %q: %v", playlist, err)
 	}
@@ -250,7 +275,7 @@ func buildMediaData(playlist, media string) (m *MediaData, err error) {
 
 		m.Entries = append(m.Entries, MediaEntry{
 			Name:    filepath.Base(fname),
-			WebPath: convertToWebPath(fname),
+			WebPath: webPathRE.ReplaceAllString(fname, dataDirs[i]),
 		})
 	}
 

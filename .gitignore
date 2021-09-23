@@ -1,6 +1,5 @@
-*~
-*.swp
-*.swo
-*.log
-data
 Makefile
+
+/audio
+/video
+/data

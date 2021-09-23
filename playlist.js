@@ -16,9 +16,8 @@
 // along with GOPF. If not, see http://www.gnu.org/licenses/.
 
 var playlist = (function() {
-  var dir = "data/",
-      req = new XMLHttpRequest(),
-      callback = false;
+  var req = new XMLHttpRequest(),
+      reqCB = false;
 
   function notify(str) {
     $("#notification").html(str);
@@ -35,7 +34,7 @@ var playlist = (function() {
   }
 
   function loadPlaylist(req) {
-    var path = req.responseText.replace(/\.\.\//g, dir).split("\n");
+    var path = req.responseText.split("\n");
     var queue = $("#media");
     var mediaTag, i;
 
@@ -95,15 +94,15 @@ var playlist = (function() {
         notify("Not sure what happened ... (default) ... error?");
     }
 
-    if (callback) {
-      callback(req);
+    if (reqCB) {
+      reqCB(req);
     }
   };
 
   // Sets the callback after the list is loaded.
   function setCallback(cb) {
     console.log("set cb");
-    callback = cb;
+    reqCB = cb;
   };
 
   return {
