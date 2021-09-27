@@ -26,7 +26,7 @@ var (
 	dataDirs     []string
 	playlistDirs []string
 
-	webPathRE = regexp.MustCompile(`\.\.`)
+	webPathRE = regexp.MustCompile(`^\.\.`)
 )
 
 // IndexData is the data that index.tmpl.html takes.
