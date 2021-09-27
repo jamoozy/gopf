@@ -26,7 +26,7 @@ var (
 	dataDirs     []string
 	playlistDirs []string
 
-	webPathRE = regexp.MustCompile(`^\.\.`)
+	webPathRE = regexp.MustCompile(`\.\./`)
 )
 
 // IndexData is the data that index.tmpl.html takes.
@@ -152,7 +152,7 @@ func main() {
 
 		c.Writer.Header().Add("Content-Type", "application/json")
 
-		b = webPathRE.ReplaceAll(b, []byte(dataDirs[i]))
+		b = webPathRE.ReplaceAll(b, []byte(dataDirs[i]+"/"))
 
 		c.Writer.Header().Add("Content-Type", "text/plain")
 		if _, err := io.Copy(c.Writer, bytes.NewBuffer(b)); err != nil {
