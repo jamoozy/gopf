@@ -1,1 +1,6 @@
 /static
+
+/docker/static
+/docker/index.tmpl.html
+/docker/*.js
+/docker/*.css
