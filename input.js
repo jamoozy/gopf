@@ -193,6 +193,7 @@ var input = (function() {
         key: 'Spbar',
         use: 'Pause / unpause',
         func: function(e) {
+          player.blur();
           if (player[0].paused) {
             player[0].play();
           } else {
